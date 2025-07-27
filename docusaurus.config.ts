@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Texter docs',
-  tagline: 'Dinosaurs are cool',
+  tagline: 'Ninjas are cool',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -77,7 +77,7 @@ const config: Config = {
       title: 'Texter docs',
       logo: {
         alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        src: 'img/texter_logo.png',
       },
       items: [
         {

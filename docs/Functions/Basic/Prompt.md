@@ -36,6 +36,7 @@ ___
 - `on_complete` next function to do after complete (can be either a node or a function).
 
 ### optional params
+- `interactive` for prompt type: choice, to create either a list or buttons
 - `delay_on_complete` number of seconds to delay
 
 ___
@@ -86,9 +87,13 @@ ask_age_range:
     - "in what city do you live?"
   choices:
     - title: "Jerusalem"
+      on_select: jerusalem_menu
     - title: "Tel-Aviv"
+      on_select: tel_aviv_menu
     - title: "Ramat-Gan"
+      on_select: ramat_gan_menu
     - title: "other"
+      on_select: main_menu
   on_complete: summerize_answers
 ```
 
