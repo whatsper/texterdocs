@@ -13,7 +13,7 @@ ___
 ```
 
 ### required params
--  `type` type of the node
+- `type` type of the node
 - `messages` list of messages to send in a single message block
 - `on_complete` next function to do after complete (can be either a node or a function)
 

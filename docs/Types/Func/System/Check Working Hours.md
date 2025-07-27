@@ -12,7 +12,7 @@ ___
   on_complete: <on working time node>
   on_failure: <outside working time node>
 ```
-### must include:
+#### must include:
 ```
 working_time:
   <start day>-<end day>: <start time>-<end time>
@@ -27,6 +27,7 @@ working_time:
 
 ### optional params
 - `params`: can inclue working time by names (params will include sub parameter "type")
+  - `type` sub parameter will choos name
 ___
 ## 2. Example
 ```
