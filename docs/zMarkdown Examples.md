@@ -31,3 +31,9 @@ use ::: at the start & at the end of a tip and add "tip" to the start to create 
 This is a danger message to all users
 :::
 use ::: at the start & at the end of a warning and add "danger" to the start to create warning
+
+Table
+|Name|Type|Info|
+|----|----|----|
+|Gil|Admin|Owner of texter|
+|Gal|Developer|Developer at texter|
