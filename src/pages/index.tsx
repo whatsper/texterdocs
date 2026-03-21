@@ -20,8 +20,14 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="/docs/intro">
-            Intro
+            to="/docs/YAML/Overview">
+            Get Started
+          </Link>
+          <Link
+            className="button button--outline button--lg"
+            style={{marginLeft: '1rem', color: 'white', borderColor: 'white'}}
+            href="https://apidocs.texterchat.com">
+            API Docs
           </Link>
         </div>
       </div>
@@ -33,8 +39,8 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title="Texter Bot Documentation"
+      description="Documentation for building WhatsApp chatbots with Texter YAML syntax">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

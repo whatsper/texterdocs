@@ -8,6 +8,9 @@
 .docusaurus
 .cache-loader
 
+# Local / private context (not committed — keep sensitive YAML, exports, code snapshots here)
+_context/
+
 # Misc
 .DS_Store
 .env.local
