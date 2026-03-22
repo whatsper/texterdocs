@@ -2,40 +2,54 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
-
 const config: Config = {
-  title: 'Texter docs',
-  tagline: 'Ninjas are cool',
-  favicon: 'img/favicon.ico',
+  title: 'Texter Docs',
+  tagline: 'Build powerful WhatsApp chatbots with YAML',
+  favicon: 'img/favicon.svg',
 
-  // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
-    v4: true, // Improve compatibility with the upcoming Docusaurus v4
+    v4: true,
   },
 
-  // Set the production url of your site here
   url: 'https://whatsper.github.io',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/texterdocs/',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'whatsper', // Usually your GitHub org/user name.
-  projectName: 'texterdocs', // Usually your repo name.
+  organizationName: 'whatsper',
+  projectName: 'texterdocs',
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
   },
+
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            from: '/docs/YAML/Types/Func/System/Split',
+            to: '/docs/YAML/Types/Func/System/Bot State Split',
+          },
+        ],
+      },
+    ],
+  ],
+
+  themes: [
+    [
+      '@easyops-cn/docusaurus-search-local',
+      {
+        hashed: true,
+        indexBlog: false,
+        docsRouteBasePath: '/docs',
+      },
+    ],
+  ],
 
   presets: [
     [
@@ -43,10 +57,9 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          editUrl: 'https://github.com/whatsper/texterdocs/edit/main/',
+          showLastUpdateTime: true,
+          showLastUpdateAuthor: true
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -56,12 +69,17 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
+    docs: {
+      sidebar: {
+        hideable: true,
+        autoCollapseCategories: true,
+      },
+    },
     navbar: {
-      title: 'Texter docs',
+      title: 'Texter Docs',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'Texter Logo',
         src: 'img/texter_logo.png',
       },
       items: [
@@ -72,8 +90,13 @@ const config: Config = {
           label: 'Documentation',
         },
         {
-          href: 'https://github.com/facebook/docusaurus',
-          label: 'GitHub',
+          href: 'https://apidocs.texterchat.com',
+          label: 'API Docs',
+          position: 'left',
+        },
+        {
+          href: 'https://www.texterchat.com',
+          label: 'Texter Home',
           position: 'right',
         },
       ],
@@ -82,37 +105,42 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Documentation',
           items: [
             {
-              label: 'Tutorial',
+              label: 'Getting Started',
               to: '/docs/intro',
+            },
+            {
+              label: 'YAML Overview',
+              to: '/docs/YAML/Overview',
+            },
+            {
+              label: 'Bot Configuration',
+              to: '/docs/YAML/Bot Configuration',
             },
           ],
         },
         {
-          title: 'Community',
+          title: 'Texter',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'Texter Home',
+              href: 'https://www.texterchat.com',
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/docusaurus',
+              label: 'API Documentation',
+              href: 'https://apidocs.texterchat.com',
             },
           ],
-        }
+        },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright \u00A9 ${new Date().getFullYear()} Texter. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      darkTheme: prismThemes.vsDark,
+      additionalLanguages: ['yaml'],
     },
   } satisfies Preset.ThemeConfig,
 };
