@@ -10,18 +10,17 @@ Most CRMs and platforms already have built-in adapter functions (`func_type: crm
 |----------|----------|
 | **Texter** | [apidocs.texterchat.com](https://apidocs.texterchat.com) |
 | **Airtable** | [airtable.com/developers/web/api](https://airtable.com/developers/web/api/introduction) |
-| **Arbox** | [arboxapp.com](https://www.arboxapp.com/) |
+| **Arbox** | [arboxserver.arboxapp.com/docs/api](https://arboxserver.arboxapp.com/docs/api#/) |
 | **Google Sheets** | [developers.google.com/sheets/api](https://developers.google.com/sheets/api/reference/rest) |
 | **HubSpot** | [developers.hubspot.com/docs/api](https://developers.hubspot.com/docs/api/overview) |
+| **Manavate** | [manavate.com/developers](https://www.manavate.com/developers) |
 | **Monday.com** | [developer.monday.com/api-reference](https://developer.monday.com/api-reference/reference) |
-| **Novidea** | [novidea.com](https://www.novidea.com/) |
-| **Origami** | Contact vendor for API docs |
-| **Orbit** | Contact vendor for API docs |
-| **Powerlink (Fireberry)** | [developers.fireberry.com](https://developers.fireberry.com/) |
-| **Priority (Avivi)** | [priority-software.com/developers](https://www.priority-software.com/developers/) |
-| **Provet** | [provetcloud.com](https://www.provetcloud.com/) |
-| **Rapid (RapidOne)** | [rapidone.atlassian.net](https://rapidone.atlassian.net/wiki/external/YjZjMmE0NDgyODU2NDFmNTlhOTRhNGYyMTk0OGVjYjI) |
-| **Salesforce** | [developer.salesforce.com](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest.htm) |
+| **Novidea (Salesforce SOQL)** | [Salesforce SOQL & SOSL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_sosl_intro.htm) |
+| **Origami** | [Origami API documentation](https://documenter.getpostman.com/view/2653695/2s93kz65gS#intro) |
+| **Plando** | [Get customer details (extended search)](https://docs.google.com/document/d/1141_JhZJkNQj6DRYBbH7nqgjSgFDv_rkVeursC-5jy0/edit?pli=1&tab=t.0) / [Lead creation](https://docs.google.com/document/d/1BvAIX-QkOy25tCDvHyZ2Y7c7z0H_63Lr/edit?usp=sharing&ouid=112394429799186567859&rtpof=true&sd=true) |
+| **Powerlink** | [github.com/powerlink/Rest-API](https://github.com/powerlink/Rest-API) |
+| **Provet** | [developers.provetcloud.com/restapi](https://developers.provetcloud.com/restapi/0.1/) |
+| **Rapid** | [rapidone.atlassian.net](https://rapidone.atlassian.net/wiki/external/MDUwMDgyMzQ0ZTYwNDRjOWEwYmMwNTE1ZGVlMmQ2OTY) |
+| **Senzey** | [senzey.com/contacts-api](https://senzey.com/contacts-api) |
 | **Shopify** | [shopify.dev/docs/api](https://shopify.dev/docs/api/admin-rest) |
-| **WooCommerce** | [woocommerce.github.io](https://woocommerce.github.io/woocommerce-rest-api-docs/) |
-| **Zoho CRM** | [zoho.com/crm/developer](https://www.zoho.com/crm/developer/) |
+| **Zoho CRM** | [zoho.com/crm/developer/docs/api/v7](https://www.zoho.com/crm/developer/docs/api/v7/) |
