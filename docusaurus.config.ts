@@ -69,7 +69,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/texter-social-card.png',
     docs: {
       sidebar: {
         hideable: true,

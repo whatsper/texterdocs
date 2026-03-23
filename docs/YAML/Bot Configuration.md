@@ -17,7 +17,7 @@ identifier: whatsper-bot
 ```
 
 :::tip
-To use a specific bot version when chatting with the bot use the command: `/use whatsper-bot 10`
+To use a specific bot version when chatting with the bot use the command: `/use <identifier> <version-number>` e.g. **/use whatsper-bot 10**
 :::
 
 ___
