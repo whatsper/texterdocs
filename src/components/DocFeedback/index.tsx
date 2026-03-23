@@ -117,7 +117,8 @@ export default function DocFeedback(): ReactNode {
   /** Enter/leave: slide + fade (see styles .panelOpen / .backdropOpen). */
   const [layerOpen, setLayerOpen] = useState(false);
   const closeRequestedRef = useRef(false);
-  const [category, setCategory] = useState<string>(CATEGORIES[0].value);
+  const prevLayerMountedRef = useRef(false);
+  const [category, setCategory] = useState<string>('');
   const [scope, setScope] = useState<Scope>('page');
   const [pageUrl, setPageUrl] = useState('');
   const [pageTitle, setPageTitle] = useState('');
@@ -193,6 +194,14 @@ export default function DocFeedback(): ReactNode {
       setError(null);
     }
   }, [layerMounted, refreshPageContext]);
+
+  useEffect(() => {
+    if (layerMounted && !prevLayerMountedRef.current) {
+      setCategory('');
+      setMessage('');
+    }
+    prevLayerMountedRef.current = layerMounted;
+  }, [layerMounted]);
 
   useEffect(() => {
     if (!layerMounted || scope !== 'page') {
@@ -307,6 +316,10 @@ export default function DocFeedback(): ReactNode {
     if (!webhookUrl || honeypot) {
       return;
     }
+    if (!category) {
+      setError('נא לבחור קטגוריה.');
+      return;
+    }
     const trimmed = message.trim();
     if (!trimmed) {
       setError('נא להזין הודעה.');
@@ -341,6 +354,7 @@ export default function DocFeedback(): ReactNode {
         throw new Error(`HTTP ${res.status}`);
       }
       setSuccess(true);
+      setCategory('');
       setMessage('');
       setSubmitterName('');
       setContact('');
@@ -352,9 +366,9 @@ export default function DocFeedback(): ReactNode {
     }
   };
 
-  if (!webhookUrl) {
-    return null;
-  }
+  const hasWebhook = Boolean(webhookUrl);
+  const canSend =
+    hasWebhook && category !== '' && message.trim().length > 0;
 
   return (
     <>
@@ -390,6 +404,12 @@ export default function DocFeedback(): ReactNode {
                   לדיוק במיקום בדף, השתמשו בסולמית ליד הכותרת (#) כדי לכלול את
                   המקטע בכתובת.
                 </small>
+                {!hasWebhook ? (
+                  <p className={styles.configNotice}>
+                    שליחת משוב אינה זמינה בסביבה זו (חסרה כתובת שרת). בהרצה
+                    מקומית הגדירו את משתנה הסביבה FEEDBACK_WEBHOOK_URL.
+                  </p>
+                ) : null}
               </div>
               <button
                 type="button"
@@ -418,6 +438,9 @@ export default function DocFeedback(): ReactNode {
                   className={styles.select}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}>
+                  <option value="" disabled>
+                    בחרו קטגוריה
+                  </option>
                   {CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>
                       {c.label}
@@ -560,7 +583,7 @@ export default function DocFeedback(): ReactNode {
                 <button
                   type="submit"
                   className={styles.submitBtn}
-                  disabled={submitting}>
+                  disabled={submitting || !canSend}>
                   {submitting ? 'שולח...' : 'שליחת משוב'}
                 </button>
               </div>

@@ -90,18 +90,13 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Documentation',
+          label: 'Bot Documentation',
         },
         {
           href: 'https://apidocs.texterchat.com',
           label: 'API Docs',
-          position: 'left',
-        },
-        {
-          href: 'https://www.texterchat.com',
-          label: 'Texter Home',
           position: 'right',
-        },
+        }
       ],
     },
     footer: {

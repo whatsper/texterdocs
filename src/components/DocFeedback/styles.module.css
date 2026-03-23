@@ -3,7 +3,7 @@
   position: fixed;
   right: 1.25rem;
   left: auto;
-  bottom: 5.75rem;
+  bottom: 5rem;
   z-index: 350;
   display: flex;
   align-items: center;
@@ -26,6 +26,20 @@
 .fab:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: 2px;
+}
+
+.configNotice {
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ifm-color-content-secondary);
+  background: var(--ifm-color-emphasis-100);
+}
+
+[data-theme='dark'] .configNotice {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Full-screen hit target: click outside the panel to close. */
