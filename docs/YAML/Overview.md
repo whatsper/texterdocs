@@ -97,7 +97,7 @@ The value of each routing field is the **name of another node** in the same YAML
 | `resolved` | Marks the chat as resolved/closed |
 
 :::danger
-You can't use the built-in acions as the value of an `on_failure` field - you must route to another node.
+You can't use the built-in actions as the value of an `on_failure` field - you must route to another node.
 
 If you must, use a **[noop func node](./Types/Func/System/Noop)** with `on_complete: resolved` field.
 :::
