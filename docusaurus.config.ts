@@ -7,6 +7,10 @@ const config: Config = {
   tagline: 'Build powerful WhatsApp chatbots with YAML',
   favicon: 'img/favicon.svg',
 
+  customFields: {
+    feedbackWebhookUrl: process.env.FEEDBACK_WEBHOOK_URL ?? '',
+  },
+
   future: {
     v4: true,
   },
@@ -57,9 +61,8 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/whatsper/texterdocs/edit/main/',
           showLastUpdateTime: true,
-          showLastUpdateAuthor: true
+          showLastUpdateAuthor: false,
         },
         theme: {
           customCss: './src/css/custom.css',
