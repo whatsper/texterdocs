@@ -12,4 +12,4 @@ npm start          # dev
 npm run build      # output in build/
 ```
 
-Deploy: GitHub Actions workflow pushes `build/` to `gh-pages`. Optional repo secret **`FEEDBACK_WEBHOOK_URL`** bakes the feedback widget webhook into the production build; leave unset to hide the widget locally.
+Deploy: GitHub Actions workflow pushes `build/` to `gh-pages`.
