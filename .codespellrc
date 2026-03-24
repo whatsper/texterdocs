@@ -1,0 +1,4 @@
+[codespell]
+# SVGs are binary-ish; skip. `ist` is the documented timezone shorthand for Israel (not "is it").
+skip = *.svg
+ignore-words-list = ist

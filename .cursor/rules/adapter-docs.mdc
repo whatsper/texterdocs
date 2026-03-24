@@ -1,9 +1,0 @@
----
-description: CRM adapter pages under docs/YAML/Adapters
-globs: docs/YAML/Adapters/**/*.md
----
-
-# Adapter documentation
-
-- Do **not** add a **CRM connection & config** section (or equivalent: tenant env setup, CRM UI field tables for `server` / tokens / OAuth). Document operations only: `func_id`, `params`, results on `crmData`, and links to vendor APIs where needed.
-- Do **not** link from the intro to a “connection / config” section at the bottom of the page.

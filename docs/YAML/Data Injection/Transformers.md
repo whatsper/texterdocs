@@ -218,7 +218,7 @@ Extracts a substring by start and end index (like JavaScript `String.slice()`).
 ```yaml
 # Get first 10 characters
 value: "%state:node.long_text.text|slice(0,10)%"
-# "Hello World, how are you?" → "Hello Worl"
+# "0123456789extra" → "0123456789"
 ```
 
 ```yaml

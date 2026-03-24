@@ -1001,9 +1001,10 @@ Uploads a file from a **public URL** into the patient’s **documents** in Rapid
 
 ---
 
-## Lead events (`ImportEvent`) via `request`
+## Out of Adapter Scope
+### Lead events (`ImportEvent`)
 
-**Not** a CRM `func_id`. Logs an event on a lead (e.g. call documentation / **תיעוד שיחה תחת ליד**) per Rapid’s [**Import Lead Event** API](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent-via-request)
+**Not** a CRM `func_id`. Logs an event on a lead (e.g. call documentation / תיעוד שיחה תחת ליד) per Rapid’s [**Import Lead Event** API](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent-via-request)
 
 **Endpoint:** `POST {base}/api/leads/{LeadExternalID}/ImportEvent` — use your Rapid **`server`** as **`{base}`** and **`crmData.leadExternalId`** (or the same id) in the path.
 
@@ -1048,3 +1049,24 @@ Example ids (illustrative only — **use values from your tenant**): `eventTypeI
     on_complete: after_event
     on_failure: after_event
 ```
+
+---
+
+## Rapid Onboarding (for Texter Support) {#rapid-onboarding}
+
+Message our [contact at Rapid](https://ninja.texterchat.com/contact/whatsapp/972586640430/972547390008/). <br/> 
+**You send:** 
+- Project ID 
+- API token with **View** + **Send Template Messages** scopes 
+- WhatsApp phone number
+
+**Customer DB — `crmConfig` fields**
+
+| Field | Provided by Rapid? | Req / extra | Use |
+|-------|-------------|-------------|-----|
+| `server` | Yes | Required | Rapid API base URL |
+| `rapid_token` | Yes | Required | `Authorization` on all Rapid requests |
+| `leads_token` | Yes | Required | Default `leads_token` when omitted in YAML |
+| `defaultPriceListCode` | Yes | Extra | Price list if no `crmData.priceListId` (used for appointments flow) |
+| `defaultSlotsLimit` | No | Extra | Default `getAvailableSlots` `limit` (else **5**) |
+| `useProxy` | No | Extra | `true` → Rapid calls via Texter proxy |

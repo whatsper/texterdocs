@@ -399,7 +399,7 @@ export default function DocFeedback(): ReactNode {
             onTransitionEnd={onPanelTransitionEnd}>
             <div className={styles.panelHeader}>
               <div>
-                <h2 id="doc-feedback-title">עזרו לנו לשפר את האתר</h2>
+                <h2 id="doc-feedback-title">עזרו לנו לשפר את הדוקומנטציה</h2>
                 <small style={{display: 'block', marginTop: '0.35rem'}}>
                   לדיוק במיקום בדף, השתמשו בסולמית ליד הכותרת (#) כדי לכלול את
                   המקטע בכתובת.
