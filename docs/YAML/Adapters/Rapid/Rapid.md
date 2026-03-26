@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Rapid (RapidOne)
 
-[Rapid](https://rapidone.atlassian.net/wiki/external/MDUwMDgyMzQ0ZTYwNDRjOWEwYmMwNTE1ZGVlMmQ2OTY) is a clinic-oriented CRM. This page documents **Texter’s Rapid adapter** (`func_type: crm`): what to put in **`params`**, what comes from **CRM config** (`crmConfig`) when you omit it, and what lands on **`crmData`**.
+[Rapid](https://rapidone.atlassian.net/wiki/external/MDUwMDgyMzQ0ZTYwNDRjOWEwYmMwNTE1ZGVlMmQ2OTY) is a clinic-oriented CRM.
 
 **Official Rapid doc hubs** (For deeper reference):
 

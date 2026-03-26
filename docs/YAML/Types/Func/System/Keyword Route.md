@@ -19,7 +19,7 @@ ___
     params:
       <target_node_1>: "<regex pattern>"
       <target_node_2>: "<regex pattern>"
-    on_failure: <fallback_node>
+    on_complete: <fallback_node>
 ```
 
 Always wrap patterns in **double quotes** `"..."` so characters like `|`, `:`, or `*` are not parsed as YAML syntax.
@@ -29,7 +29,7 @@ Always wrap patterns in **double quotes** `"..."` so characters like `|`, `:`, o
 - `func_type` here it will be a system function
 - `func_id` what function are we calling (`keywordsRoute`)
 - `params` key-value pairs where each **key** is a destination node name and each **value** is a regex pattern to test against the last message
-- `on_failure` node to go to if no pattern matches
+- `on_complete` node to go to if no pattern matches
 
 ### optional params
 - `department` assigns the chat to a department
@@ -83,7 +83,7 @@ ___
       sales_menu: "sales|buy|purchase|pricing"
       support_menu: "help|support|issue|problem"
       billing_menu: "bill|invoice|payment"
-    on_failure: main_menu
+    on_complete: main_menu
 ```
 
 ### Detect a specific phrase at bot start
@@ -96,7 +96,7 @@ ___
     func_id: keywordsRoute
     params:
       noop_handoff: "היי, אשמח לדבר עם נציגה מהסניף"
-    on_failure: store_initial_customer_details
+    on_complete: store_initial_customer_details
 ```
 
 ### Instagram/Facebook welcome routing
@@ -110,7 +110,7 @@ ___
     params:
       instagram_menu: "instagram|ig|insta"
       facebook_menu: "facebook|fb"
-    on_failure: general_welcome
+    on_complete: general_welcome
 ```
 
 ### Keywords as first-message filter (template replies)
@@ -124,7 +124,7 @@ ___
     params:
       marketing_flow: "interested|details|info"
       appointment_flow: "appointment|schedule|book"
-    on_failure: main_menu
+    on_complete: main_menu
 ```
 
 ### Regex: digits-only message OR greeting at the start
@@ -140,7 +140,7 @@ ___
     params:
       order_flow: "^[0-9]{5,}$"
       greeting_flow: "^(hi|hello|hey)\\b"
-    on_failure: main_menu
+    on_complete: main_menu
 ```
 
 ### Whole words only (not inside longer words)
@@ -153,7 +153,7 @@ ___
     func_id: keywordsRoute
     params:
       yes_flow: "\\b(yes|כן|ok)\\b"
-    on_failure: ask_again
+    on_complete: ask_again
 ```
 
 ### Phone-like digit sequence (Israeli mobile style)
@@ -166,7 +166,7 @@ ___
     func_id: keywordsRoute
     params:
       has_phone: "(\\+?972|0)?[5][0-9]{8}"
-    on_failure: no_phone
+    on_complete: no_phone
 ```
 
 ### Case variants (no case-insensitive flag)
@@ -179,7 +179,7 @@ ___
     func_id: keywordsRoute
     params:
       sales_menu: "[Ss]ales|[Bb]uy"
-    on_failure: main_menu
+    on_complete: main_menu
 ```
 
 ### Match order: broader first, specific last (last match wins)
@@ -193,7 +193,7 @@ ___
     params:
       generic_help: "help|support|problem"
       urgent_escalation: "urgent|asap|emergency"
-    on_failure: main_menu
+    on_complete: main_menu
 ```
 
 :::tip

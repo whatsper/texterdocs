@@ -9,6 +9,7 @@ import {
 } from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
+import toast, {Toaster} from 'react-hot-toast';
 import styles from './styles.module.css';
 
 /** English values for n8n / Asana mapping; labels are Hebrew in the UI. */
@@ -131,7 +132,6 @@ export default function DocFeedback(): ReactNode {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pasteTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -190,7 +190,6 @@ export default function DocFeedback(): ReactNode {
   useEffect(() => {
     if (layerMounted) {
       refreshPageContext();
-      setSuccess(false);
       setError(null);
     }
   }, [layerMounted, refreshPageContext]);
@@ -353,12 +352,16 @@ export default function DocFeedback(): ReactNode {
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
-      setSuccess(true);
       setCategory('');
       setMessage('');
       setSubmitterName('');
       setContact('');
       clearScreenshot();
+      toast.success('הטופס נשלח בהצלחה', {
+        duration: 4000,
+        style: {direction: 'rtl'},
+      });
+      requestCloseOverlay();
     } catch {
       setError('לא ניתן לשלוח את המשוב. נסו שוב מאוחר יותר.');
     } finally {
@@ -372,6 +375,14 @@ export default function DocFeedback(): ReactNode {
 
   return (
     <>
+      <Toaster
+        position="top-center"
+        containerStyle={{top: 20, zIndex: 650}}
+        toastOptions={{
+          duration: 4000,
+          style: {direction: 'rtl'},
+        }}
+      />
       <button
         type="button"
         className={styles.fab}
@@ -575,9 +586,6 @@ export default function DocFeedback(): ReactNode {
               </div>
 
               {error ? <p className={styles.errorText}>{error}</p> : null}
-              {success ? (
-                <p className={styles.successText}>תודה, המשוב נשלח.</p>
-              ) : null}
 
               <div className={styles.submitRow}>
                 <button

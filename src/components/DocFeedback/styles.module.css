@@ -369,16 +369,6 @@ html[data-theme='dark'] .previewImg {
   margin: 0;
 }
 
-.successText {
-  color: #0f766e;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-html[data-theme='dark'] .successText {
-  color: #5eead4;
-}
-
 .honeypot {
   position: absolute;
   left: -9999px;
