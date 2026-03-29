@@ -198,6 +198,7 @@ Updates an **existing** row (**PUT** [update records](https://www.zoho.com/crm/d
 
 | Param | Required | Notes |
 |--------|----------|--------|
+| *(prerequisite)* | — | `crmData.recordId` must be on the chat — set by `getCustomerDetails`, `createRecord`, or `newOpportunity`. |
 | `recordId` | **Yes** | Zoho record id — typically **`%chat:crmData.recordId%`**. |
 | `record` | No* | *Module API name (`Contacts`, `Leads`, `Tasks`, `Cases`, custom module, …). If omitted, uses **`crmConfig.defaultRecord`** (default **`Leads`**). |
 | `dateField` | No | If set, the adapter sets this Zoho field to the **current** time (`YYYY-MM-DDTHH:mm:ssZ`). |
@@ -248,6 +249,7 @@ Requires a **`recordId`** on the chat from session or **`crmData`**; if both are
 
 | Param | Notes |
 |--------|--------|
+| *(prerequisite)* | `crmData.recordId` (or `previousBotSession.store.accountId`) must be on the chat. |
 | `record` | Module API name (e.g. **`Cases`**). |
 | `recordId` | Override; else **`previousBotSession.store.accountId`** \|\| **`crmData.recordId`**. |
 | `dateField` | Override; else **`crmConfig.closeTicketDateField`**. |

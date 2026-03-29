@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Send Media
 
 ### What does it do?
@@ -29,9 +33,9 @@ ___
 - `type` type of the node
 - `doc` / `media` link to the document/media file
 - `on_complete` next node after complete
-- `delay_complete_seconds` time in seconds to wait before the next node (integer, `1`–`60`). Files take time to be sent — without it, the next node may fire before the file is delivered
 
 ### optional params
+- `delay_complete_seconds` time in seconds to wait before the next node (integer, `1`–`60`). Files take time to be sent — strongly recommended, without it the next node may fire before the file is delivered
 - `caption` text to send with the media/doc (single string, use `\n` for new lines)
 - `filename` custom filename for the media/document
 - `department` assigns the chat to a department

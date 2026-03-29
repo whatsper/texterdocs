@@ -121,6 +121,8 @@ Finds the **account** (and if needed the **contact**) for the chat’s phone: ru
 
 Creates an **Opportunity** (`POST /api/record/4`). If there is no `crmData.accountid`, an **account** is created first (minimal fields from chat + `crmConfig`; this step does not use this op’s `params`). Then `params` are merged into the opportunity body (same key in YAML **replaces** the default; values are stringified).
 
+Most fields have sensible defaults — only pass `params` to override specific values.
+
 | Field | Code | `crmConfig` | `params` |
 |-------|------|-------------|----------|
 | `name` | פנייה מהווצאפ + chat title | — | Yes |
@@ -159,6 +161,66 @@ Creates an **Opportunity** (`POST /api/record/4`). If there is no `crmData.accou
       pcfsystemfield100: "WhatsApp"
     on_complete: lead_logged
 ```
+
+---
+
+### `customQuery`
+
+Runs `POST /api/query` with a free-form `query` string (operators `AND`, `OR`, `=`, etc. — [README query table](https://github.com/powerlink/Rest-API/blob/master/README.md#query)) and an `objecttype`. Use this when `getCustomerDetails` is not enough: list rows of any entity, filter by fields, paginate (adapter uses `page_size` 50, `page_number` 1).
+
+**Basic**
+
+```yaml
+  powerlink_query:
+    type: func
+    func_type: crm
+    func_id: customQuery
+    params:
+      objectTypeCode: 1
+      query: "(telephone1 = '0500000000')"
+      fields: "*"
+      resultKey: "myRows"
+    on_complete: next_step
+```
+
+| Param | Required | Notes |
+|--------|----------|--------|
+| `query` | **Yes** | Powerlink query; **strings in single quotes** per adapter + API expectations. |
+| `objectTypeCode` | **Yes** | **Number** (YAML: `1` not `"1"`). |
+| `fields` | No | Default `*`. |
+| `resultKey` | No | Key on `crmData` for `data.Data` (default `customQueryResult`). |
+
+**Result:** `{ success: true, crmData: { [resultKey]: DataArray } }`.
+
+---
+
+### `createRecord`
+
+`POST /api/record/{recordNumber}` ([README](https://github.com/powerlink/Rest-API/blob/master/README.md#create)). Body comes **only** from YAML: all keys stringified except `recordNumber` / `descriptionField`; if `descriptionField` is set, that named field gets the chat transcript.
+
+**When it runs:** When you need to create a record on any Powerlink entity type not covered by the other ops.
+
+**Basic**
+
+```yaml
+  powerlink_create_generic:
+    type: func
+    func_type: crm
+    func_id: createRecord
+    params:
+      recordNumber: 5
+      subject: "Follow-up from WhatsApp"
+      descriptionField: "notetext"
+    on_complete: done
+```
+
+| Param | Required | Notes |
+|--------|----------|--------|
+| `recordNumber` | **Yes** | Positive integer — **object type** for `/api/record/{recordNumber}`. |
+| `descriptionField` | No | If set, that field receives the **chat session messages**. |
+| *other keys* | No | Other fields on the new record. |
+
+**Result:** `crmData` = `{ ...contact.crmData, ...response.data.Record }`.
 
 ---
 
@@ -219,6 +281,8 @@ Creates an **Account** (`POST /api/record/1`) if `crmData.accountid` is missing;
 
 Creates a **Case** (`POST /api/record/5`). If there is no `crmData.accountid`, an **account** is created first (title only from chat; **not** from this op’s `params`). Then defaults are set and **your `params` are merged** (same key overwrites).
 
+Most fields have sensible defaults — only pass `params` to override specific values.
+
 | Field | Code | `crmConfig` | `params` |
 |-------|------|-------------|----------|
 | `title` | פנייה מהווצאפ | — | Yes |
@@ -250,67 +314,11 @@ Creates a **Case** (`POST /api/record/5`). If there is no `crmData.accountid`, a
 
 ---
 
-### `customQuery`
-
-Runs `POST /api/query` with a free-form `query` string (operators `AND`, `OR`, `=`, etc. — [README query table](https://github.com/powerlink/Rest-API/blob/master/README.md#query)) and an `objecttype`. Use this when `getCustomerDetails` is not enough: list rows of any entity, filter by fields, paginate (adapter uses `page_size` 50, `page_number` 1).
-
-**Basic**
-
-```yaml
-  powerlink_query:
-    type: func
-    func_type: crm
-    func_id: customQuery
-    params:
-      objectTypeCode: 1
-      query: "(telephone1 = '0500000000')"
-      fields: "*"
-      resultKey: "myRows"
-    on_complete: next_step
-```
-
-| Param | Required | Notes |
-|--------|----------|--------|
-| `query` | **Yes** | Powerlink query; **strings in single quotes** per adapter + API expectations. |
-| `objectTypeCode` | **Yes** | **Number** (YAML: `1` not `"1"`). |
-| `fields` | No | Default `*`. |
-| `resultKey` | No | Key on `crmData` for `data.Data` (default `customQueryResult`). |
-
-**Result:** `{ success: true, crmData: { [resultKey]: DataArray } }`.
-
----
-
-### `createRecord`
-
-`POST /api/record/{recordNumber}` ([README](https://github.com/powerlink/Rest-API/blob/master/README.md#create)). Body comes **only** from YAML: all keys stringified except `recordNumber` / `descriptionField`; if `descriptionField` is set, that named field gets the chat transcript.
-
-**Basic**
-
-```yaml
-  powerlink_create_generic:
-    type: func
-    func_type: crm
-    func_id: createRecord
-    params:
-      recordNumber: 5
-      subject: "Follow-up from WhatsApp"
-      descriptionField: "notetext"
-    on_complete: done
-```
-
-| Param | Required | Notes |
-|--------|----------|--------|
-| `recordNumber` | **Yes** | Positive integer — **object type** for `/api/record/{recordNumber}`. |
-| `descriptionField` | No | If set, that field receives the **chat session messages**. |
-| *other keys* | No | Other fields on the new record. |
-
-**Result:** `crmData` = `{ ...contact.crmData, ...response.data.Record }`.
-
----
-
 ### `updateField`
 
 Updates **one field** on **one record**: `PUT /api/record/{objecttypecode}/{objectid}` with a body `{ [fieldname]: fieldvalue }`.
+
+**When it runs:** After `getCustomerDetails` — to patch a single field on an existing account or contact.
 
 **Basic**
 
@@ -342,6 +350,8 @@ Updates **one field** on **one record**: `PUT /api/record/{objecttypecode}/{obje
 
 Sets the **account’s** `statuscode` only: `PUT /api/record/1/{accountid}` using `crmData.accountid` from the chat. Use [`crmGetFields`](#crmgetfields) (or Powerlink UI) to map labels → numeric codes.
 
+**When it runs:** After `getCustomerDetails` — to update the account status.
+
 **Basic**
 
 ```yaml
@@ -356,6 +366,7 @@ Sets the **account’s** `statuscode` only: `PUT /api/record/1/{accountid}` usin
 
 | Param | Required | Notes |
 |--------|----------|--------|
+| *(prerequisite)* | — | `crmData.accountid` must be on the chat. |
 | `crmStatusCode` | **Yes** | Value for `statuscode` on the account. |
 
 **Result:** `{ success: true }` on API success.
@@ -365,6 +376,8 @@ Sets the **account’s** `statuscode` only: `PUT /api/record/1/{accountid}` usin
 ### `openTask`
 
 Creates a **Task** (`POST /api/record/10`). Defaults below; then `params` are merged when `crmData` exists on the chat. Value `crmData_someKey` → replaced with `crmData.someKey` before send.
+
+Most fields have sensible defaults — only pass `params` to override specific values.
 
 | Field | Code | `crmConfig` | `params` |
 |-------|------|-------------|----------|
@@ -391,7 +404,7 @@ Creates a **Task** (`POST /api/record/10`). Defaults below; then `params` are me
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| *(any)* | No | Task fields; use `crmData_field` values to pull from `crmData`. |
+| *(any)* | No | Task fields. Any value of `crmData_<key>` is replaced at runtime with `crmData.<key>` — e.g. `ownerid: crmData_ownerid` pulls the owner from `crmData`. |
 
 **Result:** `lastMessageStoredInCRMTimestamp`, `crmData.lastRecordId`.
 
@@ -446,6 +459,8 @@ Logs the closed chat as a **Task** (`POST /api/record/10`). **No `params`.** Use
 
 Fetches **picklist values** for **account** `statuscode`: `GET .../metadata/records/1/fields/statuscode/values`. Use to populate choices or validate `changeStatus` / `newAccount` codes.
 
+**When it runs:** When configuring `changeStatus` and you need to look up the numeric code for a given status label.
+
 **Basic**
 
 ```yaml
@@ -467,6 +482,8 @@ Fetches **picklist values** for **account** `statuscode`: `GET .../metadata/reco
 ### `addActivity`
 
 **Note** on the account (`POST /api/record/7`). Account must already exist (phone lookup). Only YAML keys `text` (required) and `email` (optional owner lookup) — no free-form merge.
+
+**When it runs:** After `getCustomerDetails` — to add a note to the account record.
 
 | Field | Code | `crmConfig` | `params` |
 |-------|------|-------------|----------|
@@ -501,6 +518,8 @@ Fetches **picklist values** for **account** `statuscode`: `GET .../metadata/reco
 
 Sets account **owner** by `PUT /api/record/1/{accountid}` with `ownerid` from the user list (`GET /api/record/9`) where `emailaddress1` equals `params.email`.
 
+**When it runs:** After `getCustomerDetails` — to assign the account to a specific Powerlink user.
+
 **Basic**
 
 ```yaml
@@ -515,6 +534,7 @@ Sets account **owner** by `PUT /api/record/1/{accountid}` with `ownerid` from th
 
 | Param | Required | Notes |
 |--------|----------|--------|
+| *(prerequisite)* | — | `crmData.accountid` must be on the chat. |
 | `email` | **Yes** | Must match a user’s `emailaddress1`. |
 
 **Result:** `{ success: true }`.

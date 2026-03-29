@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # Sensitive Session
 
 ### What does it do?

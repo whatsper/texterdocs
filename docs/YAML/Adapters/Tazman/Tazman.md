@@ -18,6 +18,8 @@ sidebar_position: 1
 
 Looks up a **customer** by **phone**.
 
+**When it runs:** At the start of the flow to identify the customer before routing.
+
 **Basic**
 
 ```yaml
@@ -31,7 +33,7 @@ Looks up a **customer** by **phone**.
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `phoneNumber` | No\* | \*If omitted, uses the chat’s **formatted channel phone** (when present). |
+| `phoneNumber` | No* | *If omitted, uses the chat’s **formatted channel phone** (when present). |
 | `minimalFields` | No | By default `false` - if set to `true` will **exclude** the `additional_fields` param. |
 
 **Result:** Merges mapped fields (`id`, `name`, `phone`, `status` mapped from `state`, `locationId` mapped from `location_id`, and `deepLink`) plus the raw Tazman customer object into `crmData`.
@@ -49,11 +51,13 @@ Looks up a **customer** by **phone**.
     on_failure: unknown_customer
 ```
 
------
+---
 
 ### `newOpportunity`
 
 Creates a new lead/client. Most commonly used when the sender is not identified or when capturing lead details.
+
+**When it runs:** When `getCustomerDetails` returns `on_failure` — to register an unknown sender as a lead.
 
 **Basic**
 
@@ -105,7 +109,7 @@ Creates a new lead/client. Most commonly used when the sender is not identified 
     on_failure: lead_failed
 ```
 
-----
+---
 
 ## Tazman Onboarding (for Texter Support)
 

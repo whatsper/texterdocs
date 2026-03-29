@@ -133,6 +133,45 @@ ___
     on_failure: no_orders_message
 ```
 
+### Validate that user input is a number
+```yaml
+  check_number:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: 'isNumber(number) and number > 0'
+      number: "%state:node.input_number%"
+    on_complete: process_number
+    on_failure: invalid_input
+```
+
+### Validate input length
+```yaml
+  check_id_length:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: 'length == 9'
+      length: "%state:node.input_id.text|length%"
+    on_complete: valid_id
+    on_failure: invalid_id
+```
+
+### Validate Israeli phone format
+```yaml
+  check_phone_format:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: 'not empty(parsedPhone)'
+      parsedPhone: "%state:node.input_phone.text|formatPhone(\"e164\",\"IL\")%"
+    on_complete: valid_phone
+    on_failure: invalid_phone
+```
+
 ___
 ## Available Filtrex functions
 

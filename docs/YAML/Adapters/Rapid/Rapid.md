@@ -60,6 +60,8 @@ Looks up a **customer** by **phone** (formatted for the customer’s country) or
 
 Creates a new lead. Most commonly used when the sender is not identified.
 
+**When it runs:** When `getCustomerDetails` returns `on_failure` — to register an unknown sender as a lead.
+
 **Basic**
 
 ```yaml
@@ -128,6 +130,8 @@ Updates a lead. The adapter always includes `externalId` from `crmData.leadExter
 
 Leads created outside the bot need `leadExternalId` (**must** be this exact key name) + matching `leads_token` in crmData — Rapid has **no** lookup-by-API. All non-empty string `params` keys merge into the body (same names as `newOpportunity`).
 
+**When it runs:** After `newOpportunity` — to update lead fields based on conversation responses.
+
 **Basic**
 
 ```yaml
@@ -144,27 +148,7 @@ Leads created outside the bot need `leadExternalId` (**must** be this exact key 
 |--------|----------|--------|
 | *(prerequisite)* | — | **`crmData.leadExternalId`** must be on the chat. |
 | `leads_token` | No* | *If omitted, uses **`crmConfig.leads_token`**. Must be the **same lead source** used when the lead was created. |
-| `firstName` | No | |
-| `lastName` | No | |
-| `cellPhone` | No | |
-| `eMail` | No | |
-| `nationalId` | No | |
-| `gender` | No | |
-| `homePhone` | No | |
-| `notes` | No | |
-| `Notes` | No | |
-| `address` | No | |
-| `city` | No | |
-| `country` | No | |
-| `interest` | No | |
-| `wantedTreatment` | No | |
-| `location` | No | |
-| `branch` | No | |
-| `status` | No | |
-| `campaign` | No | |
-| `source` | No | |
-| `sourceName` | No | |
-| *custom fields* | No | Same as create. |
+| *other fields* | No | Same field names as `newOpportunity` — pass only what you want to update. |
 
 **Result:** Success only; **`crmData`** unchanged.
 
@@ -187,6 +171,8 @@ Leads created outside the bot need `leadExternalId` (**must** be this exact key 
 ### `openTicket`
 
 Opens a **ticket** in Rapid with the **recent conversation** as the message body.
+
+**When it runs:** To log a support inquiry alongside the chat transcript.
 
 **Basic**
 
@@ -221,6 +207,8 @@ Opens a **ticket** in Rapid with the **recent conversation** as the message body
 ### `createUpdateCustomer`
 
 Creates or updates a **patient** in Rapid. Set **`updateCustomer: true`** only when **`crmData.cardCode`** is already on the chat (after **`getCustomerDetails`**); otherwise omit **`updateCustomer`** or use **`false`** — **`cellPhone`** defaults from the chat if omitted.
+
+**When it runs:** When you need to create or update a patient record — typically after conversion from a lead or for new patient intake.
 
 **Basic**
 
@@ -329,6 +317,8 @@ Create:
 
 Shortcut to set **patient status** from **`crmStatusCode`** (requires **`crmData.cardCode`**).
 
+**When it runs:** After `getCustomerDetails` — to update the patient's status in Rapid.
+
 **Basic**
 
 ```yaml
@@ -353,6 +343,8 @@ Shortcut to set **patient status** from **`crmStatusCode`** (requires **`crmData
 ### `closeTicket`
 
 Sends the **chat transcript** to Rapid when **`crmData.cardCode`** exists (used by product flows when resolving a chat; rarely called directly from YAML).
+
+**When it runs:** When the chat is resolved — sends the conversation transcript to Rapid.
 
 **Basic**
 

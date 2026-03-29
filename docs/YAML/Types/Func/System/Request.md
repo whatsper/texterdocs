@@ -91,7 +91,7 @@ ___
 
 ### POST with Basic auth and proxy
 ```yaml
-  start_get_costumer_details:
+  start_get_customer_details:
     type: func
     func_type: system
     func_id: request

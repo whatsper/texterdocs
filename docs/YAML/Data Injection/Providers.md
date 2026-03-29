@@ -309,21 +309,10 @@ A common pattern is to store messages with `storeValue`, then access individual 
     params:
       key: "pastMessages"
       value: '%messages:latest(20,1,"in")%'
-    on_complete: check_first_message
-
-  check_first_message:
-    type: func
-    func_type: system
-    func_id: matchExpression
-    params:
-      expression: 'firstMessageId == lastMessageId'
-      firstMessageId: "%state:store.pastMessages.0._id%"
-      lastMessageId: "%chat:lastMessage.id%"
-    on_complete: is_first_message
-    on_failure: is_not_first_message
+    on_complete: next_step
 ```
 
-In the example above, `%state:store.pastMessages.0._id%` accesses the `_id` field of the first (oldest, since order is `1`) message in the stored array. The `.0` is the array index.
+`%state:store.pastMessages.0._id%` accesses the `_id` field of the first (oldest, since order is `1`) message in the stored array. The `.0` is the array index.
 
 ___
 
@@ -398,26 +387,17 @@ ___
 ```
 
 #### Check if this is the user's very first message ever
+Use `%state:previousBotSession.id%` — if it exists, the user has interacted with the bot before:
 ```yaml
-  store_all_incoming:
-    type: func
-    func_type: system
-    func_id: storeValue
-    params:
-      key: "pastMessages"
-      value: '%messages:latest(20,1,"in")%'
-    on_complete: check_first_message
-
-  check_first_message:
+  check_returning_user:
     type: func
     func_type: system
     func_id: matchExpression
     params:
-      expression: 'firstMessageId == lastMessageId'
-      firstMessageId: "%state:store.pastMessages.0._id%"
-      lastMessageId: "%chat:lastMessage.id%"
-    on_complete: first_time_user
-    on_failure: returning_user
+      expression: 'exists(prevSession)'
+      prevSession: "%state:previousBotSession.id%"
+    on_complete: returning_user
+    on_failure: first_time_user
 ```
 
 #### Store the last outgoing message (for template tracking)
