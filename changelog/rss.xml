@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>Texter Docs Blog</title>
+        <link>https://whatsper.github.io/texterdocs/changelog</link>
+        <description>Texter Docs Blog</description>
+        <lastBuildDate>Sun, 29 Mar 2026 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>en</language>
+        <item>
+            <title><![CDATA[Senzey & Lead.IM Adapters + Docs Improvements]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim</guid>
+            <pubDate>Sun, 29 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Two new CRM adapter docs, new transformers, and a round of clarity improvements across the docs.]]></description>
+            <content:encoded><![CDATA[<p>Two new CRM adapter docs, new transformers, and a round of clarity improvements across the docs.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Senzey adapter</strong> — full documentation</li>
+<li><strong>Lead.IM adapter</strong> — full documentation</li>
+<li><strong>New transformers</strong> - <code>get</code>, <code>omit</code>, <code>pick</code>, documented in the Data Injection / Transformers page</li>
+<li><strong><code>working_time</code> schedule table</strong> - allowed days &amp; hours formats documented in <code>Check Working Hours</code></li>
+<li><strong>Diagrams</strong> - added visual diagrams to more complex nodes and flows</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><code>Share File</code> moved to the System functions category (was Utils)</li>
+<li>Powerlink, Rapid, Tazman, Zoho adapter pages cleaned up</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
+        <item>
+            <title><![CDATA[Powerlink (Fireberry) CRM Adapter]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/28/powerlink</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/28/powerlink</guid>
+            <pubDate>Sat, 28 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Full documentation for the Powerlink (Fireberry) CRM adapter is now available.]]></description>
+            <content:encoded><![CDATA[<p>Full documentation for the Powerlink (Fireberry) CRM adapter is now available.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/28/powerlink#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Powerlink (Fireberry) CRM adapter</strong> — full documentation with configuration, field mapping, and YAML examples</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+        </item>
+        <item>
+            <title><![CDATA[Zoho CRM Adapter]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho</guid>
+            <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Full documentation for the Zoho CRM adapter is now available.]]></description>
+            <content:encoded><![CDATA[<p>Full documentation for the Zoho CRM adapter is now available.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Zoho CRM adapter</strong> — full documentation with field mapping, configuration, and YAML examples</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li>Feedback widget now shows a success toast after submission</li>
+<li><code>Keyword Route</code> node docs clarified</li>
+<li>Tazman adapter page cleaned up</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+        </item>
+        <item>
+            <title><![CDATA[Tazman CRM Adapter + Feedback Widget]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback</guid>
+            <pubDate>Tue, 24 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[New Tazman CRM adapter docs, an expanded Markdown examples reference, and a feedback widget on every page.]]></description>
+            <content:encoded><![CDATA[<p>New Tazman CRM adapter docs, an expanded Markdown examples reference, and a feedback widget on every page.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Tazman CRM adapter</strong> — full documentation with configuration examples</li>
+<li><strong>Feedback widget</strong> — appears on every page, lets users report issues or request clarification. Submissions open tasks for the Texter team</li>
+<li><strong>Markdown Examples page</strong> — greatly expanded with detailed examples covering all supported syntax</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li>Feedback form submit button is now disabled until all required fields are filled</li>
+<li>Various clarifications and corrections in Rapid adapter docs</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+            <category>site</category>
+        </item>
+        <item>
+            <title><![CDATA[Documentation Site Live — Full YAML Reference + Rapid Adapter]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/22/initial-launch</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/22/initial-launch</guid>
+            <pubDate>Sun, 22 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The Texter documentation site is now live with complete YAML bot configuration reference and the first CRM adapter docs.]]></description>
+            <content:encoded><![CDATA[<p>The Texter documentation site is now live with complete YAML bot configuration reference and the first CRM adapter docs.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/22/initial-launch#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<p><strong>YAML Node Types</strong></p>
+<ul>
+<li><code>Choice</code> and <code>Text</code> prompt nodes</li>
+<li><code>Notify</code> and <code>Send Media</code> notify nodes</li>
+<li><code>WhatsApp Flow</code> node</li>
+<li>System functions: <code>Bot State Split</code>, <code>Check Working Hours</code>, <code>Format Date</code>, <code>Keyword Route</code>, <code>Match Expression</code>, <code>Noop</code>, <code>Parse CRM Data</code>, <code>Request</code>, <code>Send Mail</code>, <code>Send Webhook</code>, <code>Set Language</code>, <code>Store Value</code>, <code>Switch Node</code></li>
+<li>Chat functions: <code>Add Label</code>, <code>External Bot</code>, <code>Sensitive Session</code></li>
+<li>Utility functions: <code>Match Values</code>, <code>Random Code</code>, <code>Share File</code></li>
+</ul>
+<p><strong>Data Injection</strong></p>
+<ul>
+<li>YAML Overview</li>
+<li>Data Injection: Overview, Legacy Syntax, Providers, and Transformers</li>
+<li>Bot Configuration reference</li>
+</ul>
+<p><strong>Adapters</strong></p>
+<ul>
+<li>Adapters section with Overview page</li>
+<li>Full Rapid CRM adapter documentation</li>
+</ul>
+<p><strong>Site</strong></p>
+<ul>
+<li>Full-text local search</li>
+<li>Last updated timestamps on every page</li>
+</ul>]]></content:encoded>
+            <category>docs</category>
+            <category>yaml</category>
+            <category>adapters</category>
+        </item>
+    </channel>
+</rss>
