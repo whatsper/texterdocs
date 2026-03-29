@@ -46,6 +46,7 @@ Data injection does **not** support nesting `%...%` inside another `%...%` expre
 | [`jsonParse`](#jsonparse) | Parse a JSON string into an object |
 | [`parseXml`](#parsexml) | Parse an XML string into an object |
 | [`encodeURI`](#encodeuri) | URL-encode a string |
+| [`decodeURI`](#decodeuri) | URL-decode a string |
 | [`formatPhone`](#formatphone) | Format a phone number |
 | [`hasWords`](#haswords) | Check if a string contains any of the given words |
 
@@ -76,6 +77,9 @@ Data injection does **not** support nesting `%...%` inside another `%...%` expre
 | [`toString`](#tostring) | Convert any value to a string |
 | [`toJson`](#tojson) | Serialize a value to JSON |
 | [`typeof`](#typeof) | Get the JavaScript type of a value |
+| [`get`](#get) | Access a nested property from an object by path |
+| [`pick`](#pick) | Keep only specified keys from an object |
+| [`omit`](#omit) | Remove specified keys from an object |
 | [`hbTpl`](#hbtpl) | Render a Handlebars template |
 
 ---
@@ -352,6 +356,25 @@ Takes no arguments.
 params:
   url: "https://api.example.com/search?q=%state:node.ask_query.text|encodeURI%"
 # "hello world" → "hello%20world"
+```
+
+___
+
+### decodeURI
+
+URL-decodes a string. Reverses the effect of [`encodeURI`](#encodeuri).
+
+```
+|decodeURI
+```
+
+Takes no arguments.
+
+#### Example
+
+```yaml
+value: "%state:node.get_callback.response.return_url|decodeURI%"
+# "hello%20world%3F" → "hello world?"
 ```
 
 ___
@@ -831,6 +854,111 @@ value: "%state:store.apiResult|typeof%"
 # "hello" → "string"
 # 42 → "number"
 # true → "boolean"
+```
+
+---
+
+### get
+
+Accesses a nested property from an object using dot notation or separate path segments (powered by [lodash.get](https://lodash.com/docs/#get)) - Commonly used for when the property name is in Hebrew which breaks regular data injection (can't use `%chat:crmData.סטטוס%` for example). Returns `undefined` if the path does not exist.
+
+```
+|get("path")
+```
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `path` | Yes (at least one) | Property path string. Use dot notation for nested access (e.g. `"user.name"`) or pass multiple arguments for each segment. |
+
+#### Examples
+
+```yaml
+# Access a top-level crmData field
+value: '%chat:crmData|get("status")%'
+# {status: "active", name: "Alice"} → "active"
+```
+
+```yaml
+# Access a nested field using dot notation
+value: '%state:node.api_call.response|get("user.profile.email")%'
+# {user: {profile: {email: "a@b.com"}}} → "a@b.com"
+```
+
+```yaml
+# Use in switchNode to route on a CRM field value
+  route_by_type:
+    type: func
+    func_type: system
+    func_id: switchNode
+    params:
+      input: '%chat:crmData|get("type")%'
+      cases:
+        "vip": vip_flow
+        "regular": regular_flow
+      empty: unknown_flow
+    on_complete: unknown_flow
+```
+
+```yaml
+# Access an array element by index
+value: '%state:store.items|get("0.name")%'
+# [{name: "First"}, {name: "Second"}] → "First"
+```
+
+___
+
+### pick
+
+Keeps only the specified keys from an object, discarding everything else (powered by [lodash.pick](https://lodash.com/docs/#pick)).
+
+```
+|pick("key1","key2",...)
+```
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `key` | Yes (at least one) | Key name to keep. Pass multiple arguments to keep multiple keys. |
+
+#### Examples
+
+```yaml
+# Keep only name and email from a CRM response
+value: '%state:node.get_contact.response|pick("name","email")%'
+# {name: "Alice", email: "a@b.com", internal_id: 99, score: 5} → {name: "Alice", email: "a@b.com"}
+```
+
+```yaml
+# Trim a crmData object before sending to a webhook
+value: '%chat:crmData|pick("id","name","phone")%'
+# {id: "123", name: "Alice", phone: "052...", deepLink: "...", status: "2"} → {id: "123", name: "Alice", phone: "052..."}
+```
+
+___
+
+### omit
+
+Removes specified keys from an object, keeping everything else (powered by [lodash.omit](https://lodash.com/docs/#omit)).
+
+```
+|omit("key1","key2",...)
+```
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `key` | Yes (at least one) | Key name to remove. Pass multiple arguments to remove multiple keys. |
+
+#### Examples
+
+```yaml
+# Remove internal fields before sending to a webhook
+value: '%chat:crmData|omit("deepLink","status")%'
+# {id: "123", name: "Alice", deepLink: "https://...", status: "2"} → {id: "123", name: "Alice"}
+```
+
+```yaml
+# Strip auth fields from an API response before storing
+value: '%state:node.login.response|omit("token","refresh_token")%'
+# {userId: "5", name: "Alice", token: "abc", refresh_token: "xyz"} → {userId: "5", name: "Alice"}
 ```
 
 ---

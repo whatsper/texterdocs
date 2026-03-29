@@ -88,7 +88,44 @@ ___
 Same behavior as `checkWorkingTime` but uses the older function name. Prefer `checkWorkingTime` for new bots.
 
 ___
-## 4. Examples
+## 4. working_time Schedule Format
+
+The bot-level `working_time` config maps schedule names to day/time rules.
+
+### Day key formats
+
+| Format | Example | Result |
+|--------|---------|--------|
+| Single day | `fri` | Friday only |
+| Comma list | `sun, tue, thu` | Sunday, Tuesday, Thursday |
+| Range (ascending) | `mon-fri` | Monday through Friday |
+| Range (wrap-around) | `sat-mon` | Saturday, Sunday, Monday |
+| Mixed | `sun-thu, sat` | Sunday–Thursday plus Saturday |
+
+Abbreviations are supported and case-insensitive: `su/sun/sunday`, `mo/mon/monday`, `tu/tue/tuesday`, `we/wed/wednesday`, `th/thu/thursday`, `fr/fri/friday`, `sa/sat/saturday`.
+
+### Time value formats
+
+| Format | Example | Result |
+|--------|---------|--------|
+| Single range | `08:00-17:00` | One continuous block |
+| Multiple ranges | `08:00-12:00, 13:00-17:00` | Two blocks (e.g. lunch break) |
+| Minutes optional | `8-17` | Same as `08:00-17:00` |
+
+### Example with mixed formats
+
+```yaml
+working_time:
+  office:
+    sun-thu: 08:00-17:00
+    fri: 08:00-14:00
+  support:
+    sun, tue: 09:00-13:00
+    mon, wed-fri: 10:00-12:00, 14:00-16:00
+```
+
+___
+## 5. Examples
 
 ### Basic working hours check
 ```yaml
