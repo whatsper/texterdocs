@@ -170,6 +170,23 @@ Triggers a specific node after `timeout` minutes if the user still hasn't respon
 :::danger
 When executing the abandoned sequence nodes, do **not** use prompt nodes that await user input. This is bad practice and may cause the chat to be stuck in `bot` status since the abandoned check task is no longer performed at this point.
 :::
+
+```mermaid
+flowchart TD
+    classDef crm      fill:#FDE68A,stroke:#D97706,color:#333
+    classDef decision fill:#BFDBFE,stroke:#2563EB,color:#333
+    classDef usernode fill:#E9D5FF,stroke:#9333EA,color:#333
+    classDef success  fill:#BBF7D0,stroke:#16A34A,color:#333
+    classDef handoff  fill:#FECACA,stroke:#DC2626,color:#333
+
+    A([User stops responding\nat a prompt node]) --> B["Wait X min\nfirst_retry.timeout"]:::crm
+    B --> C["Send nudge\n'Hi, I'm waiting for your response 😊'"]:::usernode
+    C --> D{User responds?}:::decision
+    D -->|Yes| E([Bot continues normally]):::success
+    D -->|No — wait Y more min| F["Execute abandoned node\nabandoned_bot_sequence_1"]:::crm
+    F --> G["notify → handoff\n⚠️ Never use prompt nodes here"]:::handoff
+```
+
 ___
 
 ## smart_resolved
@@ -203,6 +220,24 @@ The node it points to is a regular node in the `nodes:` section:
 ### Built-in actions
 - **`back_to_agent`** - Sets chat status back to PENDING and assigns it to the agent that resolved the chat
 - **`restart_bot`** - Restarts the bot session, i.e. routes to the node that is set as the `start_node`
+
+```mermaid
+flowchart LR
+    classDef crm      fill:#FDE68A,stroke:#D97706,color:#333
+    classDef decision fill:#BFDBFE,stroke:#2563EB,color:#333
+    classDef usernode fill:#E9D5FF,stroke:#9333EA,color:#333
+    classDef success  fill:#BBF7D0,stroke:#16A34A,color:#333
+    classDef handoff  fill:#FECACA,stroke:#DC2626,color:#333
+
+    A([Agent resolves chat]):::crm --> B{Customer messages\nback same day?}:::decision
+    B -->|Yes| C([smart_resolved node]):::usernode
+    B -->|Next day| D([New bot session\nfrom start_node]):::success
+    C --> E{Customer chooses}:::decision
+    E -->|Back to agent| F([back_to_agent\nReturns to same agent]):::handoff
+    E -->|Back to bot| G([restart_bot\nRestarts from start_node]):::success
+    E -->|All good| H([resolved]):::success
+```
+
 ___
 
 ## match_messages

@@ -60,3 +60,29 @@ ___
 :::tip
 No params are needed — the function automatically toggles the `externalBot` flag. External integrations (AI bots, automation scenarios, webhooks) listen for this change to activate. When they're done, they set `externalBot` back to `false`, which triggers the `on_complete` node.
 :::
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Texter as Texter Bot
+    participant AI as External AI Bot
+
+    rect rgb(15, 165, 171)
+        Note over User,Texter: Handoff to AI
+        User->>Texter: Sends a message
+        Texter->>Texter: switch_to_ai node runs (externalBot func)
+        Texter->>AI: Sets externalBot = true (fires event)
+    end
+    rect rgb(168,85,247)
+        Note over User,AI: AI handles the conversation
+        Note over Texter: Bot pauses — waiting for externalBot = false
+        AI-->>User: AI bot takes over the conversation
+        User-->>AI: User continues chatting
+    end
+    rect rgb(34,197,94)
+        Note over User,Texter: Return to Texter
+        AI->>Texter: Sets externalBot = false
+        Texter->>Texter: Resumes at on_complete (back_from_ai)
+        Texter->>User: "You're back with our team. How can we help?"
+    end
+```

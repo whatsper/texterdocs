@@ -12,6 +12,20 @@ There are three variants:
 - **`checkWorkingTime`** — checks the bot-level `working_time` config, with optional `type` param to filter by schedule name
 - **`checkDepartmentWorkingTime`** — checks a specific department's working hours by department ID (uses `func_type: department`)
 - **`checkWorkingHours`** (legacy) — same behavior as `checkWorkingTime` using the older function name
+
+```mermaid
+flowchart TD
+    classDef crm      fill:#FDE68A,stroke:#D97706,color:#333
+    classDef decision fill:#BFDBFE,stroke:#2563EB,color:#333
+    classDef usernode fill:#E9D5FF,stroke:#9333EA,color:#333
+    classDef success  fill:#BBF7D0,stroke:#16A34A,color:#333
+    classDef handoff  fill:#FECACA,stroke:#DC2626,color:#333
+
+    A([checkWorkingTime runs]):::crm --> B{Current time within\nworking_time schedule?}:::decision
+    B -->|Yes → on_complete| C["During working hours message\n+ continue flow"]:::success
+    B -->|No → on_failure| D["Send out-of-hours message\n'We're open Sun-Thu 08:00-17:00'\n+ continue flow"]:::handoff
+```
+
 ___
 ## 1. checkWorkingTime
 

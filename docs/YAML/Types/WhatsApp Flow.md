@@ -119,6 +119,35 @@ ___
 
 So **`on_failure`** covers wrong replies, ignores, and invalid flow payloads — not only hard errors.
 
+```mermaid
+sequenceDiagram
+    participant Bot as Texter Bot
+    participant WA as WhatsApp
+    participant User
+
+    rect rgb(15, 165, 171)
+        Note over Bot,WA: Bot sends the form
+        Bot->>Bot: Generates session token
+        Bot->>WA: Sends flow CTA message (id, cta, payload, header)
+    end
+    rect rgb(168,85,247)
+        Note over WA,User: User fills the form
+        WA->>User: Renders interactive form inside WhatsApp
+        User->>WA: Fills fields and submits
+    end
+    WA->>Bot: Delivers flow_reply (token + field data)
+    alt Token matches → on_complete
+        rect rgb(34,197,94)
+            Bot->>Bot: Stores data in state:node.flow_name.fieldName
+            Bot->>Bot: Routes to on_complete
+        end
+    else Token mismatch or user ignores → on_failure
+        rect rgb(239,68,68)
+            Bot->>Bot: Routes to on_failure
+        end
+    end
+```
+
 ___
 ## 4. Examples
 

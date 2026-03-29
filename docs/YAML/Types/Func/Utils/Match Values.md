@@ -87,3 +87,38 @@ ___
 :::tip
 Always set `trim: true` to handle accidental whitespace in user input. Use `caseInsensitive: true` when comparing text where casing shouldn't matter (e.g., email addresses, yes/no answers).
 :::
+
+___
+## Full OTP verification flow
+
+The most common use of `matchValues` — combined with [`randomCode`](../Utils/Random%20Code) and a [`request`](../System/Request) to an SMS provider:
+
+```mermaid
+sequenceDiagram
+    participant Bot as Texter Bot
+    participant SMS as SMS Provider
+    participant User
+
+    rect rgb(15, 165, 171)
+        Note over Bot,SMS: Generate & send code
+        Bot->>Bot: generate_code (randomCode, numeric, 6 digits)
+        Bot->>SMS: request POST — "Your code is 483921"
+        SMS-->>User: SMS delivered
+    end
+    rect rgb(168,85,247)
+        Note over Bot,User: Collect user input
+        Bot->>User: ask_otp — "Enter the code we sent you"
+        User->>Bot: types "483921"
+    end
+    Bot->>Bot: matchValues — compare generated vs entered
+    alt Codes match → on_complete
+        rect rgb(34,197,94)
+            Bot->>Bot: → verified (handoff or next step)
+        end
+    else No match → on_failure
+        rect rgb(239,68,68)
+            Bot->>User: "That code doesn't match, try again"
+            Bot->>Bot: → back to ask_otp
+        end
+    end
+```

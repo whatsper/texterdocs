@@ -88,6 +88,30 @@ Nodes route to each other using these fields:
 
 The value of each routing field is the **name of another node** in the same YAML file, or a built-in action like `handoff` or `resolved`.
 
+Here's how the example bot above flows:
+
+```mermaid
+flowchart TD
+    classDef crm      fill:#FDE68A,stroke:#D97706,color:#333
+    classDef decision fill:#BFDBFE,stroke:#2563EB,color:#333
+    classDef usernode fill:#E9D5FF,stroke:#9333EA,color:#333
+    classDef success  fill:#BBF7D0,stroke:#16A34A,color:#333
+    classDef handoff  fill:#FECACA,stroke:#DC2626,color:#333
+
+    start["start\n(checkWorkingTime)"]:::crm
+    main_menu["main_menu\n(choice prompt)"]:::usernode
+    outside["outside_working_hours"]:::handoff
+    sales["sales_menu"]:::usernode
+    support["support_menu"]:::usernode
+    agent_handoff(["agent_handoff"]):::usernode
+
+    start -->|on_complete| main_menu
+    start -->|on_failure| outside
+    main_menu -->|Sales| sales
+    main_menu -->|Support| support
+    main_menu -->|on_complete| agent_handoff
+```
+
 ### Built-in actions
 
 | Action     | What it does                                                 |

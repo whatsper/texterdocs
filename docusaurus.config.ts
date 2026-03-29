@@ -54,13 +54,19 @@ const config: Config = {
     ],
   ],
 
+  markdown: {
+    mermaid: true,
+  },
+
   themes: [
+    '@docusaurus/theme-mermaid',
     [
       '@easyops-cn/docusaurus-search-local',
       {
         hashed: true,
-        indexBlog: false,
+        indexBlog: true,
         docsRouteBasePath: '/docs',
+        blogRouteBasePath: '/changelog',
       },
     ],
   ],
@@ -73,6 +79,15 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           showLastUpdateTime: true,
           showLastUpdateAuthor: false,
+        },
+        blog: {
+          routeBasePath: 'changelog',
+          blogTitle: 'Changelog',
+          blogDescription: 'Updates, new features, and changes to Texter',
+          blogSidebarTitle: 'Recent Updates',
+          blogSidebarCount: 'ALL',
+          showReadingTime: false,
+          postsPerPage: 'ALL',
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -103,6 +118,11 @@ const config: Config = {
           label: 'Bot Documentation',
         },
         {
+          to: '/changelog',
+          label: 'Changelog',
+          position: 'left',
+        },
+        {
           href: 'https://apidocs.texterchat.com',
           label: 'API Docs',
           position: 'right',
@@ -127,6 +147,10 @@ const config: Config = {
               label: 'Bot Configuration',
               to: '/docs/YAML/Bot Configuration',
             },
+            {
+              label: 'Changelog',
+              to: '/changelog',
+            },
           ],
         },
         {
@@ -144,6 +168,9 @@ const config: Config = {
         },
       ],
       copyright: `Copyright \u00A9 ${new Date().getFullYear()} Texter. Built with Docusaurus.`,
+    },
+    mermaid: {
+      theme: { light: 'neutral', dark: 'dark' },
     },
     prism: {
       theme: prismThemes.github,

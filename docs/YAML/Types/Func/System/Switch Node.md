@@ -42,6 +42,24 @@ ___
 2. If input matches a case key → routes to that case's node
 3. If input doesn't match any case → routes to the fallback (`on_failure` if set, else `on_complete`)
 
+```mermaid
+flowchart TD
+    classDef crm      fill:#FDE68A,stroke:#D97706,color:#333
+    classDef decision fill:#BFDBFE,stroke:#2563EB,color:#333
+    classDef usernode fill:#E9D5FF,stroke:#9333EA,color:#333
+    classDef success  fill:#BBF7D0,stroke:#16A34A,color:#333
+    classDef handoff  fill:#FECACA,stroke:#DC2626,color:#333
+
+    A([switchNode runs]):::crm --> B{Input empty\nor null?}:::decision
+    B -->|Yes, empty param set| C([empty node]):::usernode
+    B -->|Yes, no empty param| F
+    B -->|No| D{Matches\na case key?}:::decision
+    D -->|Yes| E([Matching case node]):::success
+    D -->|No match| F{on_failure\nset?}:::decision
+    F -->|Yes| G([on_failure]):::handoff
+    F -->|No| H([on_complete]):::success
+```
+
 ___
 ## 2. Examples
 

@@ -396,6 +396,86 @@ The clinic must **turn on the right calendars / exposure in Rapid** for each doc
 
 :::
 
+```mermaid
+flowchart TD
+    classDef crm      fill:#FDE68A,stroke:#D97706,color:#333
+    classDef decision fill:#BFDBFE,stroke:#2563EB,color:#333
+    classDef usernode fill:#E9D5FF,stroke:#9333EA,color:#333
+    classDef success  fill:#BBF7D0,stroke:#16A34A,color:#333
+    classDef handoff  fill:#FECACA,stroke:#DC2626,color:#333
+
+    START(["📱 Customer starts"]) --> LOOKUP
+
+    subgraph STEP1["① Identify patient"]
+        LOOKUP["getCustomerDetails\nlookup by phone"]:::crm
+    end
+
+    LOOKUP -->|"Known — crmData.cardCode exists"| GET_APTS
+    LOOKUP -->|Unknown| CREATE["createUpdateCustomer\n+ getCustomerDetails"]:::crm
+    CREATE --> GET_APTS
+
+    subgraph STEP2["② Check existing appointments"]
+        GET_APTS["getCustomerAppointments"]:::crm
+        APT_SW{"appointments\ncount?"}:::decision
+        SHOW1["Show 1 appointment\n📅 date · time · service\nChange / Agent / End"]:::usernode
+        SHOW_N["Show N appointments\n📅 list all\nChange / Agent / End"]:::usernode
+    end
+
+    GET_APTS --> APT_SW
+    APT_SW -->|"0 — none"| PATH_START
+    APT_SW -->|1| SHOW1
+    APT_SW -->|"2+"| SHOW_N
+    SHOW1 -->|Change| PATH_START
+    SHOW_N -->|Change| PATH_START
+
+    PATH_START{"Treatment\nplan?"}:::decision
+    PATH_START -->|"Yes → getTreatmentPlans\n+ getTreatmentPlanItems"| SERVICES
+    PATH_START -->|"No → standard flow"| BRANCHES
+
+    subgraph STEP3["③ Location · Service · Doctor"]
+        BRANCHES["getBranches"]:::crm
+        B_SW{"branches?"}:::decision
+        DEPTS["getDepartments"]:::crm
+        D_SW{"departments?"}:::decision
+        SERVICES["getServices"]:::crm
+        S_SW{"services?"}:::decision
+        DOCTORS["getDoctors"]:::crm
+        DR_SW{"doctors?"}:::decision
+    end
+
+    BRANCHES --> B_SW
+    B_SW -->|0| H1(["🤝 handoff"]):::handoff
+    B_SW -->|"1 — auto-select"| DEPTS
+    B_SW -->|"2+ — user picks"| DEPTS
+
+    DEPTS --> D_SW
+    D_SW -->|0| H2(["🤝 handoff"]):::handoff
+    D_SW -->|"1 — auto-select"| SERVICES
+    D_SW -->|"2+ — user picks"| SERVICES
+
+    SERVICES --> S_SW
+    S_SW -->|0| H3(["🤝 handoff"]):::handoff
+    S_SW -->|"1 — auto-select"| DOCTORS
+    S_SW -->|"2+ — user picks"| DOCTORS
+
+    DOCTORS --> DR_SW
+    DR_SW -->|0| H4(["🤝 handoff"]):::handoff
+    DR_SW -->|"1 — auto-select"| SLOTS
+    DR_SW -->|"2+ — user picks"| SLOTS
+
+    subgraph STEP4["④ Slots & booking"]
+        SLOTS["getAvailableSlots\n0 – 14 day window"]:::crm
+        SL_SW{"slots\nfound?"}:::decision
+        BOOK["scheduleAppointment\nstartTime + endTime"]:::crm
+    end
+
+    SLOTS --> SL_SW
+    SL_SW -->|None| H5(["📅 try other date\nor handoff"]):::handoff
+    SL_SW -->|"Available — user picks"| BOOK
+    BOOK -->|"✅ success"| DONE(["🎉 Appointment confirmed!\nConfirmation message sent"]):::success
+    BOOK -->|"❌ failure"| H6(["🤝 handoff"]):::handoff
+```
+
 ### `getCustomerAppointments`
 
 Lists appointments for **`customerId`** (param or `crmData.cardCode`). By default **future** appointments only; set `showPastAppointments: true` to include past.

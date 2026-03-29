@@ -104,6 +104,21 @@ Captures a 5+ digit number from the message:
     on_complete: next_step
 ```
 
+```mermaid
+flowchart TD
+    classDef crm      fill:#FDE68A,stroke:#D97706,color:#333
+    classDef decision fill:#BFDBFE,stroke:#2563EB,color:#333
+    classDef usernode fill:#E9D5FF,stroke:#9333EA,color:#333
+    classDef success  fill:#BBF7D0,stroke:#16A34A,color:#333
+    classDef handoff  fill:#FECACA,stroke:#DC2626,color:#333
+
+    A([ask_ticket\ntext prompt]):::usernode --> B([parse_ticket\nparseCrmData]):::crm
+    B --> C{Regex matches\nlast message?}:::decision
+    C -->|Yes → on_complete| D["Stores first capture group\nin %chat:crmData.ticketId%"]:::success
+    D --> E([fetch_ticket_details\nContinue flow]):::success
+    C -->|No match → on_failure| A
+```
+
 :::tip
 The matched value is stored in `%chat:crmData.<crmKey>%` and can be used in subsequent nodes for messages, API calls, or routing.
 :::
