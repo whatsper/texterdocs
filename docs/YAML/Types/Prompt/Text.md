@@ -25,7 +25,7 @@ ___
 - `on_complete` next node after complete
 
 ### optional params
-- `delay_on_complete` number of seconds to delay before moving to the next node
+- `delay_complete_seconds` number of seconds to delay before moving to the next node
 - `department` assigns the chat to a department
 - `agent` assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager)
 
@@ -89,7 +89,7 @@ Then access the values with `%state:node.ask_first_name.text%` and `%state:node.
     prompt_type: text
     messages:
       - "Please enter your phone number"
-    delay_on_complete: 2
+    delay_complete_seconds: 2
     on_complete: verify_phone
 ```
 

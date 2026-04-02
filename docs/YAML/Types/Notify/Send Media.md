@@ -91,12 +91,40 @@ ___
 ```yaml
   send_certificate:
     type: notify
-    doc: "%state:node.share_certificate.link%"
+    doc: 'https://%state:node.share_certificate.link|replace("https://", "")%'
     caption: "Here is your certificate, %chat:title%"
     filename: certificate.pdf
     on_complete: main_menu
     delay_complete_seconds: 5
 ```
+:::tip[Dynamic URLs with data injection]
+When using data injection in `doc:` or `media:`, the flow editor requires the value to start with `https://`. To work around this while still injecting a full URL dynamically, strip the protocol from the injected value and prepend it manually:
+
+```yaml
+doc: 'https://%chat:crmData.document.url|replace("https://", "")%'
+```
+
+This satisfies the editor's validation while correctly resolving the full URL at runtime.
+:::
+
+### Caption with line breaks
+```yaml
+  send_invoice:
+    type: notify
+    doc: https://storage.googleapis.com/mybucket/invoice.pdf
+    caption: "Hello %chat:title%,\nYour invoice is attached below.\nThank you for your business!"
+    filename: invoice.pdf
+    on_complete: main_menu
+    delay_complete_seconds: 5
+```
+
+:::tip[Line breaks in captions]
+`caption` is a single string — not an array. To break a line, use `\n` inside the string:
+
+```yaml
+caption: "Hi %chat:title%,\nHere is your file.\nHave a great day!"
+```
+:::
 
 :::danger
 Always include `delay_complete_seconds` when sending media. Without it, the next node may execute before the file is delivered to the user, causing messages to appear out of order.
