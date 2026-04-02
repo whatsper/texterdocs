@@ -2,11 +2,32 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-03-29T00:00:00.000Z</updated>
+    <updated>2026-04-02T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Plando Adapter + Docs Fixes]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando"/>
+        <updated>2026-04-02T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[New Plando CRM adapter docs and a round of fixes and additions across existing pages.]]></summary>
+        <content type="html"><![CDATA[<p>New Plando CRM adapter docs and a round of fixes and additions across existing pages.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Plando adapter</strong> — full documentation for <code>getCustomerDetails</code>, <code>newOpportunity</code>, <code>openTicket</code>/<code>closeTicket</code>, and out-of-adapter endpoints (<code>log_activity</code>, <code>upload_contact_file</code>)</li>
+<li><strong><code>log_activity</code></strong> — expanded with all supported API fields including contact identification options, record fields, and response handling</li>
+<li><strong>Send Media</strong> — added dynamic URL tip (workaround for editor validation when using data injection in <code>doc:</code>/<code>media:</code>) and a line breaks in captions example</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>Prompt Text</strong> — corrected optional param name from <code>delay_on_complete</code> to <code>delay_complete_seconds</code></li>
+</ul>]]></content>
+        <category label="adapters" term="adapters"/>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Senzey & Lead.IM Adapters + Docs Improvements]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim</id>
