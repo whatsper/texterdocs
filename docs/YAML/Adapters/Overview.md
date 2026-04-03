@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Overview
 
-CRM **adapters** are built-in integrations: you call a **`func`** node with `func_type: crm` and a specific **`func_id`** (the **operation**, also referred to as `op`). Texter runs the right HTTP calls to that CRM for your environment, maps responses into **`%chat:crmData%`** / bot state, and routes the flow with `on_complete` / `on_failure`.
+CRM **adapters** are built-in integrations: you call a `func` node with `func_type: crm` and a specific `func_id` (the **operation**, also referred to as `op`). Texter runs the right HTTP calls to that CRM for your environment, maps responses into `%chat:crmData%` / bot state, and routes the flow with `on_complete` / `on_failure`.
 
 This section documents those operations **per CRM**. When the CRM’s public API exposes more than the adapter covers, use the **[`request`](/docs/YAML/Types/Func/System/Request)** function (or webhooks where relevant) and the vendor’s official API docs — see also **[API & External References](/docs/API)**.
 
@@ -23,7 +23,7 @@ ___
     on_failure: <fallback_node>
 ```
 
-- **`func_type`** is always **`crm`** for adapter calls.
+- **`func_type`** is always `crm` for adapter calls.
 - **`func_id`** is the operation name (e.g. `getCustomerDetails`, `newOpportunity`, `updateLead`).
 - **`params`** depend on **both** the operation and the **CRM adapter** implementation.
 
@@ -37,7 +37,7 @@ Adapter code often **does not** pass your YAML fields straight to the vendor API
 - Some operations only accept a **fixed list** of params wired in code — extra keys are ignored or rejected until support is added.
 - **Always treat the adapter page for that CRM + operation as the source of truth**, not the vendor’s REST field names, unless that page says the passthrough is 1:1.
 
-Per-operation pages will list **required** and **optional** params as implemented in Texter. If something is missing for your use case, it may require a product change or using **`request`** instead.
+Per-operation pages will list **required** and **optional** params as implemented in Texter. If something is missing for your use case, it may require a product change or using `request` instead.
 
 ___
 
@@ -115,4 +115,4 @@ ___
 
 ## CRM-specific docs
 
-Use the **CRM pages** under this folder in the sidebar for **every supported `func_id`**, exact **`params`**, links to official vendor docs, and **`request`** patterns where the adapter does not cover an endpoint.
+Use the **CRM pages** under this folder in the sidebar for **every supported `func_id`**, exact `params`, links to official vendor docs, and `request` patterns where the adapter does not cover an endpoint.

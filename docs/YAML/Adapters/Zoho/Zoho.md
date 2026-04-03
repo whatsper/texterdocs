@@ -27,12 +27,12 @@ These values are set **once** per customer environment (not in public bot YAML).
 
 | Field | Required | Default (if unset) | Use |
 |--------|----------|---------------------|-----|
-| `orgId` | Yes | — | Can be found in customers Zoho URL, with an `org` prefix (e.g., **`org1429453822`**) - **`getCustomerDetails`** builds a **deep link** to the open record in the Zoho CRM UI. |
-| `contactModule` | No | `Contacts` | Module used for **`getCustomerDetails`** (COQL `FROM` clause). |
+| `orgId` | Yes | — | Can be found in customers Zoho URL, with an `org` prefix (e.g., `org1429453822`) - `getCustomerDetails` builds a **deep link** to the open record in the Zoho CRM UI. |
+| `contactModule` | No | `Contacts` | Module used for `getCustomerDetails` (COQL `FROM` clause). |
 | `phoneField` | No | `Phone` | Primary phone field API name on that module. |
 | `secondaryPhoneField` | No | `Mobile` | Secondary phone field API name (also searched). |
-| `defaultRecord` | No | `Leads` | Default **module** for create-style ops when **`params.record`** is omitted. |
-| `closeTicketDateField` | No | — | Used by **`closeTicket`** when stamping a datetime field. |
+| `defaultRecord` | No | `Leads` | Default **module** for create-style ops when `params.record` is omitted. |
+| `closeTicketDateField` | No | — | Used by `closeTicket` when stamping a datetime field. |
 | `apiDomain` | No | From OAuth metadata or `https://www.zohoapis.com` | Zoho API base; some regions/datacenters differ - for example `https://www.zohoapis.eu` |
 
 OAuth for Zoho is configured in the Texter environment; bot YAML does **not** contain secrets.
@@ -41,7 +41,7 @@ OAuth for Zoho is configured in the Texter environment; bot YAML does **not** co
 
 ## Adapter functions
 
-Supported operations in code: **`getCustomerDetails`**, **`customQuery`**, **`createRecord`**, **`newOpportunity`**, **`updateRecord`**, **`closeTicket`**.  
+Supported operations in code: `getCustomerDetails`, `customQuery`, `createRecord`, `newOpportunity`, `updateRecord`, `closeTicket`.  
 `newOpportunity` and `createRecord` share the same **create** implementation — documented below.
 
 ---
@@ -52,7 +52,7 @@ Looks up a **contact (or configured module row)** by **matching the chat’s pho
 
 **When it runs:** Same pattern as other CRMs: from bot YAML, and the **CRM panel** in the Texter UI can rely on the same kind of lookup when a chat is opened (phone must be present on the chat).
 
-The adapter runs a **COQL** `SELECT` on **`crmConfig.contactModule`** (default `Contacts`). It compares the channel phone in several shapes (digits-only, locally formatted, E.164) against **`phoneField`** (default `Phone`) and **`secondaryPhoneField`** (default `Mobile`).
+The adapter runs a **COQL** `SELECT` on `crmConfig.contactModule` (default `Contacts`). It compares the channel phone in several shapes (digits-only, locally formatted, E.164) against `phoneField` (default `Phone`) and `secondaryPhoneField` (default `Mobile`).
 
 **Basic**
 
@@ -68,16 +68,16 @@ The adapter runs a **COQL** `SELECT` on **`crmConfig.contactModule`** (default `
 | Param | Required | Notes |
 |--------|----------|--------|
 | *(none)* | — | Uses the chat’s **E.164** channel phone. If the chat has **no** phone, the operation **fails** (`on_failure`). |
-| `fields` | No | Array of **extra** Zoho field API names to include in the `SELECT` (strings only). The adapter always requests **`id`**, **`Full_Name`**, **`Owner`**, and both phone fields; `fields` **adds** to that list. |
+| `fields` | No | Array of **extra** Zoho field API names to include in the `SELECT` (strings only). The adapter always requests `id`, `Full_Name`, `Owner`, and both phone fields; `fields` **adds** to that list. |
 
-**Result:** On success, **`crmData`** includes at least:
+**Result:** On success, `crmData` includes at least:
 
-- **`recordId`** — Zoho record `id`.
-- **`name`** — from **`Full_Name`**.
-- **`phone`** — the value from the primary phone field if present, otherwise the secondary.
-- **`ownerId`** — from **`Owner.id`** (owner user id).
-- **`deepLink`** — a URL to the record in Zoho’s UI.
-- Raw fields from the selected row (including any extra columns you asked for in **`fields`**) are merged into **`crmData`** as returned by Zoho.
+- `recordId` — Zoho record `id`.
+- `name` — from `Full_Name`.
+- `phone` — the value from the primary phone field if present, otherwise the secondary.
+- `ownerId` — from `Owner.id` (owner user id).
+- `deepLink` — a URL to the record in Zoho’s UI.
+- Raw fields from the selected row (including any extra columns you asked for in `fields`) are merged into `crmData` as returned by Zoho.
 
 **Advanced** — pull extra columns for later nodes (e.g. custom fields the customer added in Zoho):
 
@@ -97,19 +97,19 @@ The adapter runs a **COQL** `SELECT` on **`crmConfig.contactModule`** (default `
 
 Use only API names that exist on the **configured contact module**; invalid or unsupported COQL fields will cause the lookup to **fail** (same as any COQL error).
 
-**Lookup and other complex fields:** Zoho often returns **lookup** fields (e.g. **`Account_Name`**) as an **object** with **`id`**, **`name`**, etc. After **`getCustomerDetails`**, you can use expressions like **`%chat:crmData.Account_Name.id%`** in later nodes or inside a **`customQuery`** `WHERE` clause. Include those field API names in **`params.fields`** when you need them on the contact row.
+**Lookup and other complex fields:** Zoho often returns **lookup** fields (e.g. `Account_Name`) as an **object** with `id`, `name`, etc. After `getCustomerDetails`, you can use expressions like `%chat:crmData.Account_Name.id%` in later nodes or inside a `customQuery` `WHERE` clause. Include those field API names in `params.fields` when you need them on the contact row.
 
 ---
 
 ### `customQuery`
 
-Runs a **COQL** `SELECT` you provide. Use this when **`getCustomerDetails`** is not enough — e.g. read a field from **another module** (via id from a lookup on the contact).
+Runs a **COQL** `SELECT` you provide. Use this when `getCustomerDetails` is not enough — e.g. read a field from **another module** (via id from a lookup on the contact).
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `query` | **Yes** | Full COQL string passed to Zoho’s [COQL API](https://www.zoho.com/crm/developer/docs/api/v7/COQL-Overview.html). You can embed **`%chat:crmData…%`** (and other supported interpolations) so the query depends on an earlier CRM step. |
+| `query` | **Yes** | Full COQL string passed to Zoho’s [COQL API](https://www.zoho.com/crm/developer/docs/api/v7/COQL-Overview.html). You can embed `%chat:crmData…%` (and other supported interpolations) so the query depends on an earlier CRM step. |
 
-**Result:** On success, the **first row** of the result set is stored under **`crmData.queryResult`**: each selected column’s **API name** becomes a key (e.g. **`crmData.queryResult.First_Name`** for `SELECT First_Name FROM …`). Existing **`crmData`** from earlier in the flow is preserved; **`queryResult`** is added/updated for this step.
+**Result:** On success, the **first row** of the result set is stored under `crmData.queryResult`: each selected column’s **API name** becomes a key (e.g. `crmData.queryResult.First_Name` for `SELECT First_Name FROM …`). Existing `crmData` from earlier in the flow is preserved; `queryResult` is added/updated for this step.
 
 **Basic** — follow-up read after a contact lookup:
 
@@ -137,25 +137,25 @@ Runs a **COQL** `SELECT` you provide. Use this when **`getCustomerDetails`** is 
     on_complete: done
 ```
 
-If the query returns **no rows**, the adapter fails — use **`on_failure`** or ensure the COQL always matches a row.
+If the query returns **no rows**, the adapter fails — use `on_failure` or ensure the COQL always matches a row.
 
 ---
 
 ### `createRecord` / `newOpportunity`
 
-Creates a **new row** in a Zoho module (**POST** [insert records](https://www.zoho.com/crm/developer/docs/api/v7/insert-records.html)). **`createRecord`** and **`newOpportunity`** use the same implementation — pick the name that matches your conventions.
+Creates a **new row** in a Zoho module (**POST** [insert records](https://www.zoho.com/crm/developer/docs/api/v7/insert-records.html)). `createRecord` and `newOpportunity` use the same implementation — pick the name that matches your conventions.
 
-**When it runs:** Most often when you need a **Lead**, **Contact**, **Task**, **Case**, or custom-module row that does not exist yet (e.g. after **`on_failure`** from **`getCustomerDetails`**, or to open a task linked to **`crmData.recordId`**).
+**When it runs:** Most often when you need a **Lead**, **Contact**, **Task**, **Case**, or custom-module row that does not exist yet (e.g. after `on_failure` from `getCustomerDetails`, or to open a task linked to `crmData.recordId`).
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `record` | No* | *Module API name (`Contacts`, `Leads`, `Tasks`, `Cases`, custom module, …). If omitted, uses **`crmConfig.defaultRecord`** (default **`Leads`**). |
+| `record` | No* | *Module API name (`Contacts`, `Leads`, `Tasks`, `Cases`, custom module, …). If omitted, uses `crmConfig.defaultRecord` (default `Leads`). |
 | `dateField` | No | If set, the adapter sets this Zoho field to the **current** time (`YYYY-MM-DDTHH:mm:ssZ`). |
 | *(other keys)* | No | **Zoho field API names** → values on the new record. |
 
 **Required fields** are whatever Zoho enforces for that module in that org — get names and mandatory columns from the customer.
 
-**Result:** On success, **`crmData.recordId`** is set to the **new** record’s id from Zoho. Other **`crmData`** keys are preserved as-is.
+**Result:** On success, `crmData.recordId` is set to the **new** record’s id from Zoho. Other `crmData` keys are preserved as-is.
 
 **Basic** — contact with phone and source:
 
@@ -172,7 +172,7 @@ Creates a **new row** in a Zoho module (**POST** [insert records](https://www.zo
     on_complete: next_step
 ```
 
-**Advanced** — task on the current contact (**`Who_Id`** = contact **`recordId`** after **`getCustomerDetails`** or after creating the contact):
+**Advanced** — task on the current contact (`Who_Id` = contact `recordId` after `getCustomerDetails` or after creating the contact):
 
 ```yaml
   open_task_for_contact:
@@ -192,19 +192,19 @@ Creates a **new row** in a Zoho module (**POST** [insert records](https://www.zo
 
 ### `updateRecord`
 
-Updates an **existing** row (**PUT** [update records](https://www.zoho.com/crm/developer/docs/api/v7/update-records.html)) by **`recordId`**.
+Updates an **existing** row (**PUT** [update records](https://www.zoho.com/crm/developer/docs/api/v7/update-records.html)) by `recordId`.
 
-**When it runs:** Whenever you already know the Zoho **id** (usually **`crmData.recordId`** after **`getCustomerDetails`**) and need to patch fields without creating a new row.
+**When it runs:** Whenever you already know the Zoho **id** (usually `crmData.recordId` after `getCustomerDetails`) and need to patch fields without creating a new row.
 
 | Param | Required | Notes |
 |--------|----------|--------|
 | *(prerequisite)* | — | `crmData.recordId` must be on the chat — set by `getCustomerDetails`, `createRecord`, or `newOpportunity`. |
-| `recordId` | **Yes** | Zoho record id — typically **`%chat:crmData.recordId%`**. |
-| `record` | No* | *Module API name (`Contacts`, `Leads`, `Tasks`, `Cases`, custom module, …). If omitted, uses **`crmConfig.defaultRecord`** (default **`Leads`**). |
+| `recordId` | **Yes** | Zoho record id — typically `%chat:crmData.recordId%`. |
+| `record` | No* | *Module API name (`Contacts`, `Leads`, `Tasks`, `Cases`, custom module, …). If omitted, uses `crmConfig.defaultRecord` (default `Leads`). |
 | `dateField` | No | If set, the adapter sets this Zoho field to the **current** time (`YYYY-MM-DDTHH:mm:ssZ`). |
 | *(other keys)* | No | **Zoho field API names** → values on the new record. |
 
-**Result:** On success, **`crmData.recordId`** is set from the API response (usually the same id). **`crmData`** is otherwise merged from the chat as before.
+**Result:** On success, `crmData.recordId` is set from the API response (usually the same id). `crmData` is otherwise merged from the chat as before.
 
 **Basic**
 
@@ -239,23 +239,23 @@ Updates an **existing** row (**PUT** [update records](https://www.zoho.com/crm/d
 
 ### `closeTicket`
 
-Same as **`updateRecord`** (**PUT**): update a row (e.g. close a **Case**) and optionally stamp **`dateField`** with the current time.
+Same as `updateRecord` (**PUT**): update a row (e.g. close a **Case**) and optionally stamp `dateField` with the current time.
 
-* **When the chat is resolved by an agent** - **`closeTicket`** runs with **no YAML `params`**. **`recordId`** comes from **`previousBotSession.store.accountId`** if set, else **`crmData.recordId`**. **`dateField`** comes from **`crmConfig.closeTicketDateField`** when set. **`record`** falls back to **`crmConfig.defaultRecord`** — set **`defaultRecord`** (or CRM config) so that matches the module you close.
+* **When the chat is resolved by an agent** - `closeTicket` runs with no YAML params. `recordId` comes from `previousBotSession.store.accountId` if set, else `crmData.recordId`. `dateField` comes from `crmConfig.closeTicketDateField` when set. `record` falls back to `crmConfig.defaultRecord` — set `defaultRecord` (or CRM config) so that matches the module you close.
 
-* **When you call it from YAML** - Put optional **`record`** / **`recordId`** / **`dateField`** overrides, and Zoho fields in **`params`**. **`params` are merged last** and win over those defaults.
+* **When you call it from YAML** - Put optional `record` / `recordId` / `dateField` overrides, and Zoho fields in `params`. `params` are merged last** and win over those defaults.
 
-Requires a **`recordId`** on the chat from session or **`crmData`**; if both are missing, the op fails ( **`params.recordId`** does not satisfy that check).
+Requires a `recordId` on the chat from session or `crmData`; if both are missing, the op fails ( `params.recordId` does not satisfy that check).
 
 | Param | Notes |
 |--------|--------|
 | *(prerequisite)* | `crmData.recordId` (or `previousBotSession.store.accountId`) must be on the chat. |
-| `record` | Module API name (e.g. **`Cases`**). |
-| `recordId` | Override; else **`previousBotSession.store.accountId`** \|\| **`crmData.recordId`**. |
-| `dateField` | Override; else **`crmConfig.closeTicketDateField`**. |
-| *(other)* | Same as **`updateRecord`**. |
+| `record` | Module API name (e.g. `Cases`). |
+| `recordId` | Override; else `previousBotSession.store.accountId` \|\| `crmData.recordId`. |
+| `dateField` | Override; else `crmConfig.closeTicketDateField`. |
+| *(other)* | Same as `updateRecord`. |
 
-**Result:** Same as **`updateRecord`**.
+**Result:** Same as `updateRecord`.
 
 ```yaml
   close_case_in_zoho:
@@ -271,7 +271,7 @@ Requires a **`recordId`** on the chat from session or **`crmData`**; if both are
 
 :::note Bulthaup only
 
-**Bulthaup** uses a **different** **`closeTicket`** (WhatsApp / transcript). Other customers: generic **PUT** above.
+**Bulthaup** uses a **different** `closeTicket` (WhatsApp / transcript). Other customers: generic **PUT** above.
 
 :::
 
@@ -279,7 +279,7 @@ Requires a **`recordId`** on the chat from session or **`crmData`**; if both are
 
 ## Zoho onboarding (for Texter Support)
 
-Use this flow to register a **Zoho OAuth** app and wire **client credentials** + **`orgId`** for a customer. Set **`apiDomain`** in CRM config if the org is not on the default US API host (see **`crmConfig.apiDomain`**).
+Use this flow to register a **Zoho OAuth** app and wire **client credentials** + `orgId` for a customer. Set `apiDomain` in CRM config if the org is not on the default US API host (see `crmConfig.apiDomain`).
 
 **Access:** Texter support **does not** have access to the customer’s Zoho org. **Creating the API Console app** must be done **while logged into that customer’s Zoho account** — either they create it themselves, or you guide them via **AnyDesk** (or similar) from their machine.
 
@@ -299,7 +299,7 @@ Use a consistent app name / URL if you like; what matters is **Authorized redire
 
 `https://<PROJECT_ID>.texterchat.com/server/auth/oauth/v2/authorize-callback/zoho/default`
 
-Replace **`<PROJECT_ID>`** with the customer’s Texter project id.
+Replace `<PROJECT_ID>` with the customer’s Texter project id.
 
 ![][image2]
 
@@ -324,7 +324,7 @@ From the customer’s computer (e.g. **AnyDesk**), open **Texter Inbox → Setti
 **5. Customer DB — crmConfig fields**
 
 
-Set **`orgId`** to the value from the customer’s Zoho CRM URL (open [crm.zoho.com](https://crm.zoho.com) while logged in as them — the org id appears in the URL, e.g. `org886758394`).
+Set `orgId` to the value from the customer’s Zoho CRM URL (open [crm.zoho.com](https://crm.zoho.com) while logged in as them — the org id appears in the URL, e.g. `org886758394`).
 
 ![][image5]
 

@@ -73,7 +73,7 @@ Creates a new lead/client. Most commonly used when the sender is not identified 
 | Param | Required | Notes |
 |--------|----------|--------|
 | `phone` | No\* | *If omitted, uses chat **formatted phone**. |
-| `first_name` | No* | \*If omitted, uses **`chat.title`**. |
+| `first_name` | No* | \*If omitted, uses `chat.title`. |
 | `last_name` | No | |
 | `email` | No | |
 | `phone2` | No | |

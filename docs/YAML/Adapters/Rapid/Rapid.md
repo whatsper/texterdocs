@@ -76,13 +76,13 @@ Creates a new lead. Most commonly used when the sender is not identified.
 | Param | Required | Notes |
 |--------|----------|--------|
 | `phoneNumber` | No* | *If omitted, uses chat **formatted phone**. |
-| `clientName` | No* | *If omitted, uses **`chat.title`**. |
-| `leads_token` | No* | *If omitted, uses **`crmConfig.leads_token`**. Different `leads_token` means different source shown in Rapid. The token is generated in Rapid CRM and should be provided by the customer. |
-| `interest_node` | No | **Texter-only:** choice node name → sets **`interest`** from **`userState[node].id`**. |
-| `firstName` | No | If omitted, set from **`clientName`** / **`chat.title`**. |
-| `lastName` | No | If omitted, adapter uses **`" "`**. |
-| `cellPhone` | No | If omitted, set from **`phoneNumber`**. |
-| `externalId` | No | If omitted, **`randomUUID()`** → **`crmData.leadExternalId`**. Override only for external-system alignment. |
+| `clientName` | No* | *If omitted, uses `chat.title`. |
+| `leads_token` | No* | *If omitted, uses `crmConfig.leads_token`. Different `leads_token` means different source shown in Rapid. The token is generated in Rapid CRM and should be provided by the customer. |
+| `interest_node` | No | **Texter-only:** choice node name → sets `interest` from `userState[node].id`. |
+| `firstName` | No | If omitted, set from `clientName` / `chat.title`. |
+| `lastName` | No | If omitted, adapter uses `" "`. |
+| `cellPhone` | No | If omitted, set from `phoneNumber`. |
+| `externalId` | No | If omitted, `randomUUID()` → `crmData.leadExternalId`. Override only for external-system alignment. |
 | `eMail` | No | |
 | `nationalId` | No | |
 | `gender` | No | |
@@ -91,7 +91,7 @@ Creates a new lead. Most commonly used when the sender is not identified.
 | `address` | No | |
 | `city` | No | |
 | `country` | No | |
-| `interest` | No | Superseded by **`interest_node`** when **`interest_node`** is set. |
+| `interest` | No | Superseded by `interest_node` when `interest_node` is set. |
 | `wantedTreatment` | No | |
 | `location` | No | |
 | `branch` | No | Branch id (provided by the customer). |
@@ -101,7 +101,7 @@ Creates a new lead. Most commonly used when the sender is not identified.
 | `created` | No | ISO datetime. |
 | `source` | No | **Lead_SourceID**; token must allow *Accept multiple sources* (Rapid Admin → CRM → lead source management). |
 | `sourceName` | No | |
-| *custom fields* | No | Keys configured in Rapid (e.g. **`Ads_group`**). |
+| *custom fields* | No | Keys configured in Rapid (e.g. `Ads_group`). |
 
 **Result:** `crmData.leadName`, `crmData.leadExternalId`.
 
@@ -126,7 +126,7 @@ Creates a new lead. Most commonly used when the sender is not identified.
 ### `updateLead`
 
 Updates a lead. The adapter always includes `externalId` from `crmData.leadExternalId` (set by `newOpportunity` or supplied for an external lead). 
-**Update Lead only succeeds** if **`externalId`** and **`leads_token`** match the lead’s **create** call; if `newOpportunity` used a `leads_token` in params (overrides the token set in CRM config), `updateLead` must use the same token. 
+**Update Lead only succeeds** if `externalId` and `leads_token` match the lead’s **create** call; if `newOpportunity` used a `leads_token` in params (overrides the token set in CRM config), `updateLead` must use the same token. 
 
 Leads created outside the bot need `leadExternalId` (**must** be this exact key name) + matching `leads_token` in crmData — Rapid has **no** lookup-by-API. All non-empty string `params` keys merge into the body (same names as `newOpportunity`).
 
@@ -146,11 +146,11 @@ Leads created outside the bot need `leadExternalId` (**must** be this exact key 
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| *(prerequisite)* | — | **`crmData.leadExternalId`** must be on the chat. |
-| `leads_token` | No* | *If omitted, uses **`crmConfig.leads_token`**. Must be the **same lead source** used when the lead was created. |
+| *(prerequisite)* | — | `crmData.leadExternalId` must be on the chat. |
+| `leads_token` | No* | *If omitted, uses `crmConfig.leads_token`. Must be the **same lead source** used when the lead was created. |
 | *other fields* | No | Same field names as `newOpportunity` — pass only what you want to update. |
 
-**Result:** Success only; **`crmData`** unchanged.
+**Result:** Success only; `crmData` unchanged.
 
 **Advanced**
 
@@ -186,9 +186,9 @@ Opens a **ticket** in Rapid with the **recent conversation** as the message body
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `phoneNumber` | No* | *If omitted, uses the chat’s **formatted channel phone** when present. If the chat has no phone, pass **`phoneNumber`** (formatted per customer country). |
+| `phoneNumber` | No* | *If omitted, uses the chat’s **formatted channel phone** when present. If the chat has no phone, pass `phoneNumber` (formatted per customer country). |
 
-**Result:** Success with Rapid’s ticket response merged into **`crmData`**.
+**Result:** Success with Rapid’s ticket response merged into `crmData`.
 
 **Advanced** — chat without a channel phone:
 
@@ -206,7 +206,7 @@ Opens a **ticket** in Rapid with the **recent conversation** as the message body
 
 ### `createUpdateCustomer`
 
-Creates or updates a **patient** in Rapid. Set **`updateCustomer: true`** only when **`crmData.cardCode`** is already on the chat (after **`getCustomerDetails`**); otherwise omit **`updateCustomer`** or use **`false`** — **`cellPhone`** defaults from the chat if omitted.
+Creates or updates a **patient** in Rapid. Set `updateCustomer: true` only when `crmData.cardCode` is already on the chat (after `getCustomerDetails`); otherwise omit `updateCustomer` or use `false` — `cellPhone` defaults from the chat if omitted.
 
 **When it runs:** When you need to create or update a patient record — typically after conversion from a lead or for new patient intake.
 
@@ -226,10 +226,10 @@ Creates or updates a **patient** in Rapid. Set **`updateCustomer: true`** only w
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `updateCustomer` | No | If omitted, **`false`**. **`true`** = update — requires **`crmData.cardCode`**. |
-| `cellPhone` | No* | *Create: if omitted, uses chat **formatted phone**. Anything you pass in **`params`** wins. |
-| `addressesList` | No* | *Sent as **`[]`** if you don’t pass it. Address lines: **`Street`**, **`HouseNumber`**, **`AppartmentNumber`**, **`City`**, **`ZipCode`**, **`CountryCode`**, **`TypeOfAddress`** (`0` mailing / `1` invoicing). |
-| `BPCode` | No* | *Update: set from **`crmData.cardCode`** if you don’t pass it. |
+| `updateCustomer` | No | If omitted, `false`. `true` = update — requires `crmData.cardCode`. |
+| `cellPhone` | No* | *Create: if omitted, uses chat **formatted phone**. Anything you pass in `params` wins. |
+| `addressesList` | No* | *Sent as `[]` if you don’t pass it. Address lines: `Street`, `HouseNumber`, `AppartmentNumber`, `City`, `ZipCode`, `CountryCode`, `TypeOfAddress` (`0` mailing / `1` invoicing). |
+| `BPCode` | No* | *Update: set from `crmData.cardCode` if you don’t pass it. |
 | `nationalIDNumber` | No | ת.ז |
 | `homePhone` | No | |
 | `workPhone` | No | |
@@ -243,7 +243,7 @@ Creates or updates a **patient** in Rapid. Set **`updateCustomer: true`** only w
 | `foreignLastName` | No | |
 | `title` | No | `int`: Mr = 1, Mrs = 2, Dr = 3, Miss = 4, Prof = 5 |
 | `sex` | No | `int`: 1 male, 2 female |
-| `birthDate` | No | e.g. **`DD/MM/YYYY`** per Rapid |
+| `birthDate` | No | e.g. `DD/MM/YYYY` per Rapid |
 | `statusName` / `status` | No | |
 | `fatherCell` / `motherCell` | No | |
 | `cellPhoneComment`, `cellPhone2Comment`, `homePhoneComment`, `workPhoneComment`, `emergencyPhoneComment`, `fatherCellComment`, `motherCellComment`, `faxComment` | No | |
@@ -253,7 +253,7 @@ Creates or updates a **patient** in Rapid. Set **`updateCustomer: true`** only w
 | `updateAttributeValues` | No | `boolean` |
 | `priceListId` | No | `int` |
 
-**Result:** Success only; **`crmData`** unchanged. After **create**, run **`getCustomerDetails`** to get **`cardCode`** on the chat.
+**Result:** Success only; `crmData` unchanged. After **create**, run `getCustomerDetails` to get `cardCode` on the chat.
 
 **Advanced**
 
@@ -315,7 +315,7 @@ Create:
 
 ### `changeStatus`
 
-Shortcut to set **patient status** from **`crmStatusCode`** (requires **`crmData.cardCode`**).
+Shortcut to set **patient status** from `crmStatusCode` (requires `crmData.cardCode`).
 
 **When it runs:** After `getCustomerDetails` — to update the patient's status in Rapid.
 
@@ -333,16 +333,16 @@ Shortcut to set **patient status** from **`crmStatusCode`** (requires **`crmData
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `crmStatusCode` | Yes | Maps to Rapid **`statusName`** on the import body. |
-| *(prerequisite)* | — | **`crmData.cardCode`** must be on the chat. |
+| `crmStatusCode` | Yes | Maps to Rapid `statusName` on the import body. |
+| *(prerequisite)* | — | `crmData.cardCode` must be on the chat. |
 
-**Result:** Success only; **`crmData`** unchanged.
+**Result:** Success only; `crmData` unchanged.
 
 ---
 
 ### `closeTicket`
 
-Sends the **chat transcript** to Rapid when **`crmData.cardCode`** exists (used by product flows when resolving a chat; rarely called directly from YAML).
+Sends the **chat transcript** to Rapid when `crmData.cardCode` exists (used by product flows when resolving a chat; rarely called directly from YAML).
 
 **When it runs:** When the chat is resolved — sends the conversation transcript to Rapid.
 
@@ -358,9 +358,9 @@ Sends the **chat transcript** to Rapid when **`crmData.cardCode`** exists (used 
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| *(omit `params`)* | — | Uses messages passed into the adapter by the runtime. **Requires `crmData.cardCode`** on the chat or the op does nothing useful. |
+| *(omit `params`)* | — | Uses messages passed into the adapter by the runtime. **Requires `crmData.cardCode` on the chat or the op does nothing useful. |
 
-**Result:** Success with **`lastMessageStoredInCRMTimestamp`** when Rapid accepts the transcript.
+**Result:** Success with `lastMessageStoredInCRMTimestamp` when Rapid accepts the transcript.
 
 ---
 
@@ -368,7 +368,7 @@ Sends the **chat transcript** to Rapid when **`crmData.cardCode`** exists (used 
 
 Natural end-to-end flow for **automatic appointment scheduling** (תיאום תורים אוטומטי): [FigJam — Rapid bot flow](https://www.figma.com/board/HDRU1IVOXD1dPKiosfQkxE/%D7%A8%D7%90%D7%A4%D7%99%D7%93-%D7%91%D7%95%D7%98-%D7%9C%D7%93%D7%95%D7%92%D7%9E%D7%90--%D7%9C%D7%90-%D7%9C%D7%A9%D7%A0%D7%95%D7%AA---Copy-?node-id=0-1&p=f&t=OccA48V3pjHh9NKW-0).
 
-**Cancel / reschedule:** Not supported by Rapid in this integration yet — there is no **`func_id`** for cancel or reschedule; only list, slots, and book.
+**Cancel / reschedule:** Not supported by Rapid in this integration yet — there is no `func_id` for cancel or reschedule; only list, slots, and book.
 
 ### High-level flow (what to run, in order)
 
@@ -478,7 +478,7 @@ flowchart TD
 
 ### `getCustomerAppointments`
 
-Lists appointments for **`customerId`** (param or `crmData.cardCode`). By default **future** appointments only; set `showPastAppointments: true` to include past.
+Lists appointments for `customerId` (param or `crmData.cardCode`). By default **future** appointments only; set `showPastAppointments: true` to include past.
 
 **Basic**
 
@@ -492,10 +492,10 @@ Lists appointments for **`customerId`** (param or `crmData.cardCode`). By defaul
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `customerId` | No* | *If omitted, uses **`crmData.cardCode`** — **`cardCode`** must exist on the chat. |
-| `showPastAppointments` | No | If omitted, **`false`** (future appointments only). |
+| `customerId` | No* | *If omitted, uses `crmData.cardCode` — `cardCode` must exist on the chat. |
+| `showPastAppointments` | No | If omitted, `false` (future appointments only). |
 | `titleFormat` | No | Handlebars template for list titles. |
-| `idField` / `crmIdField` | No | Which Rapid field feeds choice **`id`** / **`crm_id`**. |
+| `idField` / `crmIdField` | No | Which Rapid field feeds choice `id` / `crm_id`. |
 
 **Advanced** — full flow + checks:
 
@@ -579,7 +579,7 @@ Lists appointments for **`customerId`** (param or `crmData.cardCode`). By defaul
 
 ### `getBranches`
 
-Loads **branches** (each with nested **departments**) for the patient portal flow. Optional filters: **`branchId`**, **`departmentId`**, **`extended`**. Results may be **cached** briefly.
+Loads **branches** (each with nested **departments**) for the patient portal flow. Optional filters: `branchId`, `departmentId`, `extended`. Results may be **cached** briefly.
 
 **Basic**
 
@@ -617,7 +617,7 @@ Loads **branches** (each with nested **departments**) for the patient portal flo
 
 ### `getDepartments`
 
-Lists **departments**. If **`branchId`** matches a branch already on **`crmData.branches`**, the adapter may return that branch’s departments **without** calling Rapid again. If **both** **`branchId`** and **`departmentId`** are omitted, Rapid returns **all** departments.
+Lists **departments**. If `branchId` matches a branch already on `crmData.branches`, the adapter may return that branch’s departments **without** calling Rapid again. If **both** `branchId` and `departmentId` are omitted, Rapid returns **all** departments.
 
 **Basic**
 
@@ -634,7 +634,7 @@ Lists **departments**. If **`branchId`** matches a branch already on **`crmData.
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `branchId` | No* | *If omitted (and **`departmentId`** omitted), **all** departments. Usually pass after a branch pick. |
+| `branchId` | No* | *If omitted (and `departmentId` omitted), **all** departments. Usually pass after a branch pick. |
 | `departmentId` | No | Narrow to one department. |
 | `extended` | No | Richer objects when `true`. |
 
@@ -658,9 +658,9 @@ Lists **departments**. If **`branchId`** matches a branch already on **`crmData.
 
 ### `getServices`
 
-Lists **services** for a **doctor** and/or **department**. You must have a **price list** configured (**`crmData.priceListId`** or CRM **`defaultPriceListCode`**).
+Lists **services** for a **doctor** and/or **department**. You must have a **price list** configured (`crmData.priceListId` or CRM `defaultPriceListCode`).
 
-By default (**`skipValidation`** false or omitted), **`doctorId`** is required, and the adapter **drops services that don’t have availability** in the upcoming 7 days. Set **`skipValidation: true`** to list services **without** that check and **without** requiring **`doctorId`**.
+By default (`skipValidation` false or omitted), `doctorId` is required, and the adapter **drops services that don’t have availability** in the upcoming 7 days. Set `skipValidation: true` to list services **without** that check and **without** requiring `doctorId`.
 
 **Basic**
 
@@ -678,10 +678,10 @@ By default (**`skipValidation`** false or omitted), **`doctorId`** is required, 
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `doctorId` | Yes* | *Required unless **`skipValidation: true`**. |
+| `doctorId` | Yes* | *Required unless `skipValidation: true`. |
 | `departmentId` | No | Optional query filter. |
-| `skipValidation` | No | If omitted, **`false`** — availability filter on; **`doctorId`** required. When **`true`**, no availability filter and **`doctorId`** not required. |
-| *(price list)* | — | Not a param: **`crmData.priceListId`** or **`crmConfig.defaultPriceListCode`** must exist or the op errors. |
+| `skipValidation` | No | If omitted, `false` — availability filter on; `doctorId` required. When `true`, no availability filter and `doctorId` not required. |
+| *(price list)* | — | Not a param: `crmData.priceListId` or `crmConfig.defaultPriceListCode` must exist or the op errors. |
 
 **Result:** `crmData.services[]`, `crmData.servicesCount`.
 
@@ -703,7 +703,7 @@ By default (**`skipValidation`** false or omitted), **`doctorId`** is required, 
 
 ### `getTreatmentPlans`
 
-Loads **active treatment plans** for the patient from Rapid. **Requires `crmData.cardCode`**. No **`params`**.
+Loads **active treatment plans** for the patient from Rapid. Requires `crmData.cardCode`. No `params`.
 
 **Basic**
 
@@ -718,7 +718,7 @@ Loads **active treatment plans** for the patient from Rapid. **Requires `crmData
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| *(none)* | — | All data comes from **`crmData.cardCode`**. |
+| *(none)* | — | All data comes from `crmData.cardCode`. |
 
 **Result:** `crmData.treatmentPlans[]`, `crmData.treatmentPlansCount` (plans include nested **items**).
 
@@ -726,7 +726,7 @@ Loads **active treatment plans** for the patient from Rapid. **Requires `crmData
 
 ### `getTreatmentPlanItems`
 
-Exposes **one plan’s items** as **`crmData.services`** for booking. **`treatmentPlanId`** must match a plan **`id`** on **`crmData.treatmentPlans`** (usually after **`getTreatmentPlans`**).
+Exposes **one plan’s items** as `crmData.services` for booking. `treatmentPlanId` must match a plan `id` on `crmData.treatmentPlans` (usually after `getTreatmentPlans`).
 
 **Basic**
 
@@ -743,7 +743,7 @@ Exposes **one plan’s items** as **`crmData.services`** for booking. **`treatme
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `treatmentPlanId` | Yes | Numeric plan id from **`crmData.treatmentPlans`**. |
+| `treatmentPlanId` | Yes | Numeric plan id from `crmData.treatmentPlans`. |
 
 **Result:** `crmData.services[]`, `crmData.servicesCount`.
 
@@ -751,7 +751,7 @@ Exposes **one plan’s items** as **`crmData.services`** for booking. **`treatme
 
 ### `getServicesFromTreatmentPlans`
 
-Flattens **all** items from plans already on **`crmData.treatmentPlans`** into a single **`services`** list. **`deduplicate`** removes duplicate **item codes** by default.
+Flattens **all** items from plans already on `crmData.treatmentPlans` into a single `services` list. `deduplicate` removes duplicate **item codes** by default.
 
 **Basic**
 
@@ -766,7 +766,7 @@ Flattens **all** items from plans already on **`crmData.treatmentPlans`** into a
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `deduplicate` | No | If omitted, **`true`** (drop duplicate **`id`** / item codes). Set **`false`** to keep duplicates. |
+| `deduplicate` | No | If omitted, `true` (drop duplicate `id` / item codes). Set `false` to keep duplicates. |
 
 **Result:** `crmData.services[]`, `crmData.servicesCount`.
 
@@ -787,7 +787,7 @@ Flattens **all** items from plans already on **`crmData.treatmentPlans`** into a
 
 ### `getDoctors`
 
-Lists **doctors** who can perform the chosen **service** in the **department**. By default **`skipValidation`** is off: the adapter **keeps only doctors with availability** for that combo in the next 7 days. If **`skipValidation: true`**, you get the full list **without** that filter (and **`serviceId`** is optional).
+Lists **doctors** who can perform the chosen **service** in the **department**. By default `skipValidation` is off: the adapter **keeps only doctors with availability** for that combo in the next 7 days. If `skipValidation: true`, you get the full list **without** that filter (and `serviceId` is optional).
 
 **Basic**
 
@@ -806,9 +806,9 @@ Lists **doctors** who can perform the chosen **service** in the **department**. 
 | Param | Required | Notes |
 |--------|----------|--------|
 | `departmentId` | Yes | |
-| `serviceId` | Yes* | *Required unless **`skipValidation: true`**. |
-| `skipValidation` | No | If omitted, **`false`** (filter by availability). |
-| `extended` | No | If omitted, basic fields; **`true`** = extra doctor fields. |
+| `serviceId` | Yes* | *Required unless `skipValidation: true`. |
+| `skipValidation` | No | If omitted, `false` (filter by availability). |
+| `extended` | No | If omitted, basic fields; `true` = extra doctor fields. |
 
 **Result:** `crmData.doctors[]`, `crmData.doctorsCount`.
 
@@ -831,7 +831,7 @@ Lists **doctors** who can perform the chosen **service** in the **department**. 
 
 ### `getAvailableSlots`
 
-Returns **free slots** for doctor + department + service. **`datesRangeFrom`** / **`datesRangeTo`** are **days from today** (start and end of the search window).
+Returns **free slots** for doctor + department + service. `datesRangeFrom` / `datesRangeTo` are **days from today** (start and end of the search window).
 
 **Basic**
 
@@ -854,9 +854,9 @@ Returns **free slots** for doctor + department + service. **`datesRangeFrom`** /
 |--------|----------|--------|
 | `doctorId`, `departmentId`, `serviceId` | Yes | |
 | `datesRangeFrom`, `datesRangeTo` | Yes | Days from **today** (integers). |
-| `limit` | No* | *If omitted, **`crmConfig.defaultSlotsLimit`** or **`5`**. |
-| `offset` | No | If omitted, **`0`**. |
-| `onlyGoodSlots` | No | If omitted, **`false`**; if **`true`**, one slot per part of day. |
+| `limit` | No* | *If omitted, `crmConfig.defaultSlotsLimit` or `5`. |
+| `offset` | No | If omitted, `0`. |
+| `onlyGoodSlots` | No | If omitted, `false`; if `true`, one slot per part of day. |
 
 **Advanced** — pagination and “one slot per part of day”:
 
@@ -878,13 +878,13 @@ Returns **free slots** for doctor + department + service. **`datesRangeFrom`** /
     on_failure: no_slots_found
 ```
 
-**Result:** `crmData.freeSlots` with `startTime` / `endTime` ISO strings for **`scheduleAppointment`**.
+**Result:** `crmData.freeSlots` with `startTime` / `endTime` ISO strings for `scheduleAppointment`.
 
 ---
 
 ### `scheduleAppointment`
 
-**Books** the slot. The **service** must already sit on **`crmData.services`** — use the same **`serviceId`** as that row’s **`id`**.
+**Books** the slot. The **service** must already sit on `crmData.services` — use the same `serviceId` as that row’s `id`.
 
 **Basic**
 
@@ -905,11 +905,11 @@ Returns **free slots** for doctor + department + service. **`datesRangeFrom`** /
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `startTime`, `endTime` | Yes | ISO strings (from **`getAvailableSlots`**). |
+| `startTime`, `endTime` | Yes | ISO strings (from `getAvailableSlots`). |
 | `doctorId`, `departmentId`, `serviceId` | Yes | Must match the selected slot/service. |
-| `quantity` | No | If omitted, **`1`**. |
-| `discount` | No | If omitted, **`0`**. |
-| *(service row)* | — | Matching **`serviceId`** must exist on **`crmData.services`**. |
+| `quantity` | No | If omitted, `1`. |
+| `discount` | No | If omitted, `0`. |
+| *(service row)* | — | Matching `serviceId` must exist on `crmData.services`. |
 
 **Advanced** — quantity and discount:
 
@@ -938,7 +938,7 @@ Returns **free slots** for doctor + department + service. **`datesRangeFrom`** /
 
 ### `getFinancialDocuments`
 
-Lists **financial documents** for a patient. Query params are built from **`params`**; **`customerId`** defaults to **`crmData.cardCode`** when omitted.
+Lists **financial documents** for a patient. Query params are built from `params`; `customerId` defaults to `crmData.cardCode` when omitted.
 
 **Basic**
 
@@ -952,12 +952,12 @@ Lists **financial documents** for a patient. Query params are built from **`para
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `customerId` | No* | *If omitted, uses **`crmData.cardCode`** — must exist on the chat or pass explicitly. |
-| `limit` | No | If omitted, **`10`**. |
-| `offset` | No | If omitted, **`0`**. |
-| `fromDate`, `toDate` | No | ISO **`YYYY-MM-DDTHH:mm:ss`** (optional filter). |
-| `idField`, `crmIdField` | No | Which document field becomes choice **`id`** / **`crm_id`**. If omitted, **`id`** / **`docNumber`**. |
-| `titleFormat` | No | `{{...}}` template; variables match Rapid document fields, e.g. **`id`**, **`docNumber`**, **`date`**, **`branchName`**, **`docType`**, **`issuerName`**, **`customerId`**, **`fileName`**, **`departmentId`**, **`branchId`**. |
+| `customerId` | No* | *If omitted, uses `crmData.cardCode` — must exist on the chat or pass explicitly. |
+| `limit` | No | If omitted, `10`. |
+| `offset` | No | If omitted, `0`. |
+| `fromDate`, `toDate` | No | ISO `YYYY-MM-DDTHH:mm:ss` (optional filter). |
+| `idField`, `crmIdField` | No | Which document field becomes choice `id` / `crm_id`. If omitted, `id` / `docNumber`. |
+| `titleFormat` | No | `{{...}}` template; variables match Rapid document fields, e.g. `id`, `docNumber`, `date`, `branchName`, `docType`, `issuerName`, `customerId`, `fileName`, `departmentId`, `branchId`. |
 
 **Result:** `crmData.financialDocuments[]`
 
@@ -982,7 +982,7 @@ Lists **financial documents** for a patient. Query params are built from **`para
 
 ### `downloadDocument`
 
-Fetches the **PDF** for a row from **`getFinancialDocuments`**, stores it in Texter, and exposes **`downloadedDocument.url`** (share link).
+Fetches the **PDF** for a row from `getFinancialDocuments`, stores it in Texter, and exposes `downloadedDocument.url` (share link).
 
 **Basic**
 
@@ -1000,17 +1000,17 @@ Fetches the **PDF** for a row from **`getFinancialDocuments`**, stores it in Tex
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| `docNumber` | Yes | From a **`getFinancialDocuments`** row (`data`). |
-| `docType` | Yes | From **`data`**. |
-| `issuerName` | Yes | From **`data`**. |
-| `customerId` | No* | *If omitted, uses **`crmData.cardCode`**. |
-| `fileName` | No* | *If omitted, default **`financial-document-{docNumber}.pdf`**. |
+| `docNumber` | Yes | From a `getFinancialDocuments` row (`data`). |
+| `docType` | Yes | From `data`. |
+| `issuerName` | Yes | From `data`. |
+| `customerId` | No* | *If omitted, uses `crmData.cardCode`. |
+| `fileName` | No* | *If omitted, default `financial-document-{docNumber}.pdf`. |
 
-**Result:** **`crmData.downloadedDocument` object** with the following fields:
-- **`url`** - can be used for sending the doc using [`Send Media node`](/docs/YAML/Types/Notify/Send%20Media#document).
-- **`fileId`**
-- **`fileName`**
-- **`documentId`**
+**Result:** `crmData.downloadedDocument` object** with the following fields:
+- `url` - can be used for sending the doc using [`Send Media node`](/docs/YAML/Types/Notify/Send%20Media#document).
+- `fileId`
+- `fileName`
+- `documentId`
 
 **Advanced** — custom filename:
 
@@ -1031,7 +1031,7 @@ Fetches the **PDF** for a row from **`getFinancialDocuments`**, stores it in Tex
 
 ### `uploadFile`
 
-Uploads a file from a **public URL** into the patient’s **documents** in Rapid. **`customerId`** defaults to **`crmData.cardCode`**.
+Uploads a file from a **public URL** into the patient’s **documents** in Rapid. `customerId` defaults to `crmData.cardCode`.
 
 **Basic**
 
@@ -1050,8 +1050,8 @@ Uploads a file from a **public URL** into the patient’s **documents** in Rapid
 |--------|----------|--------|
 | `file` | Yes | Public URL the server will fetch. |
 | `fileName` | Yes | Stored name in Rapid. |
-| `customerId` | No* | *If omitted, uses **`crmData.cardCode`**. |
-| `chunkNumber`, `totalChunks` | No | If omitted, **`1`** / **`1`** (single upload). |
+| `customerId` | No* | *If omitted, uses `crmData.cardCode`. |
+| `chunkNumber`, `totalChunks` | No | If omitted, `1` / `1` (single upload). |
 
 **Result:** Success when Rapid accepts the upload.
 
@@ -1078,13 +1078,13 @@ Uploads a file from a **public URL** into the patient’s **documents** in Rapid
 
 **Not** a CRM `func_id`. Logs an event on a lead (e.g. call documentation / תיעוד שיחה תחת ליד) per Rapid’s [**Import Lead Event** API](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent-via-request)
 
-**Endpoint:** `POST {base}/api/leads/{LeadExternalID}/ImportEvent` — use your Rapid **`server`** as **`{base}`** and **`crmData.leadExternalId`** (or the same id) in the path.
+**Endpoint:** `POST {base}/api/leads/{LeadExternalID}/ImportEvent` — use your Rapid `server` as `{base}` and `crmData.leadExternalId` (or the same id) in the path.
 
-**Authorization:** **`RoAuth LeadSource=<token>`** — **`<token>`** is the same string as **`crmConfig.leads_token`** (paste in YAML; the **`request`** node does **not** read CRM config by itself). **`Content-Type: application/json`**.
+**Authorization:** `RoAuth LeadSource=<token>` — `<token>` is the same string as `crmConfig.leads_token` (paste in YAML; the `request` node does **not** read CRM config by itself). `Content-Type: application/json`.
 
 :::note IDs from the Rapid customer
 
-**`eventTypeId`** and **`eventResultId`** are **tenant-specific** numbers defined in Rapid — the **Rapid customer** must provide the correct ids for your bot (e.g. “Call documentation”, “Call again later”). You configure types/results in Rapid under **ניהול → CRM → סוגי מעקבים**.
+`eventTypeId` and `eventResultId` are **tenant-specific** numbers defined in Rapid — the **Rapid customer** must provide the correct ids for your bot (e.g. “Call documentation”, “Call again later”). You configure types/results in Rapid under **ניהול → CRM → סוגי מעקבים**.
 
 :::
 
@@ -1094,7 +1094,7 @@ Uploads a file from a **public URL** into the patient’s **documents** in Rapid
 | `eventResultId` | int | Result of the event (e.g. callback later). |
 | `Notes` | string | Notes about the interaction. |
 | `ExternalSource` | string | Optional — source system / integration label. |
-| `LeadExternalID` | string | Must match the lead id in the URL (**`crmData.leadExternalId`**). |
+| `LeadExternalID` | string | Must match the lead id in the URL (`crmData.leadExternalId`). |
 
 Example ids (illustrative only — **use values from your tenant**): `eventTypeId` **2** (call documentation), `eventResultId` **10** (e.g. call again later / לחזור יותר מאוחר).
 
