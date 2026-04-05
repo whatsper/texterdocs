@@ -269,7 +269,7 @@ messages:
 | Key | Description |
 |-----|-------------|
 | `prompt_wrong_answer` | Shown when user gives invalid input to a choice prompt |
-| `first_retry` | Text for the first abandoned retry |
+| `abandoned_first_retry` | Text for the first abandoned retry |
 | `pending_message` | Override the pending message text |
 
 Each key supports language codes (`he`, `en`, `es`, etc.) plus a `default` fallback.

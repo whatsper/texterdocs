@@ -11,6 +11,8 @@
 # Local / private context (not committed — keep sensitive YAML, exports, code snapshots here)
 _context/
 
+/.claude
+
 # Misc
 .DS_Store
 .env.local
