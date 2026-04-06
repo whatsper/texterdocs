@@ -4,10 +4,39 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Thu, 02 Apr 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 07 Apr 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Scenario Marketplace]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/04/07/scenario-marketplace</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/04/07/scenario-marketplace</guid>
+            <pubDate>Tue, 07 Apr 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Browse, understand, and copy ready-made automation scenarios directly into Texter — no starting from scratch.]]></description>
+            <content:encoded><![CDATA[<p>Browse, understand, and copy ready-made automation scenarios directly into Texter — no starting from scratch.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/07/scenario-marketplace#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Scenario Marketplace</strong> — new top-level section in the docs site at <code>/scenarios</code></li>
+<li><strong>18 scenarios</strong> across trigger types, action types, and integrations, including:<!-- -->
+<ul>
+<li>Subscribe-to-events templates (incoming messages, chat assigned/resolved, message status, external bot, scheduled, channel health)</li>
+<li>Q-AI suite — turn on/off AI sessions, forward messages to an AI webhook, end sessions and run a fallback bot</li>
+<li>Salesforce CRM — create and update service requests on chat events</li>
+<li>Utility — assign by echo message, label on message error, notify on assignment, forward delivery status</li>
+</ul>
+</li>
+<li><strong>Tag filtering</strong> — filter by trigger type, action type, or integration (e.g. <code>ai-bot</code>, <code>salesforce</code>, <code>webhook</code>)</li>
+<li><strong>Search</strong> — full-text search across scenario name, description, tags, and trigger events</li>
+<li><strong>Per-card flow strip</strong> — visual trigger → action icon flow at the top of each card; hover an icon to see its label</li>
+<li><strong>"What to configure" section</strong> — collapsible per-scenario guide showing exactly which fields to replace, where they live in the JSON, and whether they're required</li>
+<li><strong>Copy JSON</strong> — one click copies the full scenario JSON to clipboard, ready to paste into Texter</li>
+<li><strong>Randomized ordering</strong> — cards shuffle on each page load so no scenario is always buried at the bottom</li>
+</ul>]]></content:encoded>
+            <category>scenarios</category>
+            <category>docs</category>
+            <category>automation</category>
+        </item>
         <item>
             <title><![CDATA[Plando Adapter + Docs Fixes]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando</link>
