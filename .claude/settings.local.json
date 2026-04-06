@@ -1,8 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 -c ':*)",
-      "WebFetch(domain:www.zoho.com)"
     ]
   }
 }

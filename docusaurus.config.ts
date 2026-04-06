@@ -118,6 +118,11 @@ const config: Config = {
           label: 'Bot Documentation',
         },
         {
+          to: '/scenarios',
+          label: 'Scenarios',
+          position: 'left',
+        },
+        {
           to: '/changelog',
           label: 'Changelog',
           position: 'left',
@@ -148,8 +153,8 @@ const config: Config = {
               to: '/docs/YAML/Bot Configuration',
             },
             {
-              label: 'Changelog',
-              to: '/changelog',
+              label: 'Scenario Marketplace',
+              to: '/scenarios',
             },
           ],
         },

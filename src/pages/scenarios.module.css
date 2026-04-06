@@ -1,0 +1,175 @@
+.heroSection {
+  background: linear-gradient(135deg, var(--ifm-color-primary) 0%, #4f52b8 100%);
+  color: white;
+  padding: 3.5rem 0 3rem;
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin: 0 0 0.75rem;
+  color: white;
+}
+
+.heroSubtitle {
+  font-size: 1.05rem;
+  opacity: 0.9;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.mainContent {
+  padding: 2.5rem 0 4rem;
+}
+
+.filterRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  border: 1.5px solid var(--ifm-color-emphasis-300);
+  border-radius: 10px;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--ifm-color-primary);
+}
+
+.tagFilters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tagFiltersRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chipsArea {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Mobile toggle — hidden on desktop */
+.mobileFilterToggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Hide chips by default on mobile */
+  .chipsArea {
+    display: none;
+  }
+  .chipsAreaOpen {
+    display: flex;
+  }
+
+  .mobileFilterToggle {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: auto;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1.5px solid var(--ifm-color-emphasis-300);
+    background: transparent;
+    color: var(--ifm-color-emphasis-700);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobileFilterToggle:hover,
+  .mobileFilterToggleOpen {
+    border-color: var(--ifm-color-primary);
+    color: var(--ifm-color-primary);
+  }
+}
+
+.filterLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-600);
+  margin-right: 0.25rem;
+}
+
+.tagChip {
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1.5px solid var(--ifm-color-emphasis-300);
+  background: transparent;
+  color: var(--ifm-color-emphasis-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tagChip:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.tagChipActive {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: white;
+}
+
+.tagChipActive:hover {
+  color: white;
+  opacity: 0.9;
+}
+
+.resultsCount {
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 1.25rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.25rem;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.emptyTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-heading-color);
+}
+
+@media (max-width: 600px) {
+  .heroTitle {
+    font-size: 1.6rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

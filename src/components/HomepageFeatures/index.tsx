@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react';
 import clsx from 'clsx';
+import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
@@ -28,11 +29,11 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'Real-World Examples',
+    title: 'Scenario Marketplace',
     description: (
       <>
-        Every command is documented with practical examples drawn from real
-        production bots, covering common patterns and edge cases.
+        Browse ready-made automation scenarios — copy the JSON directly into Texter and configure for your use
+        case in minutes.
       </>
     ),
   },

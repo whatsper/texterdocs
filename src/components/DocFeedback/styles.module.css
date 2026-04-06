@@ -28,6 +28,12 @@
   outline-offset: 2px;
 }
 
+@media (max-width: 768px) {
+  .fab {
+    display: none;
+  }
+}
+
 .configNotice {
   margin: 0.75rem 0 0;
   padding: 0.65rem 0.85rem;
