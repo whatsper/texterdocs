@@ -159,12 +159,13 @@ Updates custom fields on an existing lead. The update endpoint URL is account-sp
         X-LEAD-IM-AUTH: "YOUR_TOKEN"
       data:
         by_id: "%state:node.create_lead.response.result%"
-        state_id: "4"
+        some_field: "some_value"
     on_complete: done
     on_failure: update_failed
 ```
 
 - `by_id` — lead ID from the create step. Use `%chat:crmData.result%` if coming from `openTicket`.
+- All other custom fields should be given to you by the customer or LeadIM support
 
 ---
 
