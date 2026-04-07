@@ -11,7 +11,10 @@
 # Local / private context (not committed — keep sensitive YAML, exports, code snapshots here)
 _context/
 
-/.claude
+# Claude Code — ignore private data, commit shared skills/commands
+/.claude/settings.local.json
+/.claude/projects/
+/.claude/plans/
 
 # Misc
 .DS_Store
