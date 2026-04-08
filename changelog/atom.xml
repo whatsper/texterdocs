@@ -2,11 +2,25 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-04-07T00:00:00.000Z</updated>
+    <updated>2026-04-08T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[End-of-Day Closing Message Scenario]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/08/end-of-day-scenario</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/08/end-of-day-scenario"/>
+        <updated>2026-04-08T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A new scheduled scenario added to the marketplace for closing out pending chats at the end of the business day.]]></summary>
+        <content type="html"><![CDATA[<p>A new scheduled scenario added to the marketplace for closing out pending chats at the end of the business day.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/08/end-of-day-scenario#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>End-of-Day Closing Message</strong> — cron-triggered scenario that finds pending chats with activity in the last ~9 hours and sends a closing message letting customers know they'll get a response on the next business day. Configurable per customer via a <code>ScenariosCustomTriggerCronTask</code> entry in Nihul (e.g. Sun–Thu at 18:30), excludes chats already labeled <code>waiting_for_customer</code>, and sends up to 10 messages concurrently.</li>
+</ul>]]></content>
+        <category label="scenarios" term="scenarios"/>
+        <category label="automation" term="automation"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Scenario Marketplace]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/04/07/scenario-marketplace</id>
