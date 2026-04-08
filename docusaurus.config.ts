@@ -97,7 +97,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/texter-social-card.png',
+    image: 'img/texter-social-card.jpg',
     docs: {
       sidebar: {
         hideable: true,

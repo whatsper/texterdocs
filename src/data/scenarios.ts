@@ -37,8 +37,6 @@ export const ACTION_DISPLAY: Record<string, string> = {
   runBot: 'Run Bot',
   sendEmail: 'Send Email',
   chatUpdateExternalBot: 'Set External Bot',
-  setData: 'Store Data',
-  deleteData: 'Delete Data',
 };
 
 export const SCENARIOS: Scenario[] = [

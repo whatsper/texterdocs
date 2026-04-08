@@ -115,7 +115,7 @@ Creates a new lead/client. Most commonly used when the sender is not identified 
 
 Message our [contact at Tazman](https://ninja.texterchat.com/contact/whatsapp/972586640430/972533672724/).
 
-**You send:** 
+**You send:**
 - Project ID
 - API token with **View** + **Send Template Messages** scopes
 - WhatsApp phone number

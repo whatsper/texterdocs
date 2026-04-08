@@ -37,7 +37,7 @@ Looks up a contact by phone number.
 | `fields` | No | Extra fields to request beyond the default set (`name,id,user_type,phone,mobile`). Must include a leading comma (e.g., `,email1,address`). Field names match Senzey's internal contact field names. |
 | Any other param | No | Forwarded as-is to the Senzey API query. |
 
-**Result:** On success sets `crmData.name`, `crmData.id`, `crmData.phone` (falls back to `mobile`), `crmData.status` (Senzey `user_type`), and `crmData.deepLink`. <br/> 
+**Result:** On success sets `crmData.name`, `crmData.id`, `crmData.phone` (falls back to `mobile`), `crmData.status` (Senzey `user_type`), and `crmData.deepLink`. <br/>
 Any extra fields requested via `fields` are also returned in `crmData` under their Senzey field names (e.g., `crmData.email1`, `crmData.city`). <br/>
 Returns `on_failure` if no match found.
 

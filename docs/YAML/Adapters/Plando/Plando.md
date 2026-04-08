@@ -99,7 +99,7 @@ Returns `on_failure` if: `token`/`chat` missing from config, phone is unavailabl
 :::tip[Requesting custom attribute fields]
 Use `crmConfig.attrFields` to specify which Plando category/attribute fields should be fetched (comma-separated). These are then accessible on `crmData` under their Plando field name.
 
-```
+```yaml
 attrFields: "category_1,category_9,category_17,category_30,invoices_archive,last_open_invoice,signed_form"
 ```
 
