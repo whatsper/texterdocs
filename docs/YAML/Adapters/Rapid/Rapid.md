@@ -11,7 +11,7 @@ sidebar_position: 1
 - [Leads API](https://rapidone.atlassian.net/wiki/external/YjZjMmE0NDgyODU2NDFmNTlhOTRhNGYyMTk0OGVjYjI)
 - [Customers / patients API](https://rapidone.atlassian.net/wiki/external/NzcyYzJkZmNmY2E5NDlhY2IyMTg5OWJhMDVmNDA1OWU)
 - [Financial documents API](https://rapidone.atlassian.net/wiki/external/MTc1OThiNTdjMWE5NDNlMjg1OGE4MWYwZTU2YzgxMzQ)
-- [Lead events](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent-via-request) (**no** `func_id`).
+- [Lead events](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent) (**no** `func_id`).
 
 ---
 
@@ -1076,7 +1076,7 @@ Uploads a file from a **public URL** into the patient’s **documents** in Rapid
 ## Out of Adapter Scope
 ### Lead events (`ImportEvent`)
 
-**Not** a CRM `func_id`. Logs an event on a lead (e.g. call documentation / תיעוד שיחה תחת ליד) per Rapid’s [**Import Lead Event** API](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent-via-request)
+**Not** a CRM `func_id`. Logs an event on a lead (e.g. call documentation / תיעוד שיחה תחת ליד) per Rapid’s [**Import Lead Event** API](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent)
 
 **Endpoint:** `POST {base}/api/leads/{LeadExternalID}/ImportEvent` — use your Rapid `server` as `{base}` and `crmData.leadExternalId` (or the same id) in the path.
 

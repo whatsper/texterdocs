@@ -59,7 +59,7 @@ npm run serve
 
 **Important**: every URL on the local site is prefixed with `/texterdocs/`. Do not visit `http://localhost:3000/scenarios` — it's `http://localhost:3000/texterdocs/scenarios`.
 
-Wait for the server to be ready (`curl -s http://localhost:3000/texterdocs/` returns 200). Give it up to 30 seconds.
+Wait for the server to be ready (`curl -s http://localhost:3000/texterdocs/` returns 200, or `127.0.0.1` if you bound the host that way). Give it up to 30 seconds.
 
 ### 4. Default page set
 
@@ -74,17 +74,23 @@ If the user didn't specify pages, screenshot these by default:
 | `/texterdocs/docs/YAML/Overview` | YAML overview — anchor for the docs section |
 | `/texterdocs/docs/YAML/Adapters/Overview` | Adapters landing — most-touched docs area |
 
-If the user pointed at a specific change (e.g., "I just edited Plando.md"), prepend the corresponding doc URL.
+If the user pointed at a specific change (e.g., "I just edited Plando.md"), prepend the corresponding doc URL to the default set (edit `PAGES` in the script below, or add a second capture pass).
 
-### 5. Take screenshots
+### 5. Take screenshots (+ link crawl)
 
-For each page, capture **two screenshots**:
-- Light mode (default)
-- Dark mode (set via the `data-theme="dark"` attribute on `<html>` — Docusaurus's standard theme switcher hook)
+**Preferred: use the maintained runner** next to this skill — it matches the default page set, writes **light-mode** full-page PNGs to the repo’s `.preview/`, then runs the internal link check (step 6). It resolves the repository root from its own path, so output always lands in `<repo>/.preview/` even if you invoke it with an absolute path.
 
-Use full-page screenshots (`fullPage: true`). Save to a temp directory like `./.preview/` (gitignored — add to `.gitignore` if not already) with descriptive filenames: `homepage-light.png`, `scenarios-dark.png`, etc.
+From the **repository root** (with the server already up on port 3000):
 
-A minimal Playwright script you can write to a temp file and run via `node`:
+```bash
+node .claude/skills/preview/preview-smoke.mjs
+```
+
+The script exits with code **1** if any collected internal URL returns non-200. It prints JSON: `screenshots`, `internalLinksChecked`, `broken`.
+
+**Themes:** the runner captures **light only** (fast default, matches `/release` gate E). For **dark mode** as well, either extend `preview-smoke.mjs` with a second pass (`data-theme="dark"` on `<html>`) or use the inline pattern below.
+
+**Inline alternative** (e.g. one-off edits without touching the skill file) — full-page screenshots, light + dark:
 
 ```js
 const { chromium } = require('playwright');
@@ -119,11 +125,11 @@ const PAGES = [
 })();
 ```
 
-You can adapt the `PAGES` array for the user's request.
+Adapt the `PAGES` array for the user’s request.
 
 ### 6. Crawl internal links
 
-After screenshots, walk every `<a href>` on each visited page and check that internal links (anything starting with `/texterdocs/`) return HTTP 200. Skip:
+The `preview-smoke.mjs` runner performs this after screenshots. If you skipped the runner (e.g. crawl-only), walk every `<a href>` on each visited page and check that internal links (anything starting with `/texterdocs/`) return HTTP 200. Skip:
 - External `https://` URLs (slow, not your responsibility)
 - Anchor-only links (`#section`)
 - `mailto:`, `tel:`
@@ -189,6 +195,7 @@ Then point the user at the screenshot directory so they can open the files and i
 
 | File | Purpose |
 |---|---|
+| `.claude/skills/preview/preview-smoke.mjs` | Default automation: light screenshots + internal link crawl (run after build + serve) |
 | `docusaurus.config.ts` | Read for `baseUrl`, `onBrokenLinks` setting, and `themeConfig.navbar.items` (which routes exist) |
 | `src/pages/scenarios.tsx` | The most likely page to break visually |
 | `src/components/ScenarioCard/index.tsx` | The most likely component to break visually |
@@ -204,7 +211,7 @@ Once the user has reviewed screenshots, update this skill if:
 - **A page they wanted previewed wasn't in the default set** — add it to step 4.
 - **A page in the default set never matters** — remove it.
 - **They want a different default set entirely** (e.g., "always include the changelog index", "skip the YAML overview") — update step 4.
-- **A theme they care about (light vs. dark) was missing or wrong** — fix the script in step 5.
+- **A theme they care about (light vs. dark) was missing or wrong** — fix `preview-smoke.mjs` or the inline example in step 5.
 - **The link crawl flagged false positives** (e.g., a link the user knows is intentionally external but starts with `/texterdocs/`) — add to the skip list in step 6.
 - **The link crawl missed real breakage** — make it stricter (e.g., follow redirects, check anchor targets exist on the page).
 - **A new way the build fails** that you should catch before screenshots — add to step 2.

@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@v4.2.2
         with:
           ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0 # Required so Docusaurus can read git history for "last updated" timestamps
 
       - name: Setup Node
         uses: actions/setup-node@v4.3.0

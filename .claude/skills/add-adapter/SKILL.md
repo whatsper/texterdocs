@@ -40,6 +40,7 @@ Read the full source file in `_context/code/adapters/<crm>.ts`. This is the **so
   - Any special flags like `usePclient`, `updateContact`, `is_org`.
 - **Top-level `crmConfig` reads** — every place `crmConfig.<field>` is read tells you a config field. List them all in the `crmConfig` table.
 - **Helpers used** — phone formatting (`formatPhoneNumberForCustomerCountry`), proxy (`getAgentFor`), file sharing (`createToken`), `getLastMessages`. These hint at behaviors worth mentioning ("uses formatted channel phone if omitted", "transcript includes today's messages", etc.).
+- **Imported helpers not in `_context/code/`** — if the adapter imports from a path outside `_context/code/adapters/helpers/` (e.g. `../csvParser/CSVParser`, `../../auth/...`), **find and read that file in https://github.com/whatsper/server.git before writing anything about its behavior**. Do not guess.
 
 If the source has comments pointing to vendor docs (`@see documentation here: ...`), capture those URLs for the "Official API docs" links section.
 
@@ -55,7 +56,7 @@ docs/YAML/Adapters/
 ```
 
 - **Folder name**: PascalCase, no spaces (e.g., `Plando`, `LeadIM`, `Powerlink`).
-- **`_category_.json` `position`**: pick the next free integer. Read every existing `_category_.json` under `docs/YAML/Adapters/` to find the highest `position` and add 1. Do not collide with another adapter.
+- **`_category_.json` `position`**: place the new adapter **alphabetically** among existing ones. Read every existing `_category_.json` under `docs/YAML/Adapters/` to find the correct alphabetical slot, then shift every adapter after it up by 1 (update all their `_category_.json` files). Do not collide with another adapter and do not just append at the end.
 - **`_category_.json` `label`**: human-readable, can include spaces (e.g., `"Lead.IM"` if the brand uses a dot).
 - **`.md` frontmatter**: always `sidebar_position: 1` (each adapter folder has only one file).
 
@@ -176,6 +177,7 @@ For `closeTicket`/`openTicket`, see Plando lines 192–224 (transcript push with
 - **Do not** copy the entire source file into the doc as a code block. The doc explains usage, not implementation.
 - **Do not** include real customer credentials, real tokens, real org IDs, or real customer-specific values from the source. If a real value appears as a placeholder/example in the source code, replace it with `YOUR_*` or `{{placeholder}}` style in the doc.
 - **Do not** invent operations the source doesn't implement. If the user asks about `updateContact` and the source doesn't have a `case 'updateContact':`, say so and ask whether they want it added in code first or documented as "out of adapter scope" using `request`.
+- **Do not** suggest `request` as a write-back alternative unless you have verified that the auth required for those write operations is accessible from bot YAML. If the adapter authenticates via server-managed credentials (e.g. OAuth tokens stored in MongoDB, service account keys on disk), those credentials are not available in YAML — `request` will not work and suggesting it misleads the reader. When in doubt, omit the suggestion or say "requires server-side support."
 
 ---
 
@@ -189,6 +191,7 @@ For `closeTicket`/`openTicket`, see Plando lines 192–224 (transcript push with
 | `docs/YAML/Adapters/_category_.json` | Parent category config — read but do not edit |
 | `_context/code/adapters/<crm>.ts` | Source of truth for ops and params — read |
 | `_context/code/adapters/helpers/` | Shared helpers (phone formatting, COQL, etc.) — read if the adapter uses them |
+| https://github.com/whatsper/server.git | Full server codebase — clone or browse when the adapter imports helpers not present in `_context/code/` (e.g. `csvParser`, auth utilities, shared constants). Access requires repo permissions. |
 | `docs/YAML/Adapters/Plando/Plando.md` | Reference: rich adapter doc |
 | `docs/YAML/Adapters/Senzey/Senzey.md` | Reference: minimal adapter doc |
 

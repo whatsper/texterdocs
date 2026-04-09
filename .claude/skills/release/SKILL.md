@@ -31,12 +31,14 @@ Then check what's happened since:
 git log --since=<last-changelog-date> --oneline
 ```
 
-Decide whether a new entry is needed:
+Decide whether a new entry is needed. **Only user-facing changes count** — a post on the blog is meant for readers of the docs site, not a git log.
 
-- **Definitely yes** if any commit since the last post matches: a new adapter doc (new file under `docs/YAML/Adapters/`), a new scenario (new entry in `src/data/scenarios.ts` `SCENARIOS`), a new function doc (new file under `docs/YAML/Types/Func/`), a feature/UI change to `src/components/` or `src/pages/`, or anything the user would announce.
-- **Probably yes** if there are 5+ commits since the last post, even if individually small.
-- **Probably no** if there are fewer than 3 commits and they're all typos, formatting, or internal-only fixes (skill files, `.claude/`, README).
-- **Skip** if the most recent post is dated within the last 2 days **and** there have been zero meaningful commits since.
+- **Definitely yes** if any commit (or dirty-tree change) since the last post is user-facing: a new adapter doc (new file under `docs/YAML/Adapters/`), a new scenario (new entry in `src/data/scenarios.ts` `SCENARIOS`), a new function doc (new file under `docs/YAML/Types/Func/`), a feature/UI change to `src/components/` or `src/pages/`, a visible bug fix, or anything the user would notice in the rendered site.
+- **Probably yes** if there are 5+ user-facing commits since the last post, even if individually small.
+- **Probably no / skip** if all commits since the last post are internal-only: `.claude/` skill edits, CLAUDE.md, build-config tweaks, dependency bumps, internal refactors, `_category_.json` reshuffles, docs-only typo fixes. These never get a blog post.
+- **Skip** if the most recent post is dated within the last 2 days **and** there have been zero user-facing commits since.
+
+When drafting the entry (whether via `/changelog` or inline), **exclude internal/tooling commits from the summary entirely** — do not mention them even as a footnote. Readers don't care that the skill suite was updated.
 
 If a new entry is needed, ask the user:
 > "The last changelog post was `blog/<filename>` (<date>). Since then there have been N commits: <one-line summary of the biggest changes>. Want me to run `/changelog` to draft a new entry before deploying?"
@@ -52,9 +54,11 @@ If no entry is needed (recent post + no meaningful commits), say so in one line 
 
 **Do not** run `/changelog` automatically without asking — the user may want to bundle multiple deploys into a single changelog post, or hold the announcement for a coordinated reveal.
 
-### 2. Confirm git state — and offer to commit + push if needed
+### 2. Confirm git state — and defer commit + push until after all gates
 
-The deploy workflow checks out the branch tip from **GitHub**, so the working tree must be (a) clean and (b) pushed before dispatching. The user does **not** need to commit and push manually before running this skill — handle it as part of the flow.
+The deploy workflow checks out the branch tip from **GitHub**, so by dispatch time the working tree must be (a) clean and (b) pushed. The user does **not** need to commit and push manually before running this skill — handle it as part of the flow.
+
+**Critical: commit at the END of the release flow, in a single commit.** Do not commit mid-flow (before gates). Reason: gates (`/validate-scenarios`, `/check-docs`, `/preview`, `/cleanup`) and the release skill itself may produce edits, and the user may ask for fixes after seeing the summary. Committing upfront creates multiple commit/push cycles and noisy history. Instead, in this step just **record** the dirty state, show it to the user, and flag that the commit will happen after all gates pass. Do the actual staging, committing, and pushing in step 6 (right before dispatch).
 
 Run, in parallel:
 - `git status --porcelain` — list of uncommitted files (empty = clean)
@@ -117,6 +121,8 @@ Invoke the `/check-docs` skill — same checks: frontmatter, internal links, cod
 
 #### Gate E: Preview smoke screenshots
 Invoke the `/preview` skill with the **default page set only** (no extras). Capture light-mode screenshots only (skip dark mode by default to keep this fast — the user can ask for both). Crawl internal links from those pages.
+
+**Implementation:** after `npm run build`, run `npm run serve` (static `build/`, typically port 3000), wait until `/texterdocs/` returns 200, then from the repo root: `node .claude/skills/preview/preview-smoke.mjs`. That script lives next to `.claude/skills/preview/SKILL.md` and writes PNGs to `./.preview/`. Kill the server when done.
 
 If `/preview` reports any broken links, hard-fail.
 
@@ -187,9 +193,23 @@ Or via the GitHub UI:
    https://github.com/whatsper/texterdocs/actions/workflows/deploy-github-pages.yml
 ```
 
-### 6. Dispatching the workflow (only with explicit confirmation)
+### 6. Commit, push, then dispatch (only with explicit confirmation)
 
-**Default behavior**: print the command and stop. The user runs it themselves.
+**Before dispatching**, finalize the git state the deferred way (from step 2):
+
+1. Re-run `git status --porcelain` to see the current dirty set (may differ from step 2 if gates or the user made edits).
+2. Stage **only the specific files** listed — never `git add -A` / `.` / `-u`. Same exclusions apply: `.env*`, `*.key`, `*.pem`, `credentials*`, `secret*`, `.preview/`, `build/`, `node_modules/`.
+3. Commit with a single message that describes the substantive change. Ask the user for the message, or propose one and wait for confirmation. **Omit routine housekeeping from the message** — do not mention `_category_.json` position shifts, `.claude/` skill edits, or other internal noise even when they're part of the staged set. The subject should name only the user-visible substance (e.g. `Add Google Sheet adapter docs`), not the incidental edits bundled alongside.
+4. Pass the message via heredoc. **Never** include Claude/AI attribution, `Co-Authored-By`, or "generated with" trailers — see the rule in step 2.
+5. Push to the current branch with plain `git push origin <branch>` (never `--force`).
+
+Then print the dispatch command:
+
+```bash
+gh workflow run deploy-github-pages.yml --ref <branch> -f branch=<branch>
+```
+
+**Default behavior after printing**: stop and wait. The user runs the dispatch themselves.
 
 **Only if the user explicitly says "dispatch it", "ship it now", "run the workflow", or similar**, run:
 ```bash

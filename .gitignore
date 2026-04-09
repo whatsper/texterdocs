@@ -16,6 +16,9 @@ _context/
 /.claude/projects/
 /.claude/plans/
 
+# Preview smoke (screenshots from /preview skill)
+.preview/
+
 # Misc
 .DS_Store
 .env.local
