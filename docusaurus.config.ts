@@ -1,6 +1,19 @@
+import {config as loadEnv} from 'dotenv';
+import {existsSync} from 'node:fs';
+import {resolve} from 'node:path';
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+
+const rootDir = process.cwd();
+const dotEnvPath = resolve(rootDir, '.env');
+const dotEnvLocalPath = resolve(rootDir, '.env.local');
+if (existsSync(dotEnvPath)) {
+  loadEnv({path: dotEnvPath});
+}
+if (existsSync(dotEnvLocalPath)) {
+  loadEnv({path: dotEnvLocalPath, override: true});
+}
 
 const config: Config = {
   title: 'Texter Docs',
@@ -9,6 +22,14 @@ const config: Config = {
 
   customFields: {
     feedbackWebhookUrl: process.env.FEEDBACK_WEBHOOK_URL ?? '',
+    giscus: {
+      repo: process.env.GISCUS_REPO?.trim() || 'whatsper/texterdocs',
+      repoId: process.env.GISCUS_REPO_ID?.trim() ?? '',
+      category: process.env.GISCUS_CATEGORY?.trim() || 'Comments',
+      categoryId: process.env.GISCUS_CATEGORY_ID?.trim() ?? '',
+      /** Giscus iframe UI language (`lang`). Default `en`; header above stays Hebrew in code. */
+      lang: process.env.GISCUS_LANG?.trim() || 'en',
+    },
   },
 
   future: {

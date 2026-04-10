@@ -1,0 +1,199 @@
+/* Break out of Docusaurus `.container` so the gradient spans the viewport */
+.fullBleedWrap {
+  margin-inline: calc(50% - 50vw);
+  width: 100vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+/* Default: full-bleed strip behind the block (blog, scenarios, etc.) */
+.section {
+  margin-top: 3rem;
+  padding: 2.5rem 0 3rem;
+  background: linear-gradient(
+    180deg,
+    var(--ifm-color-emphasis-100) 0%,
+    transparent 100%
+  );
+}
+
+[data-theme='dark'] .section {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 100%
+  );
+}
+
+/* Inside doc column: align with article, no full-width strip */
+.sectionDoc {
+  margin-top: 2.25rem;
+  padding: 0 0 0.5rem;
+  background: none;
+}
+
+.card {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-color);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(104, 108, 222, 0.08);
+  overflow: hidden;
+}
+
+/* Changelog, scenarios: centered, bounded width */
+.cardDefault {
+  max-width: min(52rem, 100%);
+  margin-inline: auto;
+}
+
+/* Docs: fill the doc column (Layout col--9) — no 52rem cap */
+.cardDoc {
+  max-width: none;
+  margin-inline: 0;
+}
+
+[data-theme='dark'] .card {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* Solid header: avoids gradient “stripe” at the seam */
+.cardHeader {
+  margin: 0;
+  padding: 1.35rem 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+}
+
+[data-theme='dark'] .cardHeader {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cardHeaderHe {
+  text-align: right;
+}
+
+.eyebrow {
+  display: block;
+  margin: 0 0 0.45rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ifm-color-primary);
+  opacity: 0.95;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--ifm-heading-color);
+}
+
+.lead {
+  margin: 0 0 0.5rem;
+  max-width: none;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--ifm-color-content-secondary);
+}
+
+.loginNote {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ifm-color-content-secondary);
+  opacity: 0.92;
+}
+
+.embed {
+  padding: 0.5rem 1rem 1.25rem;
+  min-height: 6rem;
+  background: var(--ifm-background-color);
+}
+
+/* Softer seam with giscus iframe in dark mode (theme=noborder_dark tracks Docusaurus toggle) */
+.embedGiscus {
+  border-radius: 0 0 12px 12px;
+}
+
+[data-theme='dark'] .embedGiscus {
+  background: var(--ifm-background-color);
+}
+
+.embed :global(.giscus),
+.embed :global(iframe) {
+  width: 100% !important;
+}
+
+.embed :global(iframe) {
+  display: block;
+  min-height: 200px;
+}
+
+.missingConfig {
+  padding: 1.35rem 1.5rem;
+  border-style: dashed;
+  background: var(--ifm-color-emphasis-100);
+}
+
+[data-theme='dark'] .missingConfig {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.missingTitle {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.missingBody {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ifm-color-content-secondary);
+}
+
+.missingBody code {
+  font-size: 0.8em;
+}
+
+@media (max-width: 996px) {
+  .section {
+    margin-top: 2rem;
+    padding: 1.75rem 0 2rem;
+  }
+
+  .sectionDoc {
+    margin-top: 1.75rem;
+  }
+
+  .cardDefault {
+    margin-inline: 0.5rem;
+    border-radius: 12px;
+  }
+
+  .cardDoc {
+    margin-inline: 0;
+  }
+
+  .cardHeader {
+    padding: 1.15rem 1.1rem 1rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .embed {
+    padding: 0.45rem 0.85rem 1rem;
+  }
+}

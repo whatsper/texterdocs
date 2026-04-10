@@ -1,0 +1,14 @@
+/**
+ * Giscus sits below the docs flex row, so it must be offset by the doc sidebar width
+ * to line up with `main.docMainContainer` (same as the article + paginator).
+ */
+.docGiscusShell {
+  width: 100%;
+}
+
+@media (min-width: 997px) {
+  .docGiscusShell {
+    width: calc(100% - var(--doc-sidebar-width));
+    margin-left: var(--doc-sidebar-width);
+  }
+}
