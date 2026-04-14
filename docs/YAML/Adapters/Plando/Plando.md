@@ -323,7 +323,7 @@ Attach a file to a Plando contact after sharing it with [`shareFile`](/docs/YAML
 
 ## Plando Onboarding (for Texter Support)
 
-Contact [Plando support](https://plando.co.il/) to obtain credentials.
+Ask the customer to send us the credentials.
 
 **Customer DB — `crmConfig` fields**
 

@@ -1599,6 +1599,157 @@ export const SCENARIOS: Scenario[] = [
       options: {unorderedActions: false},
     },
   },
+  {
+    id: 'handle-passive-marketing-chats',
+    name: 'Handle Passive Marketing Chats',
+    tags: ['scheduled', 'assign-chat', 'crm-update', 'webhook', 'rapid'],
+    triggerEvents: ['app.scenarios.customTriggers.cron'],
+    description:
+      'Runs once a day to find BULK chats from the previous day whose last message was one of the configured marketing templates. For each matching chat, assigns it to the sales department with Pending status and updates the lead status in Rapid CRM. Designed for Rapid CRM customers using the Tyntec WhatsApp provider (see configuration for other providers).',
+    configuration: [
+      {
+        field: 'Cron Schedule',
+        location: 'Nihul → Customer Config',
+        description:
+          'Add to the schedule array in the customer config in Nihul:\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "0 8 * * *",\n  "params": {\n    "name": "reassign-and-update-passive-bulk-chats"\n  }\n}\nThe example runs daily at 08:00 — adjust the cron expression per customer request.',
+        required: true,
+      },
+      {
+        field: 'Rapid API URL',
+        location: 'actions[1].params.url',
+        description:
+          'Replace the subdomain with the customer\'s Rapid subdomain.\nExample: https://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%chat:crmData.leadExternalId%\n\nPrerequisite: the chat\'s crmData must contain leadExternalId (populated when the bot creates the lead) and leadSource. Without these the request action will silently fail — verify crmData is populated before enabling.',
+        required: true,
+      },
+      {
+        field: 'Marketing Template IDs',
+        location: 'conditions[0][1].params.expression',
+        description:
+          'Ask the customer which templates should trigger this flow and update the ID list accordingly.\nTo match any template (no ID filtering), simplify the expression to:\nexists(special.whatsappTyntec.template)',
+        required: true,
+      },
+      {
+        field: 'Sales Department ID',
+        location: 'actions[0].params.departmentId',
+        description: 'The department ID to assign matching chats to. Defaults to "sales".',
+        required: false,
+      },
+      {
+        field: 'Rapid Update Payload',
+        location: 'actions[1].params.data',
+        description:
+          'Key-value pairs to send to the Rapid API on the matched lead. Can be any fields the customer\'s Rapid API accepts — not limited to status.',
+        required: false,
+      },
+      {
+        field: 'WhatsApp Provider (non-Tyntec)',
+        location: 'conditions[0][1].params.expression',
+        description:
+          'This scenario is built for the Tyntec provider. For other providers, replace the filtrex expression with:\nexists(special.whatsapp.template) and (special.whatsapp.template.name in ("template_name_1", "template_name_2"))\nOr to match any template:\nexists(special.whatsapp.template)',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1.1',
+      name: 'Handle Passive Marketing Chats',
+      description:
+        'Once a day, check yesterdays chats that are still in bulk where the last template message sent fits one of the marketing messages, and assign to sales department + update lead status in Rapid',
+      triggerEvents: ['app.scenarios.customTriggers.cron'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'chatsList',
+            alias: 'chats',
+            params: {
+              limit: 1000,
+              skip: 0,
+              filters: [
+                {
+                  lastMessageTimestamp: {
+                    before: '%time:now-16h("x")|parseInt%',
+                    after: '%time:now-41h("x")|parseInt%',
+                  },
+                  status: ['BULK'],
+                  channel: [],
+                  department: [],
+                  agent: [],
+                  labels: {
+                    include: [],
+                    exclude: [],
+                  },
+                },
+              ],
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: 'reassign-and-update-passive-bulk-chats',
+              value: {'##provide': {provider: 'cron', key: 'name'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression:
+                'exists(special.whatsappTyntec.template) and (special.whatsappTyntec.template.templateId in ("inbox_marketing_108", "inbox_utility_111", "inbox_marketing_109", "inbox_marketing_107"))',
+              value: {'##provide': {provider: 'chat', key: 'lastMessage'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatAssign',
+          params: {
+            status: 'Pending',
+            departmentId: 'sales',
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'request',
+          params: {
+            url: 'https://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%chat:crmData.leadExternalId%',
+            method: 'patch',
+            json: true,
+            headers: {
+              Authorization: 'RoAuth LeadSource=%chat:crmData.leadSource%',
+            },
+            data: {
+              status: 93,
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      loops: [
+        {
+          loop: {
+            type: 'foreach',
+            as: 'chat',
+            input: {'##provide': {provider: 'chats', key: 'chats'}},
+            confidentialData: false,
+            foreachMode: 'parallel',
+            concurency: 10,
+          },
+          position: 'beforeConditions',
+        },
+      ],
+      options: {
+        unorderedActions: true,
+      },
+    },
+  },
 ];
 
 export const ALL_TAGS: string[] = Array.from(
