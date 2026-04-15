@@ -45,10 +45,23 @@ For every tag in `tags`:
 - Check it appears in the taxonomy in `add-scenario/SKILL.md` section 4 (trigger tags, action tags, essence tags)
 - Warn (don't error) if a tag is unknown — the user may have added a new one. Surface it so they can decide to update the taxonomy or rename.
 
+#### B2. Subscription scenario naming
+For any scenario whose `tags` include `subscription`:
+- Top-level `name` must start with **`(SUB) `** (prefix and space).
+- Embedded `json.name` must also start with **`(SUB) `**.
+If either fails, that's a hard error — subscription webhook templates must stay aligned with the Postman / import naming convention.
+
 #### C. Trigger events documented
 For every event in `triggerEvents`:
 - Check it has an entry in `TRIGGER_DISPLAY`
 - If missing, that's a hard error — the marketplace UI will render the raw event name instead of a label.
+
+#### C2. Trigger and action icons (ScenarioCard)
+For every scenario, resolve each `triggerEvents[]` value through `TRIGGER_DISPLAY` to its **display label** (the map value). Confirm **`src/components/ScenarioCard/index.tsx`** `TRIGGER_ICONS` has an entry for **that label string**. If any are missing, that's a hard error — the marketplace ships icons for every trigger.
+
+Similarly, walk each scenario's `json.actions[*].name`, map through `ACTION_DISPLAY` to the display label, and confirm **`ACTION_ICONS`** in the same file has that label. Missing → hard error.
+
+(If two raw events share one display label, one icon entry covers both.)
 
 #### D. Action types documented
 Walk the `json.actions` array. For every action's `name` field:

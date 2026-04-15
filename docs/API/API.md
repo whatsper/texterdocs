@@ -11,7 +11,6 @@ Most CRMs and platforms already have built-in adapter functions (`func_type: crm
 | **Texter** | [apidocs.texterchat.com](https://apidocs.texterchat.com) |
 | **Airtable** | [airtable.com/developers/web/api](https://airtable.com/developers/web/api/introduction) |
 | **Arbox** | [arboxserver.arboxapp.com/docs/api](https://arboxserver.arboxapp.com/docs/api#/) |
-| **Google Sheets** | [developers.google.com/sheets/api](https://developers.google.com/sheets/api/reference/rest) |
 | **HubSpot** | [developers.hubspot.com/docs/api](https://developers.hubspot.com/docs/api/overview) |
 | **Manavate** | [manavate.com/developers](https://www.manavate.com/developers) |
 | **Monday.com** | [developer.monday.com/api-reference](https://developer.monday.com/api-reference/reference) |

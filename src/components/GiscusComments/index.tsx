@@ -112,10 +112,10 @@ function GiscusInner({variant = 'default'}: GiscusCommentsProps): ReactNode {
     <div className={cardClass}>
       <header className={clsx(styles.cardHeader, styles.cardHeaderHe)} dir="rtl" lang="he">
         <h2 className={styles.eyebrow} id="giscus-section-title">
-          דיון / הצעות לשיפור
+          דיון
         </h2>
         <p className={styles.lead}>
-          שתפו דוגמאות, שאלות או הצעות לשיפור התיעוד ביחס לעמוד הזה.
+          שתפו דוגמאות נוספות, שאלות או הצעות לשיפור התיעוד ביחס לעמוד זה.
         </p>
         <p className={styles.loginNote}>דורש התחברות עם GitHub.</p>
       </header>

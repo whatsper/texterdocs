@@ -72,6 +72,8 @@ Only create a ConfigItem for fields that actually need to be changed per custome
 
 If a `description` contains a multi-line code block (e.g. a cron config object), use `\n` to format it as pre-wrap text — the UI renders `white-space: pre-wrap`.
 
+**Subscription (`(SUB)`) scenarios:** For subscribe-to-events / webhook-forwarding templates in the **Subscription scenarios** section, the marketplace **`name`** and the embedded **`json.name`** must both use the **`(SUB) `** prefix (e.g. `(SUB) Chat Unsubscribed`), matching Postman import templates and the rest of the subscription suite.
+
 ### 4. Tag taxonomy
 
 Use only tags from this list. Each scenario can have multiple tags.
@@ -84,6 +86,8 @@ Use only tags from this list. Each scenario can have multiple tags.
 - `on-message-status-change` — same as above, use when the scenario is specifically about message delivery status
 - `on-external-bot` — `domain.chat.updated.externalBot` / `app.bot.chat.setExternal`
 - `on-channel-event` — `domain.channel.health.problem.resolved`
+- `on-unsubscribe` — `domain.chat.unsubscribed`
+- `on-subscribe` — `domain.chat.subscribed`
 - `scheduled` — `app.scenarios.customTriggers.cron`
 
 **Action tags** (what the scenario does):
@@ -103,6 +107,17 @@ Use only tags from this list. Each scenario can have multiple tags.
 
 If a trigger event or action name is not in `TRIGGER_DISPLAY` or `ACTION_DISPLAY` in the file, add it to the appropriate map at the top of the file.
 
+### 4b. Trigger and action icons (required)
+
+The Scenario Marketplace card shows an icon per trigger and per action. **Whenever you add or change a `TRIGGER_DISPLAY` entry, you must add or update the matching icon** in **`src/components/ScenarioCard/index.tsx`** inside `TRIGGER_ICONS`. The object key must be the **human-readable label** — the **string value** from `TRIGGER_DISPLAY` for that event (e.g. `'Chat Unsubscribed'`), not the raw `domain.*` key.
+
+**Whenever you add or change an `ACTION_DISPLAY` entry, do the same** in `ACTION_ICONS` using the **display string** from `ACTION_DISPLAY`.
+
+- **Always use [lucide-react](https://lucide.dev/icons)** for `TRIGGER_ICONS`, `ACTION_ICONS`, and the card UI icons in the same file (copy, chevron, flow arrow, etc.). Import the named icon and render with the shared **`L13`** props: `{...L13}` expands to `size={13} strokeWidth={2} aria-hidden`. Icons inherit chip color via `currentColor`. **Do not hand-write inline SVGs** in `ScenarioCard` unless Lucide truly has no equivalent (extremely rare — search [lucide.dev](https://lucide.dev/icons) first).
+- If no map entry exists for a label, the chip renders **text only** — avoid shipping new triggers/actions without an icon.
+
+**Do not swap Lucide icons** for ad-hoc SVGs or alternate libraries unless the user explicitly asks.
+
 ### 5. Section comment
 
 Place the new scenario under the correct section comment. Existing sections:
@@ -116,6 +131,7 @@ Add a new section comment if none of the above fit.
 
 ### 6. JSON field rules
 
+- Do **not** end `description` with a redundant newline (`\n` suffix) unless the scenario intentionally needs it
 - Keep the JSON as close to the original as possible — do not restructure, reorder keys, or rename fields
 - Keep production text values as the "prime example" (e.g. Hebrew message text, label names, filtrex expressions)
 - The `html` field in `sendEmail` actions must stay as an **array of strings** exactly as given — do not join into one string
@@ -131,8 +147,8 @@ Run `npm run build` to confirm there are no TypeScript or compilation errors. Fi
 
 | File | Purpose |
 |---|---|
-| `src/data/scenarios.ts` | All scenario data — this is the only file you edit |
-| `src/components/ScenarioCard/index.tsx` | Card UI — read if you need to understand how fields render |
+| `src/data/scenarios.ts` | All scenario data — primary edits for new scenarios, `TRIGGER_DISPLAY`, `ACTION_DISPLAY` |
+| `src/components/ScenarioCard/index.tsx` | Card UI — **edit** whenever you add `TRIGGER_DISPLAY` / `ACTION_DISPLAY` entries (`TRIGGER_ICONS` / `ACTION_ICONS` keyed by the display label) |
 | `src/components/ScenarioCard/styles.module.css` | Card styles |
 | `src/pages/scenarios.tsx` | Marketplace page — read if layout questions arise |
 

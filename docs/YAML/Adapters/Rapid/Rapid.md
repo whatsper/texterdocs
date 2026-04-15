@@ -957,7 +957,7 @@ Lists **financial documents** for a patient. Query params are built from `params
 | `offset` | No | If omitted, `0`. |
 | `fromDate`, `toDate` | No | ISO `YYYY-MM-DDTHH:mm:ss` (optional filter). |
 | `idField`, `crmIdField` | No | Which document field becomes choice `id` / `crm_id`. If omitted, `id` / `docNumber`. |
-| `titleFormat` | No | `{{...}}` template; variables match Rapid document fields, e.g. `id`, `docNumber`, `date`, `branchName`, `docType`, `issuerName`, `customerId`, `fileName`, `departmentId`, `branchId`. |
+| `titleFormat` | No | `{{...}}` template; variables match Rapid document fields, e.g. `id`, `docNumber`, `date`, `branchName`, `docType`, `issuerName`, `issuerDb`, `customerId`, `fileName`, `departmentId`, `branchId`. |
 
 **Result:** `crmData.financialDocuments[]`
 
@@ -994,7 +994,7 @@ Fetches the **PDF** for a row from `getFinancialDocuments`, stores it in Texter,
     params:
       docNumber: "%state:node.pick_doc.data.docNumber%"
       docType: "%state:node.pick_doc.data.docType%"
-      issuerName: "%state:node.pick_doc.data.issuerName%"
+      issuerDb: "%state:node.pick_doc.data.issuerDb%"
     on_complete: send_pdf
 ```
 
@@ -1002,7 +1002,7 @@ Fetches the **PDF** for a row from `getFinancialDocuments`, stores it in Texter,
 |--------|----------|--------|
 | `docNumber` | Yes | From a `getFinancialDocuments` row (`data`). |
 | `docType` | Yes | From `data`. |
-| `issuerName` | Yes | From `data`. |
+| `issuerDb` | Yes | From `data`. |
 | `customerId` | No* | *If omitted, uses `crmData.cardCode`. |
 | `fileName` | No* | *If omitted, default `financial-document-{docNumber}.pdf`. |
 
@@ -1022,7 +1022,7 @@ Fetches the **PDF** for a row from `getFinancialDocuments`, stores it in Texter,
     params:
       docNumber: "%state:node.pick_doc.data.docNumber%"
       docType: "%state:node.pick_doc.data.docType%"
-      issuerName: "%state:node.pick_doc.data.issuerName%"
+      issuerDb: "%state:node.pick_doc.data.issuerDb%"
       fileName: "invoice.pdf"
     on_complete: send_pdf
 ```

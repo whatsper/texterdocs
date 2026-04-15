@@ -26,6 +26,8 @@ export const TRIGGER_DISPLAY: Record<string, string> = {
   'app.message.statusRequest': 'Message Status Update',
   'app.scenarios.customTriggers.cron': 'Scheduled',
   'domain.channel.health.problem.resolved': 'Channel Health Alert',
+  'domain.chat.unsubscribed': 'Chat Unsubscribed',
+  'domain.chat.subscribed': 'Chat Subscribed',
 };
 
 // Human-readable display for action types
@@ -445,6 +447,148 @@ export const SCENARIOS: Scenario[] = [
                 error: '%messageStatusRequest:error%',
                 timestamp: '%messageStatusRequest:timestamp%',
                 externalId: '%messageStatusRequest:ids%',
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-chat-unsubscribed',
+    name: '(SUB) Chat Unsubscribed',
+    tags: ['on-unsubscribe', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.unsubscribed'],
+    relatedScenarios: ['sub-chat-subscribed'],
+    description:
+      'Sends a webhook when a chat opts out of template messages — for example when the customer replies with an opt-out keyword such as "הסר". Use this to sync suppression lists or update consent in external systems.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when the unsubscribe event fires.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Unsubscribed',
+      description:
+        'Sends a webhook when a chat unsubscribed from receiving template messages (e.g., by replying "הסר")',
+      triggerEvents: ['domain.chat.unsubscribed'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatUnsubscribed',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-chat-subscribed',
+    name: '(SUB) Chat Subscribed',
+    tags: ['on-subscribe', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.subscribed'],
+    relatedScenarios: ['sub-chat-unsubscribed'],
+    description:
+      'Sends a webhook when a chat subscribes or opts back in to receiving template messages. Use this to refresh consent or resume outreach in external systems.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when the subscribe event fires.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Subscribed',
+      description:
+        'Sends a webhook when a chat subscribes or opts back in to receiving template messages.',
+      triggerEvents: ['domain.chat.subscribed'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatSubscribed',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-chat-assigned',
+    name: '(SUB) Chat Assigned',
+    tags: ['on-assign', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.assigned'],
+    relatedScenarios: ['sub-chat-subscribed', 'sub-chat-unsubscribed'],
+    description:
+      'Sends a webhook when a chat is taken by an agent, including the full chat and a narrowed agent profile (id, crmId, email, displayName, roles). Use this to sync assignment with CRMs, routing tools, or custom backends.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat and agent payload when a chat is assigned.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Assigned',
+      description:
+        'Sends a webhook when a chat is assigned, with full chat data and a narrowed agent object.',
+      triggerEvents: ['domain.chat.assigned'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatAssigned',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+                agent: {
+                  id: {'##provide': {provider: 'agent', key: '_id'}},
+                  crmId: {'##provide': {provider: 'agent', key: 'crmId'}},
+                  email: {'##provide': {provider: 'agent', key: 'email'}},
+                  displayName: {'##provide': {provider: 'agent', key: 'displayName'}},
+                  roles: {'##provide': {provider: 'agent', key: 'roles'}},
+                },
               },
             },
           },
