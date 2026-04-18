@@ -2,11 +2,31 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-04-14T00:00:00.000Z</updated>
+    <updated>2026-04-18T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Ask AI — Docs Chat]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/18/ask-ai</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/18/ask-ai"/>
+        <updated>2026-04-18T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Ask natural-language questions about Texter right inside the docs. A new right-docked chat panel, grounded in the full documentation, is now live on every page.]]></summary>
+        <content type="html"><![CDATA[<p>Ask natural-language questions about Texter right inside the docs. A new right-docked chat panel, grounded in the full documentation, is now live on every page.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/18/ask-ai#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Ask AI panel</strong> — click the "Ask AI" button in the bottom-right to open a chat that answers questions about YAML, adapters, scenarios, bot flows, and anything else covered in the docs. Works in both English and Hebrew.</li>
+<li><strong>Source citations</strong> — every answer lists the docs pages it drew from, as clickable links that take you straight to the relevant reference.</li>
+<li><strong>Multi-turn follow-ups</strong> — the panel remembers your conversation within the session so you can ask follow-ups like "and for Zoho?" without restating context.</li>
+<li><strong>"Ask about this page"</strong> — one-click prompt in the empty state that asks the AI to summarize the page you're currently on, the key YAML points to follow, and common mistakes to avoid.</li>
+<li><strong>Prompt suggestions</strong> — the empty state surfaces three rotating starter questions drawn from a pool of 30, covering data injection, Flows, adapters, prompts, notifies, working hours, and more.</li>
+<li><strong>YAML answers ready to paste</strong> — YAML code blocks in answers are auto-indented by two spaces so you can paste them directly under an existing key in the bot editor.</li>
+<li><strong>Resizable panel</strong> — drag the left edge to widen or narrow the panel; your preferred width is remembered across sessions.</li>
+</ul>]]></content>
+        <category label="feature" term="feature"/>
+        <category label="site" term="site"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Giscus Comments, Template Webhooks, and Passive Marketing Chats]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/04/14/passive-chats-comments</id>
@@ -32,6 +52,7 @@
 <p><strong>Handle Passive Marketing Chats</strong> — cron-triggered scenario that runs once a day, finds BULK chats from the previous day whose last message matched one of your marketing templates, and automatically reassigns them to the sales department (Pending status) while updating the lead's status in Rapid CRM. Built for Tyntec provider customers — see the "What to configure" section for the expression to use with other WhatsApp providers.</p>
 </li>
 </ul>]]></content>
+        <category label="feature" term="feature"/>
         <category label="scenarios" term="scenarios"/>
         <category label="automation" term="automation"/>
         <category label="site" term="site"/>
@@ -90,6 +111,7 @@
 <li><strong>Copy JSON</strong> — one click copies the full scenario JSON to clipboard, ready to paste into Texter</li>
 <li><strong>Randomized ordering</strong> — cards shuffle on each page load so no scenario is always buried at the bottom</li>
 </ul>]]></content>
+        <category label="feature" term="feature"/>
         <category label="scenarios" term="scenarios"/>
         <category label="docs" term="docs"/>
         <category label="automation" term="automation"/>
@@ -189,6 +211,7 @@
 <li>Feedback form submit button is now disabled until all required fields are filled</li>
 <li>Various clarifications and corrections in Rapid adapter docs</li>
 </ul>]]></content>
+        <category label="feature" term="feature"/>
         <category label="adapters" term="adapters"/>
         <category label="site" term="site"/>
     </entry>
@@ -225,6 +248,7 @@
 <li>Full-text local search</li>
 <li>Last updated timestamps on every page</li>
 </ul>]]></content>
+        <category label="feature" term="feature"/>
         <category label="docs" term="docs"/>
         <category label="yaml" term="yaml"/>
         <category label="adapters" term="adapters"/>
