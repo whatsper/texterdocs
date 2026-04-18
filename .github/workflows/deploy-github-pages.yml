@@ -35,14 +35,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Restore the content-hash cache so unchanged chunks don't re-embed.
+      # Keyed by chunker + script source so bumping CHUNKER_VERSION invalidates.
+      - name: Restore RAG embed cache
+        uses: actions/cache@v4
+        with:
+          path: .rag-cache.json
+          key: rag-cache-v1-${{ hashFiles('scripts/build-rag.mjs') }}-${{ github.sha }}
+          restore-keys: |
+            rag-cache-v1-${{ hashFiles('scripts/build-rag.mjs') }}-
+            rag-cache-v1-
+
       - name: Build
         env:
-          FEEDBACK_WEBHOOK_URL: ${{ secrets.FEEDBACK_WEBHOOK_URL }}
+          AI_CHAT_WEBHOOK_URL: ${{ secrets.AI_CHAT_WEBHOOK_URL }}
           GISCUS_REPO: ${{ secrets.GISCUS_REPO }}
           GISCUS_REPO_ID: ${{ secrets.GISCUS_REPO_ID }}
           GISCUS_CATEGORY: ${{ secrets.GISCUS_CATEGORY }}
           GISCUS_CATEGORY_ID: ${{ secrets.GISCUS_CATEGORY_ID }}
           GISCUS_LANG: ${{ secrets.GISCUS_LANG }}
+          # Build-time RAG sync (prebuild → scripts/build-rag.mjs).
+          # Skipped cleanly if required vars are unset. Needs SUPABASE_URL +
+          # SUPABASE_SECRET_KEY, plus either OPENAI_API_KEY or
+          # EMBED_WEBHOOK_URL + EMBED_WEBHOOK_SECRET.
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          EMBED_WEBHOOK_URL: ${{ secrets.EMBED_WEBHOOK_URL }}
+          EMBED_WEBHOOK_SECRET: ${{ secrets.EMBED_WEBHOOK_SECRET }}
         run: npm run build
 
       - name: Push to gh-pages

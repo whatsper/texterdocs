@@ -17,7 +17,9 @@ import { chromium } from "playwright";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..", "..", "..");
 
-const HOST = "http://127.0.0.1:3000";
+// `localhost` not `127.0.0.1` — Windows + Node's http server often binds IPv6 only,
+// and `localhost` resolves to both stacks while `127.0.0.1` misses the IPv6 listener.
+const HOST = "http://localhost:3000";
 const BASE = `${HOST}/texterdocs`;
 
 const PAGES = [

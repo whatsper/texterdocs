@@ -1,7 +1,7 @@
 ---
 title: Scenario Marketplace
 date: 2026-04-07
-tags: [scenarios, docs, automation]
+tags: [feature, scenarios, docs, automation]
 ---
 
 Browse, understand, and copy ready-made automation scenarios directly into Texter — no starting from scratch.

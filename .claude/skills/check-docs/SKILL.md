@@ -54,7 +54,7 @@ For every `docs/**/*.md` file:
 For every `blog/**/*.md` file:
 - **Required**: `title`, `date`, `tags` (array of strings)
 - The date in the frontmatter should match the date in the filename (`YYYY-MM-DD-*.md`)
-- Tags should come from the established blog tag set (`docs`, `yaml`, `adapters`, `scenarios`, `automation`, `site`, `feedback`). Warn (don't error) on unknown tags.
+- Tags should come from the established blog tag set (`docs`, `yaml`, `adapters`, `scenarios`, `automation`, `site`, `feedback`, `feature`). Warn (don't error) on unknown tags.
 
 For every blog post, check that `<!-- truncate -->` appears exactly once after the intro paragraph.
 

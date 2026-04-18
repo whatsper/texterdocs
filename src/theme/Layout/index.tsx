@@ -3,6 +3,8 @@ import {useLocation} from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import clsx from 'clsx';
 import Layout from '@theme-original/Layout';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import AIChat from '@site/src/components/AIChat';
 import GiscusComments, {isSiteHomePage} from '@site/src/components/GiscusComments';
 import styles from './styles.module.css';
 
@@ -55,11 +57,16 @@ export default function LayoutWrapper(props: LayoutProps): ReactNode {
   const {children, ...rest} = props;
 
   return (
-    <Layout {...rest}>
-      <>
-        {children}
-        <GiscusBlock />
-      </>
-    </Layout>
+    <>
+      <Layout {...rest}>
+        <>
+          {children}
+          <GiscusBlock />
+        </>
+      </Layout>
+      <BrowserOnly fallback={null}>
+        {() => <AIChat />}
+      </BrowserOnly>
+    </>
   );
 }

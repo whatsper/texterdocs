@@ -89,6 +89,7 @@ tags: [<tag1>, <tag2>, ...]
 - `automation` — automation features
 - `site` — site infrastructure, theme, plugins
 - `feedback` — feedback widget changes
+- `feature` — posts that introduce a new user-facing site/app capability (Ask AI panel, Scenario Marketplace, Giscus comments, Feedback widget, initial site launch). Apply it **in addition to** the topical tags above, not as a replacement. **Do not** apply to pure content drops (new adapter docs, new scenarios, doc fixes) — those get topical tags only. Rule of thumb: if a reader would notice a new *thing they can do* on the site, tag it `feature`.
 
 If a commit truly doesn't fit any of these, ask the user what tag they want or suggest one — but err on the side of reusing existing tags.
 

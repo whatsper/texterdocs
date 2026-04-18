@@ -1,7 +1,7 @@
 ---
 title: Giscus Comments, Template Webhooks, and Passive Marketing Chats
 date: 2026-04-14
-tags: [scenarios, automation, site]
+tags: [feature, scenarios, automation, site]
 ---
 
 New this week: comments on every docs page, three subscribe-to-events templates for template messaging and assignment webhooks, and a scheduled scenario for recovering passive bulk chats.

@@ -21,7 +21,7 @@ const config: Config = {
   favicon: 'img/favicon.svg',
 
   customFields: {
-    feedbackWebhookUrl: process.env.FEEDBACK_WEBHOOK_URL ?? '',
+    aiChatWebhookUrl: process.env.AI_CHAT_WEBHOOK_URL ?? '',
     giscus: {
       repo: process.env.GISCUS_REPO?.trim() || 'whatsper/texterdocs',
       repoId: process.env.GISCUS_REPO_ID?.trim() ?? '',

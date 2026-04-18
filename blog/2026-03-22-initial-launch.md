@@ -1,7 +1,7 @@
 ---
 title: Documentation Site Live — Full YAML Reference + Rapid Adapter
 date: 2026-03-22
-tags: [docs, yaml, adapters]
+tags: [feature, docs, yaml, adapters]
 ---
 
 The Texter documentation site is now live with complete YAML bot configuration reference and the first CRM adapter docs.

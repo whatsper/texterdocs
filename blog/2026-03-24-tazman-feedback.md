@@ -1,7 +1,7 @@
 ---
 title: Tazman CRM Adapter + Feedback Widget
 date: 2026-03-24
-tags: [adapters, site]
+tags: [feature, adapters, site]
 ---
 
 New Tazman CRM adapter docs, an expanded Markdown examples reference, and a feedback widget on every page.

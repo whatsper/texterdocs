@@ -19,6 +19,9 @@ _context/
 # Preview smoke (screenshots from /preview skill)
 .preview/
 
+# RAG build cache (avoids re-embedding unchanged chunks; restored via actions/cache in CI)
+.rag-cache.json
+
 # Misc
 .DS_Store
 .env.local
