@@ -32,7 +32,9 @@ These values are set **once** per customer environment (not in public bot YAML).
 | `phoneField` | No | `Phone` | Primary phone field API name on that module. |
 | `secondaryPhoneField` | No | `Mobile` | Secondary phone field API name (also searched). |
 | `defaultRecord` | No | `Leads` | Default **module** for create-style ops when `params.record` is omitted. |
-| `closeTicketDateField` | No | — | Used by `closeTicket` when stamping a datetime field. |
+| `closeTicketDateField` | No | — | Used by `closeTicket` when stamping a datetime field. If unset (and no YAML params are passed), `closeTicket` **skips** the record PUT entirely. |
+| `disableCloseTicketNote` | No | `false` | When `true`, `closeTicket` will **not** create the chat-transcript **Note** on the contact. Set this for customers that don't want a note written back to Zoho. |
+| `closeTicketNoteTitle` | No | `שיחת ווצאפ` | Prefix for the auto-created Note title. The final title is `"{prefix} {dd/mm/yyyy of last message}"`. |
 | `apiDomain` | No | From OAuth metadata or `https://www.zohoapis.com` | Zoho API base; some regions/datacenters differ - for example `https://www.zohoapis.eu` |
 
 OAuth for Zoho is configured in the Texter environment; bot YAML does **not** contain secrets.
@@ -73,6 +75,7 @@ The adapter runs a **COQL** `SELECT` on `crmConfig.contactModule` (default `Cont
 **Result:** On success, `crmData` includes at least:
 
 - `recordId` — Zoho record `id`.
+- `contactId` — **stable** contact id (same as `recordId` at lookup time). Unlike `recordId`, this is not overwritten by later `createRecord` / `updateRecord` calls against **other** modules, so it's the safe handle to attach child records (like the `closeTicket` Note) back to the original contact.
 - `name` — from `Full_Name`.
 - `phone` — the value from the primary phone field if present, otherwise the secondary.
 - `ownerId` — from `Owner.id` (owner user id).
@@ -155,7 +158,7 @@ Creates a **new row** in a Zoho module (**POST** [insert records](https://www.zo
 
 **Required fields** are whatever Zoho enforces for that module in that org — get names and mandatory columns from the customer.
 
-**Result:** On success, `crmData.recordId` is set to the **new** record’s id from Zoho. Other `crmData` keys are preserved as-is.
+**Result:** On success, `crmData.recordId` is set to the **new** record’s id from Zoho. When the created record is on the **contact module** (`crmConfig.contactModule`, default `Contacts`), `crmData.contactId` is also set to the same id so later ops have a stable handle to the contact even after subsequent creates/updates on other modules. Other `crmData` keys are preserved as-is.
 
 **Basic** — contact with phone and source:
 
@@ -204,7 +207,7 @@ Updates an **existing** row (**PUT** [update records](https://www.zoho.com/crm/d
 | `dateField` | No | If set, the adapter sets this Zoho field to the **current** time (`YYYY-MM-DDTHH:mm:ssZ`). |
 | *(other keys)* | No | **Zoho field API names** → values on the new record. |
 
-**Result:** On success, `crmData.recordId` is set from the API response (usually the same id). `crmData` is otherwise merged from the chat as before.
+**Result:** On success, `crmData.recordId` is set from the API response (usually the same id). When the updated record is on the **contact module** (`crmConfig.contactModule`, default `Contacts`), `crmData.contactId` is refreshed to the same id. `crmData` is otherwise merged from the chat as before.
 
 **Basic**
 
@@ -239,23 +242,27 @@ Updates an **existing** row (**PUT** [update records](https://www.zoho.com/crm/d
 
 ### `closeTicket`
 
-Same as `updateRecord` (**PUT**): update a row (e.g. close a **Case**) and optionally stamp `dateField` with the current time.
+Writes the **chat transcript as a Note on the Contact** (Zoho [Create Notes API](https://www.zoho.com/crm/developer/docs/api/v7/create-notes.html)), and optionally PUTs the same `record` / `dateField` as `updateRecord`.
 
-* **When the chat is resolved by an agent** - `closeTicket` runs with no YAML params. `recordId` comes from `previousBotSession.store.accountId` if set, else `crmData.recordId`. `dateField` comes from `crmConfig.closeTicketDateField` when set. `record` falls back to `crmConfig.defaultRecord` — set `defaultRecord` (or CRM config) so that matches the module you close.
+**When it runs:** When the chat is resolved (usually with no YAML `params`). Called from YAML if you also want to close a module row (e.g. a `Case`) in the same step.
 
-* **When you call it from YAML** - Put optional `record` / `recordId` / `dateField` overrides, and Zoho fields in `params`. `params` are merged last** and win over those defaults.
+**Behavior:**
 
-Requires a `recordId` on the chat from session or `crmData`; if both are missing, the op fails ( `params.recordId` does not satisfy that check).
+- **Record PUT** (same as `updateRecord`) — only runs when there is actually something to update: `crmConfig.closeTicketDateField` is set, and/or YAML `params` are passed.
+- **Note on Contact** — created by default on `crmConfig.contactModule` (default `Contacts`), using the **stable** `crmData.contactId` so the Note lands on the original contact even if `recordId` has since been moved to another module. Note title is `"{closeTicketNoteTitle || 'שיחת ווצאפ'} {dd/mm/yyyy of last message}"`. On the very first `closeTicket` for a chat with >100 messages, only the last 100 are written. Set `crmConfig.disableCloseTicketNote: true` to skip the Note.
 
-| Param | Notes |
-|--------|--------|
-| *(prerequisite)* | `crmData.recordId` (or `previousBotSession.store.accountId`) must be on the chat. |
-| `record` | Module API name (e.g. `Cases`). |
-| `recordId` | Override; else `previousBotSession.store.accountId` \|\| `crmData.recordId`. |
-| `dateField` | Override; else `crmConfig.closeTicketDateField`. |
-| *(other)* | Same as `updateRecord`. |
+**Basic** — agent resolves the chat:
 
-**Result:** Same as `updateRecord`.
+```yaml
+  zoho_close:
+    type: func
+    func_type: crm
+    func_id: closeTicket
+    on_complete: done
+    on_failure: done
+```
+
+**Advanced** — close a Case and write the note in one step:
 
 ```yaml
   close_case_in_zoho:
@@ -269,9 +276,19 @@ Requires a `recordId` on the chat from session or `crmData`; if both are missing
     on_failure: handoff
 ```
 
+| Param | Required | Notes |
+|--------|----------|--------|
+| *(prerequisite)* | — | For the PUT step: `crmData.recordId` (or `previousBotSession.store.accountId`). For the Note: a contact id on the chat (`crmData.contactId` → `crmData.id` → `recordId`). |
+| `record` | No | Module API name for the PUT; else `crmConfig.defaultRecord`. |
+| `recordId` | No | Override for the PUT; else `previousBotSession.store.accountId` \|\| `crmData.recordId`. |
+| `dateField` | No | Override for the PUT; else `crmConfig.closeTicketDateField`. |
+| *(other)* | No | Any Zoho field API name → value. Passing any key here also forces the PUT to run. |
+
+**Result:** `{ success: true, lastMessageStoredInCRMTimestamp }` when a note is written; `{ success: true }` when `disableCloseTicketNote` is set and the PUT (if any) succeeded.
+
 :::note Bulthaup only
 
-**Bulthaup** uses a **different** `closeTicket` (WhatsApp / transcript). Other customers: generic **PUT** above.
+**Bulthaup** uses a different `closeTicket` implementation (its own WhatsApp transcript / file-attach flow). The behavior above applies to all other customers.
 
 :::
 
