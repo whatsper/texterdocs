@@ -2,11 +2,30 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-04-18T00:00:00.000Z</updated>
+    <updated>2026-04-19T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Monday adapter & Zoho `closeTicket` Updates]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho"/>
+        <updated>2026-04-19T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[New Monday.com adapter docs, and an updated Zoho closeTicket that now writes the chat transcript as a Note on the contact.]]></summary>
+        <content type="html"><![CDATA[<p>New Monday.com adapter docs, and an updated Zoho <code>closeTicket</code> that now writes the chat transcript as a Note on the contact.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Monday.com adapter</strong> — full documentation for the new Monday adapter: <code>getCustomerDetails</code>, <code>createItem</code>, <code>updateItem</code>, <code>changeStatus</code>, and <code>crmGetFields</code>. Covers the required <code>crmConfig</code> (<code>authToken</code>, <code>boardId</code>, <code>groupId</code>, <code>phoneColumnId</code>, <code>statusColumnId</code>, <code>workspaceUrl</code>), column-ID vs. column-title gotchas, per-column-type value formats (status, dropdown, date, phone, email, text), phone-format flags (<code>useNationalDigits</code> / <code>useFullPhoneNumber</code>), and the <code>additionalFieldsQuery</code> / <code>additionalFieldsVariables</code> hooks for pulling extra item columns onto <code>crmData</code>.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Zoho <code>closeTicket</code></strong> — now writes the chat transcript as a <strong>Note on the contact</strong> by default (Zoho Create Notes API), using a new stable <code>crmData.contactId</code> so the note always lands on the original contact even after later <code>createRecord</code> / <code>updateRecord</code> calls move <code>recordId</code> to another module. The record <code>PUT</code> only runs when there's something to update (<code>crmConfig.closeTicketDateField</code> set, or YAML <code>params</code> passed) — no more spurious updates on agent-resolved chats. New <code>crmConfig</code> options: <code>disableCloseTicketNote</code> to opt out of the note, and <code>closeTicketNoteTitle</code> to override the note-title prefix (default <code>שיחת ווצאפ</code>).</li>
+</ul>]]></content>
+        <category label="adapters" term="adapters"/>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Ask AI — Docs Chat]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/04/18/ask-ai</id>
