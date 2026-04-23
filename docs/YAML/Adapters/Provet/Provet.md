@@ -240,6 +240,10 @@ Returns `on_failure` if: default/specific template cannot be resolved, Provet AP
 
 This adapter uses **OAuth 2.0** (server-managed credentials). Bot YAML does not provide Provet secrets.
 
+:::info[Hebrew onboarding doc]
+Internal Hebrew reference: [Provet Cloud integration](https://docs.google.com/document/d/1fP9TyXziQMToH-z7IM8RdIgKBQxiSOG6F7LQ-0VNsiU/edit?tab=t.d9wt5p699cbt)
+:::
+
 ### 1) Collect the customer Provet instance URL (`provetId`)
 
 Provet uses a 4-digit **`provetId`** in the customer environment URL. Example:
@@ -256,8 +260,6 @@ To onboard a new Provet customer, we need Provet Support to add/enable **our app
 
 Once Provet completes the setup, our app should appear in the customer’s Provet integrations/app list.
 
-![Finding the Texter app in Provet](/img/adapters/provet/provet-app-list.png)
-
 ### 3) Enable the integration request inside Provet
 
 In the customer’s Provet environment:
@@ -266,20 +268,24 @@ In the customer’s Provet environment:
 - Click **Add Request**
 - Select **Texterchat - WhatsApp integration**
 
+![Finding the Texter app in Provet](/img/adapters/provet/provet-app-list.png)
+
+If the app is not visible, follow up with Provet Support until it appears.
+
 ### 4) Obtain `clientId` / `clientSecret` for this customer
 
-After Provet enables the app, you’ll need the OAuth app credentials:
+After the app is enabled in Provet, obtain the OAuth app credentials:
 
 - `clientId`
 - `clientSecret`
 
-In our stack this is typically produced via internal automation and then stored in the customer config under `oauthServices.provet`.
+This is typically retrieved via the n8n workflow [Get OAuth Credentials](https://n8n.texter.chat/workflow/mbJSHlQKVUohmOoR).
 
-:::info[Hebrew onboarding doc]
-Internal Hebrew reference: [Provet Cloud integration](https://docs.google.com/document/d/1fP9TyXziQMToH-z7IM8RdIgKBQxiSOG6F7LQ-0VNsiU/edit?tab=t.d9wt5p699cbt)
-:::
+
 
 ### 5) Configure Texter OAuth service + CRM config
+
+After credentials are obtained, add a new row to the [Provet Data Table](https://n8n.texter.chat/projects/YzYpPkMyySeB6MDD/datatables/zfRGeCa1n321aZnQ) in n8n.
 
 Ensure the customer config contains the Provet OAuth service config:
 
@@ -290,13 +296,21 @@ Ensure the customer config contains the Provet OAuth service config:
     "config": {
       "orgHost": "https://provetcloud.com/PROVET_ID/",
       "clientId": "CLIENT_ID",
+      "redirectUri": "https://n8n.texter.chat/webhook/auth/oauth/v2/authorize-callback/?provet_id=PROVET_ID",
       "clientSecret": "CLIENT_SECRET"
     }
   }
 }
 ```
 
-And that CRM config includes the Provet server for adapter calls:
+:::caution[Why `redirectUri` is required]
+Our Provet app uses a **fixed redirect URI** (partner constraint). We route customer-specific OAuth callbacks via two n8n workflows:
+
+1. [Get OAuth Credentials](https://n8n.texter.chat/workflow/mbJSHlQKVUohmOoR) — receives a webhook after the app is registered and stores `clientId` / `clientSecret`.
+2. [OAuth Redirector](https://n8n.texter.chat/workflow/VxGXesTzBQmvw6xr) — receives the authorization callback and redirects to the correct customer inbox URL based on the data table row.
+:::
+
+And add to CRM config the Provet server for adapter calls:
 
 ```json
 {
@@ -306,8 +320,28 @@ And that CRM config includes the Provet server for adapter calls:
 }
 ```
 
+---
+
+## Useful Tips
+
+### Provet Request Filters and Exposeable Fields
+<br/>
+:::tip[Reading Provet REST API docs: filters and \"expose_*\"]
+On each endpoint page (for example `https://provetcloud.com/4444/api/0.1/appointment/`), Provet lists:
+
+- **Filterable fields**: used as query params (often with double-underscores, e.g. `id__is_not`, `start__range`, etc.).
+- **Exposable fields**: add query params like `expose_patient=true` (or `expose_<field>`) to expand nested objects in the response instead of getting only URLs.
+:::
+
+Example page ( `.../api/0.1/appointment/` ):
+
+![Provet API docs page showing filters/exposable fields](/img/adapters/provet/provet-api-docs-page.png)
+
+---
+
+### Creating Access Token For Debugging
 :::tip[Getting an access token (internal troubleshooting)]
-If you need to test Provet API calls manually, generate an access token using **Client Credentials** with the customer’s `provetId` and `clientId`/`clientSecret`.
+If you need to test Provet API calls manually, generate an access token using **Client Credentials** with the customer’s `provetId`, `clientId` and `clientSecret`.
 
 ```bash
 curl --location \
@@ -322,21 +356,3 @@ Use the returned `access_token` as a Bearer token in API requests.
 :::
 
 ![OAuth services fields in Nihul customer config](/img/adapters/provet/nihul-oauthservices.png)
-
-![Postman token request](/img/adapters/provet/postman-token-request.png)
-
-![Using the access token as a bearer token](/img/adapters/provet/postman-bearer-token.png)
-
----
-
-## Useful Tips
-<br/>
-:::tip[Reading Provet REST API docs: filters and \"expose_*\"]
-On each endpoint page (for example `https://provetcloud.com/4444/api/0.1/appointment/`), Provet lists:
-
-- **Filterable fields**: used as query params (often with double-underscores, e.g. `id__is_not`, `start__range`, etc.).
-- **Exposable fields**: add query params like `expose_patient=true` (or `expose_<field>`) to expand nested objects in the response instead of getting only URLs.
-:::
-
-![Provet API docs page showing filters/exposable fields](/img/adapters/provet/provet-api-docs-page.png)
-
