@@ -355,4 +355,4 @@ curl --location \
 Use the returned `access_token` as a Bearer token in API requests.
 :::
 
-![OAuth services fields in Nihul customer config](/img/adapters/provet/nihul-oauthservices.png)
+![Oauth postman token request](/img/adapters/provet/postman-token-request.png)
