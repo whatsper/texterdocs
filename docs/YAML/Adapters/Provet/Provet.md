@@ -1,6 +1,6 @@
 ---
-
-## sidebar_position: 1
+sidebar_position: 1
+---
 
 # Provet
 
@@ -10,7 +10,6 @@
 
 - [Authentication (OAuth 2.0)](https://developers.provetcloud.com/restapi/authentication_oauth2.html)
 - [REST API Reference (v0.1)](https://developers.provetcloud.com/restapi/0.1/)
-- [Endpoints and properties](https://developers.provetcloud.com/restapi/endpoints.html)
 
 ---
 
@@ -76,27 +75,6 @@ Returns `on_failure` if: `crmConfig.server` missing, phone is missing/invalid, t
 
 ---
 
-### `openTicket` / `abandonBotLead`
-
-Currently a no-op placeholder: returns `success: true` with an empty `crmData`.
-
-**When it runs:** Not typically used. Present for compatibility with other adapter surfaces.
-
-**Basic**
-
-```yaml
-  provet_open_ticket:
-    type: func
-    func_type: crm
-    func_id: openTicket
-    on_complete: next
-    on_failure: fallback
-```
-
-No params.
-
----
-
 ### `closeTicket`
 
 Does not call Provet. Returns `success: true` with `lastMessageStoredInCRMTimestamp` set to the timestamp of the last chat message passed to the adapter.
@@ -122,9 +100,11 @@ No params.
 
 ### `getToranNumber(Legacy)`
 
-:::caution
+:::danger
 
-This function is deprecated and use only by one customer, texter-tidhar, do not use
+This function is deprecated and used only by one customer, texter-tidhar, do not use.
+
+:::
 
 Fetches a Provet client (from `crmConfig.toranClientId`) and returns a phone number derived from that client’s phone list, with a fallback.
 
@@ -260,8 +240,103 @@ Returns `on_failure` if: default/specific template cannot be resolved, Provet AP
 
 This adapter uses **OAuth 2.0** (server-managed credentials). Bot YAML does not provide Provet secrets.
 
-From the customer you’ll typically need:
+### 1) Collect the customer Provet instance URL (`provetId`)
 
-- Provet instance base URL (`crmConfig.server`) and org host (`orgHost`) values for OAuth.
-- OAuth client registration details (`clientId`, `clientSecret`) and the configured redirect URI rules for their Provet environment.
+Provet uses a 4-digit **`provetId`** in the customer environment URL. Example:
+
+- `https://provetcloud.com/1234` → `provetId = 1234`
+
+### 2) Ask Provet Support to enable our application for the customer
+
+To onboard a new Provet customer, we need Provet Support to add/enable **our application** in the customer’s Provet environment.
+
+- Email: `support@provet.com`
+- App name to request: **`Texterchat - WhatsApp integration`**
+- This is typically handled by **Gil** (Provet approvals can be involved).
+
+Once Provet completes the setup, our app should appear in the customer’s Provet integrations/app list.
+
+![Finding the Texter app in Provet](/img/adapters/provet/provet-app-list.png)
+
+### 3) Enable the integration request inside Provet
+
+In the customer’s Provet environment:
+
+- Go to **Settings → Integrations → Free API Access**
+- Click **Add Request**
+- Select **Texterchat - WhatsApp integration**
+
+### 4) Obtain `clientId` / `clientSecret` for this customer
+
+After Provet enables the app, you’ll need the OAuth app credentials:
+
+- `clientId`
+- `clientSecret`
+
+In our stack this is typically produced via internal automation and then stored in the customer config under `oauthServices.provet`.
+
+:::info[Hebrew onboarding doc]
+Internal Hebrew reference: [Provet Cloud integration](https://docs.google.com/document/d/1fP9TyXziQMToH-z7IM8RdIgKBQxiSOG6F7LQ-0VNsiU/edit?tab=t.d9wt5p699cbt)
+:::
+
+### 5) Configure Texter OAuth service + CRM config
+
+Ensure the customer config contains the Provet OAuth service config:
+
+```json
+"oauthServices": {
+  "provet": {
+    "enabled": true,
+    "config": {
+      "orgHost": "https://provetcloud.com/PROVET_ID/",
+      "clientId": "CLIENT_ID",
+      "clientSecret": "CLIENT_SECRET"
+    }
+  }
+}
+```
+
+And that CRM config includes the Provet server for adapter calls:
+
+```json
+{
+  "crm": "provet",
+  "section": "crm",
+  "server": "https://provetcloud.com/PROVET_ID"
+}
+```
+
+:::tip[Getting an access token (internal troubleshooting)]
+If you need to test Provet API calls manually, generate an access token using **Client Credentials** with the customer’s `provetId` and `clientId`/`clientSecret`.
+
+```bash
+curl --location \
+  'https://provetcloud.com/PROVET_ID/oauth2/token/' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=client_credentials' \
+  --data-urlencode 'client_id=CLIENT_ID' \
+  --data-urlencode 'client_secret=CLIENT_SECRET'
+```
+
+Use the returned `access_token` as a Bearer token in API requests.
+:::
+
+![OAuth services fields in Nihul customer config](/img/adapters/provet/nihul-oauthservices.png)
+
+![Postman token request](/img/adapters/provet/postman-token-request.png)
+
+![Using the access token as a bearer token](/img/adapters/provet/postman-bearer-token.png)
+
+---
+
+## Useful Tips
+<br/>
+:::tip[Reading Provet REST API docs: filters and \"expose_*\"]
+On each endpoint page (for example `https://provetcloud.com/4444/api/0.1/appointment/`), Provet lists:
+
+- **Filterable fields**: used as query params (often with double-underscores, e.g. `id__is_not`, `start__range`, etc.).
+- **Exposable fields**: add query params like `expose_patient=true` (or `expose_<field>`) to expand nested objects in the response instead of getting only URLs.
+:::
+
+![Provet API docs page showing filters/exposable fields](/img/adapters/provet/provet-api-docs-page.png)
 
