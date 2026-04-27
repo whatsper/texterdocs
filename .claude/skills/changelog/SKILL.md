@@ -58,14 +58,21 @@ For larger posts (like initial-launch), you can omit the `## Added` heading enti
 
 Each bullet follows: `- **Name** — short description`. The em-dash (`—`, U+2014) is the separator, not a hyphen. The bold name should be the user-visible thing (a function name in code style, an adapter name as plain text, a feature name as plain text).
 
-Examples drawn from existing posts:
+**Keep bullets short and high-level.** One line, ~20 words max. Name the thing and give the gist — readers skim, they don't read exhaustive lists. Don't enumerate every function/field/config option that was added; if the reader cares about specifics, the docs are one click away. Skip implementation detail (parameter names, internal flags, gotchas) unless it's the whole point of the change.
+
+Bad (too detailed — every function listed, config fields enumerated, support flow described):
 ```markdown
-- **Plando adapter** — full documentation for `getCustomerDetails`, `newOpportunity`, `openTicket`/`closeTicket`, and out-of-adapter endpoints (`log_activity`, `upload_contact_file`)
-- **`log_activity`** — expanded with all supported API fields including contact identification options, record fields, and response handling
-- **Send Media** — added dynamic URL tip (workaround for editor validation when using data injection in `doc:`/`media:`) and a line breaks in captions example
+- **Provet adapter** — full documentation for the new Provet Cloud adapter: `getCustomerDetails`, `closeTicket`, `getToranNumber` (legacy), `appointmentReminders`, and `sendReminders`. Covers the required `crmConfig` (`server`, `sortBy`, `sortDirection`, `toranClientId`, `toranDefaultNumber`), the OAuth 2.0 setup, a step-by-step onboarding flow, and tips on request filters and access-token debugging.
 ```
 
-Sub-bullets are allowed (two spaces of indentation) for nested detail — see `2026-04-07-scenario-marketplace.md` line 14–18 for the pattern.
+Good:
+```markdown
+- **Provet adapter** — documentation for the new Provet Cloud (vet PMS) adapter, including OAuth setup and an onboarding guide for Texter Support.
+- **Rapid `newOpportunity`** — `substatus` and `reason` lead fields.
+- **Send Media** — dynamic URL tip and a line-breaks-in-captions example.
+```
+
+Sub-bullets are allowed (two spaces of indentation) but use sparingly — only for genuinely separable sub-items, not to dump details.
 
 ### 5. Frontmatter
 
