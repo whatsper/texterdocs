@@ -19,7 +19,7 @@ ___
       method: "<http method>"
       keepResponse: true
       headers:
-        Content-Type: "application/json"
+        Authorization: "API_TOKEN"
       data:
         key: "value"
     on_complete: <next_node>
@@ -66,8 +66,7 @@ ___
       url: "https://n8n.texter.chat/webhook/future-orders"
       method: "post"
       keepResponse: true
-      headers:
-        Content-Type: "application/json"
+      json: true
       data:
         contactId: "%chat:crmData.recordId%"
     on_complete: split_on_amount_of_orders
@@ -101,11 +100,11 @@ ___
       rejectUnauthorized: false
       useProxy: true
       keepResponse: true
+      json: true
       data:
         phone_number: "%chat:channelInfo.id%"
       headers:
         Authorization: "Basic d2hhdHNhcHB1c2VyOjNyL1JDc2Fp"
-        Content-Type: "application/json"
     on_complete: switch_by_value_check_if_failed
     on_failure: switch_by_value_check_if_failed
 ```
@@ -119,9 +118,9 @@ ___
     params:
       url: "https://myenv.texterchat.com/server/api/v2/chats/%chat:_id%"
       method: "patch"
+      json: true
       headers:
         Authorization: "Bearer my_api_token"
-        Content-Type: "application/json"
       data:
         displayName: "%state:node.get_first_name.text% %state:node.get_last_name.text%"
     on_complete: main_menu
@@ -136,9 +135,9 @@ ___
     params:
       url: "https://myenv.texterchat.com/server/api/v2/whatsapp/templates/send"
       method: "post"
+      json: true
       headers:
         Authorization: "Bearer my_api_token"
-        Content-Type: "application/json"
       data:
         templateName: "inbox_utility_66"
         to: "34673494148"
@@ -158,8 +157,7 @@ ___
     params:
       url: "https://n8n.texter.chat/webhook/add-chat-details-to-google-sheets"
       method: "post"
-      headers:
-        Content-Type: "application/json"
+      json: true
       data:
         name: "%chat:title%"
         phone: "%chat:channelInfo.id%"
@@ -182,8 +180,6 @@ You can attach files from the Texter file storage to the request:
       method: "post"
       json: true
       useProxy: true
-      headers:
-        Content-Type: application/json
       data:
         contact_id: "%chat:crmData.contact_id%"
         title: "%state:node.upload_docs.text%"

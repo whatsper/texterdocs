@@ -1008,6 +1008,53 @@ export const SCENARIOS: Scenario[] = [
     },
   },
 
+  {
+    id: 'run-bot-on-agent-resolve',
+    name: 'Run Bot on Agent Resolve',
+    tags: ['on-resolve', 'run-bot'],
+    triggerEvents: ['domain.chat.resolved'],
+    description:
+      'When an agent (not the bot) resolves a chat, automatically resumes the bot from a configurable node — for example "close_chat" to run a closing branch. Equivalent to the agent manually clicking "close and route to bot branch", but applied to every agent resolve. Limitation: the resume node is the same for all chats, so the post-resolve flow is identical for everyone.',
+    configuration: [
+      {
+        field: 'Bot Resume Node',
+        location: 'actions[0].params.nodeName',
+        description:
+          'The bot node name to resume from after the agent resolves the chat. Must match a node in your bot YAML (e.g. "close_chat").',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: 'Run close_chat after agent resolve',
+      triggerEvents: ['domain.chat.resolved'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'exists(agent.uid)',
+              value: {'##provide': {provider: 'chat', key: 'chat'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'runBot',
+          params: {
+            nodeName: 'close_chat',
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+
   // ── CRM / Salesforce scenarios ──────────────────────────────────────────────
   {
     id: 'update-service-request-on-chat-taken',

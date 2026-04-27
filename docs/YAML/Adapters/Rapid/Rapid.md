@@ -96,6 +96,8 @@ Creates a new lead. Most commonly used when the sender is not identified.
 | `location` | No | |
 | `branch` | No | Branch id (provided by the customer). |
 | `status` | No | Status id (provided by the customer). |
+| `substatus` | No | Sub status id (provided by the customer). |
+| `reason` | No | Reason id - related to status (provided by the customer). |
 | `campaign` | No | |
 | `iPaddress` | No | |
 | `created` | No | ISO datetime. |

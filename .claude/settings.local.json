@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "WebFetch(domain:docs.orama.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "mcp__n8n-mcp__get_node",
+      "Bash(curl -s -X POST \"https://n8n.texter.chat/webhook/texter-docs-chat\" -H \"Content-Type: application/json\" -d '{\"message\":\"How do I use the Rapid adapter to create a lead?\",\"previous_response_id\":null}')",
+      "Bash(curl -s -X POST \"https://n8n.texter.chat/webhook/texter-docs-chat\" -H \"Content-Type: application/json\" -d '{\"message\":\"What is the difference between Notify and Func?\",\"previous_response_id\":null}')",
+      "Bash(curl -s -X POST \"https://n8n.texter.chat/webhook/texter-docs-chat\" -H \"Content-Type: application/json\" -d '{\"message\":\"How do I handle when a user sends a message outside of bot flow?\",\"previous_response_id\":null}')",
+      "Bash(curl -s -X POST \"https://n8n.texter.chat/webhook/texter-docs-chat\" -H \"Content-Type: application/json\" -d '{\"message\":\"How do I inject data from an external API into the bot?\",\"previous_response_id\":null}')"
     ]
   }
 }

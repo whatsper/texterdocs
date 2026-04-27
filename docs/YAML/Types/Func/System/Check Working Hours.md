@@ -89,6 +89,10 @@ ___
 ___
 ## 3. checkWorkingHours (Legacy)
 
+:::danger
+The legacy func_id `checkWorkingHours` still works but `checkWorkingTime` is the canonical name. Use `checkWorkingTime` for new bots.
+:::
+
 ### Syntax
 ```yaml
   <node_name>:
@@ -233,8 +237,4 @@ Without `params.type`, the first schedule (typically `office`) is used by defaul
 
 :::tip
 The customer's default timezone is used when evaluating working hours.
-:::
-
-:::danger
-The legacy func_id `checkWorkingHours` still works but `checkWorkingTime` is the canonical name. Use `checkWorkingTime` for new bots.
 :::
