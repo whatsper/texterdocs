@@ -31,6 +31,27 @@
         <category label="yaml" term="yaml"/>
     </entry>
     <entry>
+        <title type="html"><![CDATA[SLA Scenario Suite (Marketplace)]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/28/sla-scenarios</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/28/sla-scenarios"/>
+        <updated>2026-04-28T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Added an SLA scenario suite to the Scenario Marketplace to help track response-time SLAs using a simple per-chat data store record and a default sla label.]]></summary>
+        <content type="html"><![CDATA[<p>Added an SLA scenario suite to the Scenario Marketplace to help track response-time SLAs using a simple per-chat data store record and a default <code>sla</code> label.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/28/sla-scenarios#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>SLA scenario group (tag: <code>sla</code>)</strong> — a dedicated section in the Scenario Marketplace.</li>
+<li><strong>(SLA) Set Item On Incoming Message</strong> — starts SLA tracking on incoming customer messages (stores timestamp + chat id).</li>
+<li><strong>(SLA) Set Item On Set to pending</strong> — starts SLA tracking when a chat becomes pending.</li>
+<li><strong>(SLA) Set SLA Label For all Records</strong> — cron-driven enforcement that applies the <code>sla</code> label when the configured threshold is exceeded (default example: 20 minutes, configurable per customer).</li>
+<li><strong>(SLA) Remove Item On Resolve Chat</strong> — clears tracking + removes the <code>sla</code> label when a chat is resolved.</li>
+<li><strong>(SLA) Remove Item On outgoing Message</strong> — clears tracking + removes the <code>sla</code> label when an agent replies.</li>
+</ul>]]></content>
+        <category label="scenarios" term="scenarios"/>
+        <category label="marketplace" term="marketplace"/>
+        <category label="sla" term="sla"/>
+        <category label="automation" term="automation"/>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Monday adapter & Zoho `closeTicket` Updates]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho</id>
         <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho"/>
