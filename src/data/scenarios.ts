@@ -21,6 +21,7 @@ export const TRIGGER_DISPLAY: Record<string, string> = {
   'domain.message.created': 'Message Created',
   'domain.chat.resolved': 'Chat Resolved',
   'domain.chat.assigned': 'Chat Assigned',
+  'domain.chat.pending': 'Chat Pending',
   'domain.chat.updated.externalBot': 'External Bot Changed',
   'app.bot.chat.setExternal': 'External Bot Changed',
   'app.message.statusRequest': 'Message Status Update',
@@ -39,6 +40,8 @@ export const ACTION_DISPLAY: Record<string, string> = {
   runBot: 'Run Bot',
   sendEmail: 'Send Email',
   chatUpdateExternalBot: 'Set External Bot',
+  setData: 'Set Data Item',
+  deleteData: 'Delete Data Item',
 };
 
 export const SCENARIOS: Scenario[] = [
@@ -1052,6 +1055,458 @@ export const SCENARIOS: Scenario[] = [
         },
       ],
       options: {unorderedActions: false},
+    },
+  },
+
+  // ── SLA scenarios ───────────────────────────────────────────────────────────
+  {
+    id: 'sla-set-item-on-incoming-message',
+    name: '(SLA) Set Item On Incoming Message',
+    tags: ['sla', 'on-message'],
+    triggerEvents: ['domain.message.created'],
+    description:
+      'When a customer sends an incoming message in an active chat (pending, taken or resolved chats), if there is no record in the SLA chats collection, set one with the current timestamp and chat id so other SLA scenarios can later add/remove labels.',
+    configuration: [
+      {
+        field: 'Data Collection Name',
+        location: 'actions[0].params.collection, loaders.beforeConditions[1].params.collection',
+        description:
+          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+        required: false,
+      },
+      {
+        field: 'Record TTL',
+        location: 'actions[0].params.expiresIn, actions[0].params.expiresInUnit',
+        description:
+          'How long the SLA record should live before expiring automatically (default: 24 hours).',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SLA) Set Item On Incoming Message',
+      description:
+        'when customer sends a new message in a chat in pending or taken chat, add record to store',
+      triggerEvents: ['domain.message.created'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'chat',
+            alias: 'chat',
+            params: {
+              id: {
+                '##provide': {provider: 'message', key: 'parent_chat'},
+              },
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'getData',
+            alias: 'record',
+            params: {
+              collection: 'sla_chats_collection',
+              key: {
+                '##provide': {provider: 'message', key: 'chatChannelInfo.id'},
+              },
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              value: '%message:direction%',
+              comparison: 'Equal',
+              compareTo: 'incoming',
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'empty(record.data.timestamp)',
+              value: {record: '%record:record%'},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'status in (1,2,3)',
+              value: {'##provide': {provider: 'chat', key: 'chat'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'setData',
+          params: {
+            expiresInUnit: 'hours',
+            collection: 'sla_chats_collection',
+            data: {
+              timestamp: '%message:timestamp%',
+              chatId: '%chat:_id%',
+            },
+            tags: [],
+            expiresIn: 24,
+            key: {'##provide': {provider: 'chat', key: 'channelInfo.id'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sla-set-item-on-chat-pending',
+    name: '(SLA) Set Item On Set to pending',
+    tags: ['sla', 'on-pending'],
+    triggerEvents: ['domain.chat.pending'],
+    description:
+      'When a chat is set to pending status, check if a record exists in the SLA chats collection and if not, create one with the current timestamp and chat id so other SLA scenarios can later add/remove labels.',
+    configuration: [
+      {
+        field: 'Data Collection Name',
+        location: 'actions[0].params.collection, loaders.beforeConditions[0].params.collection',
+        description:
+          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+        required: false,
+      },
+      {
+        field: 'Record TTL',
+        location: 'actions[0].params.expiresIn, actions[0].params.expiresInUnit',
+        description:
+          'How long the SLA record should live before expiring automatically (default: 24 hours).',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SLA) Set Item On Set to pending',
+      description:
+        'when customer sends a new message in a chat in pending or taken chat, add record to store',
+      triggerEvents: ['domain.chat.pending'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'getData',
+            alias: 'record',
+            params: {
+              collection: 'sla_chats_collection',
+              key: {'##provide': {provider: 'chat', key: 'channelInfo.id'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'empty(record.data.timestamp)',
+              value: {record: '%record:record%'},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'status in (1,2,3)',
+              value: {'##provide': {provider: 'chat', key: 'chat'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'setData',
+          params: {
+            expiresInUnit: 'hours',
+            collection: 'sla_chats_collection',
+            data: {timestamp: '%time:now("x")%', chatId: '%chat:_id%'},
+            tags: [],
+            expiresIn: 24,
+            key: {'##provide': {provider: 'chat', key: 'channelInfo.id'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sla-apply-sla-label-by-cron',
+    name: '(SLA) Set SLA Label For all Records',
+    tags: ['sla', 'scheduled', 'add-label'],
+    triggerEvents: ['app.scenarios.customTriggers.cron'],
+    description:
+      'On a cron schedule, scans all stored SLA records and adds the SLA label to chats whose timer exceeded the threshold (default: 20 minutes). This is the enforcement step that marks chats as breached/late.',
+    configuration: [
+      {
+        field: 'Cron Schedule',
+        location: 'Nihul → Customer Config',
+        description:
+          'Add this entry to the customer config cron schedule in Nihul:\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "*/10 * * * *",\n  "params": {\n    "name": "sla_scenario"\n  }\n}\nThe scenario uses the cron name to filter executions, so the name must match exactly.',
+        required: true,
+      },
+      {
+        field: 'Cron Name',
+        location: 'conditions[0][0].params.compareTo (cron.name)',
+        description:
+          'Must match the cron trigger name in Nihul. Default in this template: "sla_scenario".',
+        required: true,
+      },
+      {
+        field: 'SLA Threshold',
+        location: 'conditions[0][1].params.expression',
+        description:
+          'Adjust the time window by changing `now-20m` to your desired threshold (default is 20 minutes, but should be set per customer — e.g. `now-10m`, `now-30m`).',
+        required: true,
+      },
+      {
+        field: 'Data Collection Name',
+        location: 'loaders.beforeConditions[0].params.collection',
+        description:
+          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1.1',
+      name: '(SLA) Set SLA Label For all Records',
+      description: 'set record for all records in store',
+      triggerEvents: ['app.scenarios.customTriggers.cron'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'listData',
+            alias: 'records',
+            params: {
+              limit: 50,
+              skip: 0,
+              collection: 'sla_chats_collection',
+              tags: [],
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              value: 'sla_scenario',
+              comparison: 'Equal',
+              compareTo: {'##provide': {provider: 'cron', key: 'name'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression:
+                'not empty(record.data.chatId) and record.data.timestamp < timestamp',
+              value: {
+                timestamp: '%time:now-20m("x")|parseInt%',
+                record: {'##provide': {provider: 'item', key: '__item'}},
+              },
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatUpdateLabels',
+          params: {
+            chatId: '%item:data.chatId%',
+            operation: 'add',
+            labels: ['sla'],
+          },
+          confidentialData: false,
+        },
+      ],
+      loops: [
+        {
+          loop: {
+            type: 'foreach',
+            as: 'item',
+            input: '%records:items%',
+            confidentialData: false,
+            foreachMode: 'parallel',
+            concurency: 5,
+          },
+          position: 'beforeConditions',
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sla-remove-item-on-chat-resolved',
+    name: '(SLA) Remove Item On Resolve Chat',
+    tags: ['sla', 'on-resolve', 'add-label'],
+    triggerEvents: ['domain.chat.resolved'],
+    description:
+      'When a chat is resolved, clears the SLA tracking record and removes the SLA label (if present). Keeps the data store clean and ensures resolved chats are not shown as SLA-breached.',
+    configuration: [
+      {
+        field: 'Data Collection Name',
+        location: 'actions[1].params.collection, loaders.beforeConditions[0].params.collection',
+        description:
+          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+        required: false,
+      }
+    ],
+    json: {
+      version: 'v1',
+      name: '(SLA) Remove Item On Resolve Chat',
+      description: '',
+      triggerEvents: ['domain.chat.resolved'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'getData',
+            alias: 'record',
+            params: {
+              collection: 'sla_chats_collection',
+              key: {'##provide': {provider: 'chat', key: 'channelInfo.id'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'not empty(record.data.timestamp)',
+              value: {record: '%record:record%'},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatUpdateLabels',
+          params: {
+            operation: 'remove',
+            labels: ['sla'],
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'deleteData',
+          params: {
+            collection: 'sla_chats_collection',
+            key: {'##provide': {provider: 'chat', key: 'channelInfo.id'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: true},
+    },
+  },
+  {
+    id: 'sla-remove-item-on-outgoing-message',
+    name: '(SLA) Remove Item On outgoing Message',
+    tags: ['sla', 'on-message', 'add-label'],
+    triggerEvents: ['domain.message.created'],
+    description:
+      'When an agent sends an outgoing message in an active chat, clears the SLA tracking record and removes the SLA label. This marks the chat as “responded” and resets SLA tracking until the next incoming message.',
+    configuration: [
+      {
+        field: 'Data Collection Name',
+        location: 'actions[0].params.collection, loaders.beforeConditions[1].params.collection',
+        description:
+          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SLA) Remove Item On outgoing Message',
+      description: '',
+      triggerEvents: ['domain.message.created'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'chat',
+            alias: 'chat',
+            params: {id: {'##provide': {provider: 'message', key: 'parent_chat'}}},
+            confidentialData: false,
+          },
+          {
+            name: 'getData',
+            alias: 'record',
+            params: {
+              collection: 'sla_chats_collection',
+              key: {'##provide': {provider: 'message', key: 'chatChannelInfo.id'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'status in (1,2)',
+              value: {'##provide': {provider: 'chat', key: 'chat'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              value: '%message:direction%',
+              comparison: 'Equal',
+              compareTo: 'outgoing',
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'not empty(record.data.timestamp)',
+              value: {record: '%record:record%'},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'deleteData',
+          params: {
+            collection: 'sla_chats_collection',
+            key: {'##provide': {provider: 'message', key: 'chatChannelInfo.id'}},
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'chatUpdateLabels',
+          params: {
+            operation: 'remove',
+            labels: ['sla'],
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: true},
     },
   },
 
