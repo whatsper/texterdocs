@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunktexter_docs=self.webpackChunktexter_docs||[]).push([[4545],{87436:e=>{e.exports=JSON.parse('{"metadata":{"permalink":"/texterdocs/changelog","page":1,"postsPerPage":14,"totalPages":1,"totalCount":14,"blogDescription":"Updates, new features, and changes to Texter","blogTitle":"Changelog"}}')}}]);

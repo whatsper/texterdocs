@@ -2,11 +2,32 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-04-28T00:00:00.000Z</updated>
+    <updated>2026-04-29T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Salesforce Adapter Docs Update]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update"/>
+        <updated>2026-04-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Expanded the Salesforce adapter documentation with a complete operation reference and clearer onboarding/troubleshooting guidance for support teams.]]></summary>
+        <content type="html"><![CDATA[<p>Expanded the Salesforce adapter documentation with a complete operation reference and clearer onboarding/troubleshooting guidance for support teams.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Salesforce adapter reference</strong> — documented <code>getCustomerDetails</code>, <code>openTicket</code>, <code>queryFromBot</code>, and <code>updateRecord</code> with YAML usage, params, results, and failure behavior.</li>
+<li><strong>Salesforce API links</strong> — added direct links to relevant REST API docs for query, create, and update flows.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Salesforce onboarding guide</strong> — expanded support setup notes and troubleshooting material for OAuth and object/field discovery.</li>
+<li><strong>Contact-field behavior clarity</strong> — clarified that <code>contactObjectCustomFields</code> replaces the default hardcoded Contact field list in lookups.</li>
+</ul>]]></content>
+        <category label="adapters" term="adapters"/>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Provet Adapter + Run Bot on Resolve Scenario]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/04/28/provet-resolve-scenario</id>
