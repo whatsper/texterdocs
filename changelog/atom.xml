@@ -8,6 +8,33 @@
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
     <entry>
+        <title type="html"><![CDATA[Premium Homepage + Theme Polish]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2"/>
+        <updated>2026-04-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A refreshed premium landing experience for Texter Docs, with a redesigned homepage, improved dark/light theme cohesion, and a better navbar experience.]]></summary>
+        <content type="html"><![CDATA[<p>A refreshed premium landing experience for Texter Docs, with a redesigned homepage, improved dark/light theme cohesion, and a better navbar experience.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Homepage hero redesign</strong> — premium landing hero with glow + subtle animated grid background and polished CTA buttons.</li>
+<li><strong>Homepage feature cards</strong> — new glass/white card grid with icons, hover lift, and clearer hierarchy linking into key docs areas.</li>
+<li><strong>Navbar search</strong> — search is now available directly in the top navbar.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Dark + light theme cohesion</strong> — updated shared theme tokens so switching themes keeps the homepage and cards looking consistent and premium.</li>
+<li><strong>Scenario Marketplace visuals</strong> — improved card hover shadow to follow the active theme primary color.</li>
+<li><strong>Scenarios header (dark mode)</strong> — upgraded the hero background to match the new dark aesthetic.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>Search bar overlap</strong> — removed the extra keyboard badge styling that conflicted with the search UI.</li>
+</ul>]]></content>
+        <category label="site" term="site"/>
+        <category label="feature" term="feature"/>
+        <category label="docs" term="docs"/>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Salesforce Adapter Docs Update]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update</id>
         <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update"/>
