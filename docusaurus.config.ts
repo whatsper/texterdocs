@@ -155,6 +155,11 @@ const config: Config = {
         }
         ,
         {
+          href: 'https://www.texterchat.com',
+          label: 'Texter Home',
+          position: 'right',
+        },
+        {
           type: 'search',
           position: 'right',
         },
@@ -162,42 +167,7 @@ const config: Config = {
     },
     footer: {
       style: 'dark',
-      links: [
-        {
-          title: 'Documentation',
-          items: [
-            {
-              label: 'Getting Started',
-              to: '/docs/intro',
-            },
-            {
-              label: 'YAML Overview',
-              to: '/docs/YAML/Overview',
-            },
-            {
-              label: 'Bot Configuration',
-              to: '/docs/YAML/Bot Configuration',
-            },
-            {
-              label: 'Scenario Marketplace',
-              to: '/scenarios',
-            },
-          ],
-        },
-        {
-          title: 'Texter',
-          items: [
-            {
-              label: 'Texter Home',
-              href: 'https://www.texterchat.com',
-            },
-            {
-              label: 'API Documentation',
-              href: 'https://apidocs.texterchat.com',
-            },
-          ],
-        },
-      ],
+      links: [],
       copyright: `Copyright \u00A9 ${new Date().getFullYear()} Texter. Built with Docusaurus.`,
     },
     mermaid: {
