@@ -9,7 +9,7 @@
 }
 
 .card:hover {
-  box-shadow: 0 4px 20px rgba(104, 108, 222, 0.14);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--ifm-color-primary) 22%, transparent);
   border-color: var(--ifm-color-primary);
 }
 

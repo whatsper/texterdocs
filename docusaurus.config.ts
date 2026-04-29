@@ -153,6 +153,11 @@ const config: Config = {
           label: 'API Docs',
           position: 'right',
         }
+        ,
+        {
+          type: 'search',
+          position: 'right',
+        },
       ],
     },
     footer: {

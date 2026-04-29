@@ -5,6 +5,12 @@
   text-align: center;
 }
 
+:global([data-theme='dark']) .heroSection {
+  background:
+    radial-gradient(1000px circle at 50% -220px, rgba(143, 146, 255, 0.38), rgba(143, 146, 255, 0) 60%),
+    linear-gradient(180deg, #171f46 0%, var(--ifm-background-color) 100%);
+}
+
 .heroTitle {
   font-size: 2.25rem;
   font-weight: 800;
