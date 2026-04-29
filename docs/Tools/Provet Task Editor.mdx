@@ -1,0 +1,37 @@
+---
+sidebar_position: 1
+slug: /tools/provet-task-editor
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Provet Task Editor
+
+This page embeds a small in-browser editor for Provet reminder tasks (e.g. `appointmentReminders`, `sendReminders`) so you can tweak schedules/params and export valid JSON.
+
+:::caution[Privacy / credentials]
+Anything you paste here stays in your browser (it’s a static page with no backend calls), but exported JSON may contain sensitive values like WhatsApp `accountId`. Don’t paste secrets into screenshots or public issues.
+:::
+
+## Open the editor
+
+- Full page:{' '}
+  <a href={useBaseUrl('/tools/task-editor-v2.2.html')}>
+    <code>/tools/task-editor-v2.2.html</code>
+  </a>
+
+## Embedded editor
+
+<iframe
+  src={useBaseUrl('/tools/task-editor-v2.2.html')}
+  title="Provet Task Editor"
+  style={{
+    width: '100%',
+    height: '85vh',
+    border: '1px solid var(--ifm-color-emphasis-300)',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    background: '#fff',
+  }}
+/>
+

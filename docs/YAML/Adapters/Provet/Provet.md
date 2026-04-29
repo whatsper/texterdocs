@@ -29,6 +29,10 @@ sidebar_position: 1
 
 ## Adapter functions
 
+:::tip[Editing scheduled reminder tasks]
+If you’re maintaining scheduled `CrmMethodTask` configs for Provet reminders, you can use the in-docs editor here: **[Provet Task Editor](/docs/tools/provet-task-editor)**.
+:::
+
 ### `getCustomerDetails`
 
 Looks up a Provet **client** by phone number, and enriches `crmData` with the client’s non-archived patients and (if present) the patient health plan validity.
@@ -135,6 +139,10 @@ Fetches upcoming appointments for a given day range and sends a WhatsApp **templ
 
 **When it runs:** Scheduled/batch reminder sending (not a typical per-chat bot flow).
 
+:::tip[Editing scheduled tasks]
+Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/export `CrmMethodTask` JSON for this method.
+:::
+
 **Basic**
 
 ```yaml
@@ -173,6 +181,79 @@ Fetches upcoming appointments for a given day range and sends a WhatsApp **templ
 | `body`             | No       | —          | Array of field paths used as template BODY parameters (e.g. `client.name`, `patientName`, `appointment.start_date`).     |
 | `crmData`          | No       | —          | Array of field paths to copy into the chat’s `crmData` for templating. Keys are camelCased.                              |
 
+:::tip[How Provet queries / filters / templating work here]
+
+- **Built-in Provet query params**: the adapter always sets these when calling `GET /api/0.1/appointment/`:
+  - `start__range = <yyyy-MM-dd>,<yyyy-MM-dd+1>`
+  - `active__is = 1`
+  - `expose_patients=true`, `expose_user=true`, `expose_department=true`, `expose_complaint_type=true`
+  - `page_size = maxAmount`
+- **`query` overrides**: if you pass a key in `params.query` that the adapter already sets, **your value wins** (it overwrites the same query-string key).
+- **`filters`**: evaluated on the full appointment object via Texter’s `matchObject(...)` filter engine (this is **not** Filtrex). A few examples that are known to work in real configs:
+  - `department.details.id in (9,10) and exists(complaint_type.name)`
+  - `department.details.id == 9 and empty(patient.deceased)`
+- **`body` fields**: each entry is resolved with dot-path lookup (like `appointment.start_time`). Missing values become an empty string (`""`).
+- **`crmData` fields**: copied into the chat’s `crmData` object for templating, with **camelCased keys**. Example: `appointment.id` becomes `crmData.appointmentId`.
+
+:::
+
+#### Real-life scheduled-task example (`CrmMethodTask`)
+
+This is what a production reminder job typically looks like when scheduled via a customer config task scheduler (cron expression + `CrmMethodTask`).
+
+```json
+{
+  "task": "CrmMethodTask",
+  "expr": "37 12 * * 5",
+  "params": {
+    "enabled": true,
+    "notes": "Appointment reminders (example)",
+    "method": "appointmentReminders",
+    "params": {
+      "daysBefore": 2,
+      "templateName": "inbox_utility_41",
+      "maxAmount": 100,
+      "distinct": false,
+      "accountId": "YOUR_WHATSAPP_ACCOUNT_ID",
+      "body": [
+        "client.firstname",
+        "appointment.complaint_type.name",
+        "appointment.start_date",
+        "appointment.start_time",
+        "department.address_info.street_address_1",
+        "department.address_info.city",
+        "department.address_info.phone"
+      ],
+      "crmData": [
+        "appointment.id",
+        "client.firstname",
+        "appointment.complaint_type.name",
+        "appointment.start_date",
+        "appointment.start_time",
+        "department.id",
+        "department.address_info.street_address_1",
+        "department.address_info.city",
+        "department.address_info.phone"
+      ],
+      "query": {
+        "patients__is_null": "true",
+        "active__is": "1",
+        "reason__not_in": "85,86,112,149,78,81"
+      },
+      "filters": [
+        "department.details.id in (9,10) and exists(complaint_type.name)"
+      ]
+    }
+  }
+}
+```
+
+Notes for the example above:
+
+- **`distinct: false`**: allows multiple reminders to the same phone if multiple appointments match.
+- **`query.patients__is_null`**: relies on Provet’s appointment endpoint filter fields. Use Provet REST API docs for the exact filter keys available for your environment.
+- **`body` vs `crmData`**: `body` feeds the WhatsApp template BODY parameters; `crmData` is merged into the chat for any templating Texter does around the send.
+
 
 **Result:** Returns `success: true` with `results` (the computed send targets) and `appointments` (raw API results).
 
@@ -185,6 +266,10 @@ Returns `on_failure` if: adapter/template cannot be resolved, Provet API errors,
 Fetches Provet reminders for a planned sending date and sends template messages based on a mapping from Provet reminder template title → Texter template name.
 
 **When it runs:** Scheduled/batch reminder sending (not a typical per-chat bot flow).
+
+:::tip[Editing scheduled tasks]
+Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/export `CrmMethodTask` JSON for this method.
+:::
 
 **Basic**
 
@@ -217,7 +302,7 @@ Fetches Provet reminders for a planned sending date and sends template messages 
 | `dateFormat`                         | No       | `dd/MM/yy`             | Used for `expiry_date` formatting.                                                                                    |
 | `maxAmount`                          | No       | `100`                  | Page size for fetched reminders.                                                                                      |
 | `demoNumber`                         | No       | —                      | If provided, sends only once (first result) to this number and then stops.                                            |
-| `filters`                            | No       | —                      | Filter expressions evaluated against the reminder object (Filtrex-style). If set, at least one expression must match. |
+| `filters`                            | No       | —                      | Reminder filter expressions evaluated via Texter’s `matchObject(...)` engine.                                         |
 | `distinct`                           | No       | `true`                 | If true, de-duplicates results by phone.                                                                              |
 | `orderByField`                       | No       | `planned_sending_date` | Field used to order reminders.                                                                                        |
 | `orderByDirection`                   | No       | `asc`                  | Order direction.                                                                                                      |
@@ -228,6 +313,74 @@ Fetches Provet reminders for a planned sending date and sends template messages 
 | `reminderTemplatesQuery`             | No       | `{ page_size: '200' }` | Extra query params for fetching Provet reminder templates.                                                            |
 | `body`                               | No       | —                      | Array of field paths used as template BODY parameters (e.g. `client.name`, `patient.name`, `expiry_date`).            |
 | `crmData`                            | No       | —                      | Array of field paths to copy into the chat’s `crmData` for templating. Keys are camelCased.                           |
+
+:::tip[How reminder sending is computed]
+
+- **Planned sending date**: the adapter queries `GET /api/0.1/reminder/` with `planned_sending_date__is = <yyyy-MM-dd>`.
+  - `daysBefore` shifts that date relative to “now” (so `-6` means “6 days ago”, and `+2` means “2 days from now”).
+- **Built-in Provet query params**: the adapter always sets these, and `params.query` can override them:
+  - `status__in = 0,1` (override by passing your own `query.status__in`)
+  - `expose_patient=true`, `expose_client=true`, `expose_department=true`
+  - `page_size = maxAmount`
+- **Template selection**:
+  - The adapter fetches the Provet “reminder template” title dictionary (using `reminderTemplatesQuery`).
+  - For each reminder, it looks up the Provet template **title**, then chooses:
+    - `templatesDict[<title>]` if present
+    - otherwise `templatesDict.defaultTemplate`
+- **Future-appointment skipping** (`checkFutureAppointments: true`):
+  - For each reminder, the adapter checks whether the client has any appointments in the range:
+    - from **now + `daysToCheckFutureAppointmentsStart` days**
+    - to **now + `daysToCheckFutureAppointmentsEnd` days**
+  - If appointments exist in that window, the reminder is skipped.
+
+:::
+
+#### Real-life scheduled-task example (`CrmMethodTask`)
+
+```json
+{
+  "task": "CrmMethodTask",
+  "expr": "57 10 * * 5",
+  "params": {
+    "enabled": true,
+    "notes": "Send reminders (example)",
+    "method": "sendReminders",
+    "params": {
+      "daysBefore": -6,
+      "accountId": "YOUR_WHATSAPP_ACCOUNT_ID",
+      "reminderTemplatesQuery": {
+        "department__in": "9"
+      },
+      "checkFutureAppointments": true,
+      "daysToCheckFutureAppointmentsStart": 0,
+      "daysToCheckFutureAppointmentsEnd": 100,
+      "body": [
+        "client.firstname",
+        "title",
+        "patient.name"
+      ],
+      "query": {
+        "status__in": "0,1,2,3,4"
+      },
+      "filters": [
+        "department.details.id == 9 and not patient.archived and empty(patient.deceased)"
+      ],
+      "dateFormat": "dd.MM.yyyy",
+      "templatesDict": {
+        "defaultTemplate": "inbox_marketing_49"
+      },
+      "crmData": [
+        "department.id"
+      ]
+    }
+  }
+}
+```
+
+Two subtle things this example demonstrates:
+
+- **Overriding `status__in`**: by default the adapter uses `status__in=0,1`, but `params.query.status__in` overwrites it.
+- **`title` in `body`**: `title` is injected by the adapter as the Provet reminder template **title** (resolved via the template dictionary), so you can include it in the WhatsApp template parameters.
 
 
 **Result:** Returns `success: true` with `results`.
