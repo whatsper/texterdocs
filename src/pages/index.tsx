@@ -11,23 +11,22 @@ import styles from './index.module.css';
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
-      <div className="container">
-        <Heading as="h1" className="hero__title">
+    <header className={styles.hero}>
+      <div className={styles.bg} aria-hidden="true" />
+      <div className={clsx('container', styles.heroInner)}>
+        <Heading as="h1" className={styles.heroTitle}>
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
-          <Link
-            className="button button--secondary button--lg"
-            to="/docs/YAML/Overview">
-            Get Started
+        <p className={styles.heroSubtitle}>{siteConfig.tagline}</p>
+        <div className={styles.ctaRow}>
+          <Link className={clsx('button button--lg', styles.primaryCta)} to="/docs/YAML/Overview">
+            Get Started <span className={styles.ctaArrow} aria-hidden="true">→</span>
           </Link>
           <Link
-            className="button button--outline button--lg"
-            style={{marginLeft: '1rem', color: 'white', borderColor: 'white'}}
-            href="https://apidocs.texterchat.com">
-            API Docs
+            className={clsx('button button--outline button--lg', styles.secondaryCta)}
+            href="https://apidocs.texterchat.com"
+          >
+            API Docs <span className={styles.ctaExternal} aria-hidden="true">↗</span>
           </Link>
         </div>
       </div>
