@@ -33,6 +33,10 @@ sidebar_position: 1
 If you’re maintaining scheduled `CrmMethodTask` configs for Provet reminders, you can use the in-docs editor here: **[Provet Task Editor](/docs/tools/provet-task-editor)**.
 :::
 
+:::warning[`appointmentReminders` / `sendReminders` — scheduled tasks only]
+Do **not** enable these CRM methods from normal **bot YAML** (states, triggers, or per-chat `func` nodes). They are meant to run only as **scheduled / batch jobs** (for example `CrmMethodTask` with a cron `expr` in customer task config). Calling them from live bot flows can cause unintended bulk sends and is not supported as a per-message pattern.
+:::
+
 ### `getCustomerDetails`
 
 Looks up a Provet **client** by phone number, and enriches `crmData` with the client’s non-archived patients and (if present) the patient health plan validity.
@@ -135,6 +139,10 @@ Returns `on_failure` if: Provet API errors, OAuth credentials are missing, or `c
 
 ### `appointmentReminders`
 
+:::warning[Schedule-only]
+configure **`appointmentReminders` only on scheduled tasks** (e.g. `CrmMethodTask`), not from bot YAML flows.
+:::
+
 Fetches upcoming appointments for a given day range and sends a WhatsApp **template message** to each appointment’s client (optionally filtered, ordered, and de-duplicated).
 
 **When it runs:** Scheduled/batch reminder sending (not a typical per-chat bot flow).
@@ -168,11 +176,11 @@ Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/expo
 | ------------------ | -------- | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `accountId`        | **Yes**  | —          | WhatsApp account ID to send from.                                                                                        |
 | `templateName`     | **Yes**  | —          | Texter template name to send.                                                                                            |
-| `daysBefore`       | No       | `1`        | Days from “now” to target appointments (adapter fetches between that date and +1 day).                                   |
+| `daysBefore`       | No       | `1`        | Shifts which appointments are in scope: the adapter’s default Provet `start__range` is built from “today” plus this offset (see the tip below). |
 | `language`         | No       | `he`       | Template localization language.                                                                                          |
 | `dateFormat`       | No       | `dd/MM/yy` | Used for `appointment.start_date` formatting.                                                                            |
 | `maxAmount`        | No       | `100`      | Page size for fetched appointments.                                                                                      |
-| `demoNumber`       | No       | —          | If provided, sends only once (first result) to this number and then stops.                                               |
+| `demoNumber`       | No       | —          | If provided, sends only once (first result) to this number and then stops. used for debugging purposes and demo send                                               |
 | `filters`          | No       | —          | Filter expressions evaluated against the appointment object (Filtrex-style). If set, at least one expression must match. |
 | `distinct`         | No       | `true`     | If true, de-duplicates results by phone.                                                                                 |
 | `orderByField`     | No       | `start`    | Field used to order appointments.                                                                                        |
@@ -184,7 +192,7 @@ Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/expo
 :::tip[How Provet queries / filters / templating work here]
 
 - **Built-in Provet query params**: the adapter always sets these when calling `GET /api/0.1/appointment/`:
-  - `start__range = <yyyy-MM-dd>,<yyyy-MM-dd+1>`
+  - `start__range = <yyyy-MM-dd>,<yyyy-MM-dd+1>` — the two dates are derived from **`daysBefore`**: the window is anchored relative to “today” using `daysBefore` (see the `daysBefore` row in the table above). Changing `daysBefore` therefore shifts the default `start__range` without editing `query`.
   - `active__is = 1`
   - `expose_patients=true`, `expose_user=true`, `expose_department=true`, `expose_complaint_type=true`
   - `page_size = maxAmount`
@@ -263,6 +271,10 @@ Returns `on_failure` if: adapter/template cannot be resolved, Provet API errors,
 
 ### `sendReminders`
 
+:::warning[Schedule-only]
+configure **`sendReminders` only on scheduled tasks** (e.g. `CrmMethodTask`), not from bot YAML flows.
+:::
+
 Fetches Provet reminders for a planned sending date and sends template messages based on a mapping from Provet reminder template title → Texter template name.
 
 **When it runs:** Scheduled/batch reminder sending (not a typical per-chat bot flow).
@@ -301,7 +313,7 @@ Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/expo
 | `language`                           | No       | `he`                   | Template localization language.                                                                                       |
 | `dateFormat`                         | No       | `dd/MM/yy`             | Used for `expiry_date` formatting.                                                                                    |
 | `maxAmount`                          | No       | `100`                  | Page size for fetched reminders.                                                                                      |
-| `demoNumber`                         | No       | —                      | If provided, sends only once (first result) to this number and then stops.                                            |
+| `demoNumber`                         | No       | —                      | If provided, sends only once (first result) to this number and then stops. used for debugging purposes and demo send                                             |
 | `filters`                            | No       | —                      | Reminder filter expressions evaluated via Texter’s `matchObject(...)` engine.                                         |
 | `distinct`                           | No       | `true`                 | If true, de-duplicates results by phone.                                                                              |
 | `orderByField`                       | No       | `planned_sending_date` | Field used to order reminders.                                                                                        |
@@ -367,6 +379,7 @@ Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/expo
       ],
       "dateFormat": "dd.MM.yyyy",
       "templatesDict": {
+        "HIV Vaccine": "inbox_utility_42",
         "defaultTemplate": "inbox_marketing_49"
       },
       "crmData": [
