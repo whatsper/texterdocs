@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Editor</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; background: #f0f2f7; color: #1a1a1a; }
+  .app { display: flex; height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar { width: 280px; min-width: 180px; max-width: 600px; background: linear-gradient(160deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%); display: flex; flex-direction: column; position: relative; flex-shrink: 0; }
+  .resize-handle { position: absolute; right: 0; top: 0; bottom: 0; width: 5px; cursor: col-resize; z-index: 10; background: transparent; transition: background 0.15s; }
+  .resize-handle:hover, .resize-handle.dragging { background: rgba(165,180,252,0.45); }
+  .sidebar-header { padding: 16px 14px 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .sidebar-header h1 { font-size: 14px; font-weight: 700; color: #fff; }
+  .task-count-badge { background: rgba(255,255,255,0.2); color: #e0e7ff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px; }
+
+  /* filter bar */
+  .sidebar-filter { display: flex; flex-direction: column; gap: 6px; }
+  .sidebar-filter input { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 5px 9px; font-size: 12px; color: #e0e7ff; outline: none; font-family: inherit; }
+  .sidebar-filter input::placeholder { color: rgba(255,255,255,0.35); }
+  .sidebar-filter input:focus { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.35); }
+  .method-filter { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 5px 7px; font-size: 11px; color: #e0e7ff; outline: none; font-family: inherit; cursor: pointer; width: 100%; }
+  .method-filter option { background: #312e81; color: #e0e7ff; }
+
+  .task-list { flex: 1; overflow-y: auto; padding: 6px 0; }
+  .task-list::-webkit-scrollbar { width: 4px; }
+  .task-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+  .task-item { padding: 10px 14px; cursor: pointer; transition: background 0.12s; border-left: 3px solid transparent; position: relative; }
+  .task-item:hover { background: rgba(255,255,255,0.08); }
+  .task-item:hover .task-item-actions { opacity: 1; }
+  .task-item.active { background: rgba(255,255,255,0.15); border-left-color: #a5b4fc; }
+  .task-item-title { font-weight: 600; font-size: 13px; color: #e0e7ff; display: flex; align-items: flex-start; gap: 5px; flex-wrap: wrap; line-height: 1.4; }
+  .task-item-sub1 { font-size: 11px; color: #a5b4fc; margin-top: 2px; font-family: monospace; }
+  .task-item-sub2 { font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .task-item-actions { opacity: 0; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; gap: 2px; transition: opacity 0.15s; }
+  .task-item-btn { background: rgba(255,255,255,0.12); border: none; border-radius: 4px; cursor: pointer; padding: 3px 6px; font-size: 11px; color: #c7d2fe; line-height: 1; }
+  .task-item-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .task-item-btn.danger:hover { background: rgba(239,68,68,0.4); color: #fff; }
+
+  .sidebar-footer { padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 7px; }
+  .btn-ghost { flex: 1; padding: 7px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #e0e7ff; font-family: inherit; transition: background 0.12s; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.18); }
+  .btn-ghost-primary { background: #4f46e5; border-color: #6366f1; color: #fff; }
+  .btn-ghost-primary:hover { background: #4338ca; }
+
+  /* ── Main ── */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .toolbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 10px 18px; display: flex; align-items: center; gap: 10px; }
+  .toolbar-icon { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; font-size: 14px; }
+  .toolbar h2 { font-size: 14px; font-weight: 600; flex: 1; color: #111827; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .toolbar-pills { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+  .cron-pill { display: inline-flex; align-items: center; background: #f0fdf4; color: #166534; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 12px; font-family: monospace; border: 1px solid #bbf7d0; }
+  .method-pill { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 12px; border: 1px solid; }
+  .method-pill.appointment { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .method-pill.send { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+  .method-pill.other { background: #f9fafb; color: #374151; border-color: #e5e7eb; }
+
+  .cron-field-hint { font-size: 11px; color: #6b7280; margin-top: 4px; font-style: italic; min-height: 16px; }
+  /* ── View tabs ── */
+  .view-tabs { display: flex; gap: 2px; background: #f3f4f6; border-radius: 7px; padding: 3px; }
+  .view-tab { padding: 4px 12px; border-radius: 5px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: #6b7280; font-family: inherit; transition: all 0.12s; }
+  .view-tab.active { background: #fff; color: #111827; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .editor-area { flex: 1; overflow-y: auto; padding: 18px 22px; }
+
+  /* ── JSON expert view ── */
+  .json-editor-wrap { height: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .json-editor-wrap textarea { flex: 1; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid #d1d5db; border-radius: 8px; padding: 14px; outline: none; resize: none; color: #1f2937; background: #fafafa; line-height: 1.6; min-height: 400px; }
+  .json-editor-wrap textarea:focus { border-color: #6366f1; background: #fff; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .json-error { font-size: 12px; color: #ef4444; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; padding: 8px 12px; display: none; }
+  .json-error.show { display: block; }
+  .json-actions { display: flex; gap: 8px; }
+
+  /* ── Cards ── */
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .card-general .card-header { border-left: 4px solid #6366f1; }
+  .card-meta    .card-header { border-left: 4px solid #0ea5e9; }
+  .card-send    .card-header { border-left: 4px solid #10b981; }
+  .card-bodyf   .card-header { border-left: 4px solid #f59e0b; }
+  .card-crmdata .card-header { border-left: 4px solid #ec4899; }
+  .card-query   .card-header { border-left: 4px solid #ef4444; }
+  .card-filters .card-header { border-left: 4px solid #8b5cf6; }
+  .card-other   .card-header { border-left: 4px solid #64748b; }
+  .card-header { padding: 10px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; background: #fafafa; }
+  .card-header:hover { background: #f3f4f6; }
+  .section-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+  .card-general .section-icon { background: #eef2ff; }
+  .card-meta    .section-icon { background: #e0f2fe; }
+  .card-send    .section-icon { background: #d1fae5; }
+  .card-bodyf   .section-icon { background: #fef3c7; }
+  .card-crmdata .section-icon { background: #fce7f3; }
+  .card-query   .section-icon { background: #fee2e2; }
+  .card-filters .section-icon { background: #ede9fe; }
+  .card-other   .section-icon { background: #f1f5f9; }
+  .card-header h3 { font-size: 13px; font-weight: 600; flex: 1; color: #374151; }
+  .card-body { padding: 14px 16px; }
+  .card-body.collapsed { display: none; }
+
+  /* ── Fields ── */
+  .field { margin-bottom: 13px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .field input[type="text"], .field select, .field textarea { width: 100%; padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; font-family: inherit; background: #f9fafb; transition: border 0.15s, box-shadow 0.15s; color: #111827; }
+  .field input[type="text"]:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #6366f1; background: #fff; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .field input[type="text"].mono { font-family: 'Courier New', monospace; font-size: 12px; }
+  .field-row { display: flex; gap: 10px; }
+  .field-row .field { flex: 1; }
+
+  /* ── Toggle ── */
+  .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+  .toggle { position: relative; width: 36px; height: 20px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: #d1d5db; border-radius: 20px; cursor: pointer; transition: background 0.2s; }
+  .slider:before { content: ''; position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  input:checked + .slider { background: #6366f1; }
+  input:checked + .slider:before { transform: translateX(16px); }
+  .toggle-label { font-size: 12px; color: #6b7280; font-weight: 500; }
+
+  /* ── List editor ── */
+  .list-editor { border: 1px solid #e5e7eb; border-radius: 7px; overflow: hidden; }
+  .list-item { display: flex; align-items: center; gap: 5px; padding: 5px 8px; border-bottom: 1px solid #f3f4f6; background: #fff; transition: background 0.1s; }
+  .list-item:last-child { border-bottom: none; }
+  .list-item-handle { color: #d1d5db; font-size: 12px; padding: 0 3px; line-height: 1; flex-shrink: 0; }
+  .list-item input { flex: 1; border: none; background: transparent; font-size: 12px; font-family: 'Courier New', monospace; padding: 3px 5px; outline: none; color: #374151; }
+  .list-item input:focus { background: #f5f3ff; border-radius: 4px; }
+  .list-add { padding: 6px 10px; background: #fafafa; border-top: 1px solid #f3f4f6; }
+  .list-add button { font-size: 12px; color: #6366f1; background: none; border: none; cursor: pointer; padding: 0; font-weight: 500; }
+  .list-add button:hover { color: #4338ca; }
+
+  /* ── KV editor ── */
+  .kv-editor { border: 1px solid #e5e7eb; border-radius: 7px; overflow: hidden; }
+  .kv-thead { display: flex; background: #f3f4f6; border-bottom: 1px solid #e5e7eb; }
+  .kv-thead span { flex: 1; padding: 5px 10px; font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+  .kv-thead span:first-child { border-right: 1px solid #e5e7eb; }
+  .kv-row { display: flex; border-bottom: 1px solid #f3f4f6; }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-key { flex: 1; border: none; border-right: 1px solid #f3f4f6; background: #fffbeb; font-size: 12px; font-family: 'Courier New', monospace; padding: 6px 10px; outline: none; color: #92400e; font-weight: 500; }
+  .kv-val { flex: 1; border: none; background: #fff; font-size: 12px; font-family: 'Courier New', monospace; padding: 6px 10px; outline: none; color: #374151; }
+  .kv-key:focus { background: #fef3c7; }
+  .kv-val:focus { background: #f5f3ff; }
+  .kv-row .del-btn { background: none; border: none; cursor: pointer; padding: 4px 10px; color: #d1d5db; font-size: 14px; line-height: 1; }
+  .kv-row .del-btn:hover { color: #ef4444; }
+  .kv-add { padding: 6px 10px; background: #fafafa; border-top: 1px solid #f3f4f6; }
+  .kv-add button { font-size: 12px; color: #6366f1; background: none; border: none; cursor: pointer; padding: 0; font-weight: 500; }
+
+  /* ── Buttons ── */
+  .btn { padding: 7px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; border: 1px solid #d1d5db; background: #fff; font-family: inherit; transition: all 0.12s; color: #374151; font-weight: 500; }
+  .btn:hover { background: #f3f4f6; }
+  .btn-primary { background: #6366f1; color: #fff; border-color: #6366f1; }
+  .btn-primary:hover { background: #4f46e5; border-color: #4f46e5; }
+  .btn-danger { background: #fff; color: #ef4444; border-color: #fca5a5; }
+  .btn-danger:hover { background: #fef2f2; }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+  /* ── Empty / misc ── */
+  .empty-state { text-align: center; padding: 70px 20px; }
+  .empty-icon { width: 60px; height: 60px; margin: 0 auto 14px; background: #eef2ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .empty-state h3 { font-size: 15px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; color: #9ca3af; margin-bottom: 18px; }
+  .chevron { width: 14px; height: 14px; transition: transform 0.2s; color: #9ca3af; flex-shrink: 0; }
+  .chevron.open { transform: rotate(90deg); }
+  .delete-item-btn { background: none; border: none; cursor: pointer; padding: 2px 5px; color: #d1d5db; font-size: 13px; line-height: 1; flex-shrink: 0; }
+  .delete-item-btn:hover { color: #ef4444; }
+  .enabled-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .enabled-dot.on { background: #22c55e; }
+  .enabled-dot.off { background: #d1d5db; }
+
+  /* ── Modal ── */
+  .modal-overlay { position: absolute; inset: 0; background: rgba(15,15,35,0.55); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding-top: 50px; }
+  .modal { background: #fff; border-radius: 12px; width: 560px; max-width: 95vw; overflow: hidden; display: flex; flex-direction: column; }
+  .modal-header { padding: 15px 18px; background: linear-gradient(90deg, #4f46e5, #7c3aed); display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 14px; font-weight: 600; color: #fff; }
+  .modal-body { padding: 18px; }
+  .modal-footer { padding: 12px 18px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 8px; background: #fafafa; }
+  .close-btn { background: rgba(255,255,255,0.2); border: none; cursor: pointer; font-size: 14px; color: #fff; padding: 2px 8px; border-radius: 5px; line-height: 1.5; }
+  .close-btn:hover { background: rgba(255,255,255,0.35); }
+  .import-textarea { width: 100%; height: 200px; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid #d1d5db; border-radius: 7px; padding: 10px; outline: none; resize: vertical; color: #1f2937; background: #f9fafb; }
+  .import-textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); background: #fff; }
+
+  /* ── Notification ── */
+  .notification { position: absolute; bottom: 18px; right: 18px; background: #1e1b4b; color: #e0e7ff; padding: 9px 16px; border-radius: 8px; font-size: 13px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; border: 1px solid rgba(99,102,241,0.4); }
+  .notification.show { opacity: 1; }
+
+  /* method alias badges in sidebar */
+  .alias-badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
+  .alias-badge.appointment { background: #dbeafe; color: #1e40af; }
+  .alias-badge.send { background: #ede9fe; color: #5b21b6; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ── Sidebar ── -->
+  <div class="sidebar">
+    <div class="resize-handle" id="resize-handle"></div>
+    <div class="sidebar-header">
+      <div class="sidebar-header-top">
+        <h1>⚙ Task Editor</h1>
+        <span class="task-count-badge" id="task-count">0 tasks</span>
+      </div>
+      <div class="sidebar-filter">
+        <input id="search-input" type="text" placeholder="Search…" oninput="renderSidebar()" />
+        <select class="method-filter" id="method-filter" onchange="renderSidebar()">
+          <option value="">All types</option>
+          <option value="appointmentReminders">Appointment Reminders</option>
+          <option value="sendReminders">Regular Reminders</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="task-list" id="task-list"></div>
+    <div class="sidebar-footer">
+      <button class="btn-ghost" onclick="showImport()">↑ Import</button>
+      <button class="btn-ghost" onclick="addTask()">+ New</button>
+      <button class="btn-ghost btn-ghost-primary" onclick="exportJSON()">↓ Export</button>
+    </div>
+  </div>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="toolbar">
+      <div class="toolbar-icon">⚡</div>
+      <h2 id="editor-title">Select a task to edit</h2>
+      <div class="toolbar-pills" id="toolbar-pills"></div>
+      <div class="view-tabs" id="view-tabs" style="display:none;">
+        <button class="view-tab active" id="tab-form" onclick="switchView('form')">Form</button>
+        <button class="view-tab" id="tab-json" onclick="switchView('json')">JSON</button>
+      </div>
+      <div id="toolbar-actions" style="display:none; display:flex; gap:6px;">
+        <button class="btn btn-sm" onclick="duplicateCurrentTask()" title="Duplicate task">⎘ Duplicate</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCurrentTask()">✕ Delete</button>
+      </div>
+    </div>
+    <div class="editor-area" id="editor-area">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No task selected</h3>
+        <p>Import a JSON file or create a new task to get started</p>
+        <button class="btn btn-primary" onclick="showImport()">↑ Import JSON</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Import modal -->
+<div id="modal-overlay" class="modal-overlay" style="display:none;" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>↑ Import JSON</h3>
+      <button class="close-btn" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px;">Paste a JSON array of task objects, or a single task object.</p>
+      <textarea class="import-textarea" id="import-textarea" placeholder='[{"task": "CrmMethodTask", "expr": "20 10 * * 4", "params": {...}}, ...]'></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn btn-primary" onclick="doImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+let tasks = [];
+let currentIndex = -1;
+let currentView = 'form'; // 'form' | 'json'
+
+// ── Method aliases ──
+const METHOD_ALIASES = {
+  appointmentReminders: 'Appointment Reminders',
+  sendReminders: 'Regular Reminders',
+};
+function methodAlias(m) { return METHOD_ALIASES[m] || m || ''; }
+function methodCategory(m) {
+  if (!m) return 'other';
+  if (m === 'appointmentReminders') return 'appointment';
+  if (m === 'sendReminders') return 'send';
+  return 'other';
+}
+
+const SECTIONS = {
+  general: { cls: 'card-general', icon: '🔧', label: 'General' },
+  meta:    { cls: 'card-meta',    icon: '📋', label: 'Task metadata' },
+  send:    { cls: 'card-send',    icon: '📤', label: 'Send / reminder settings' },
+  bodyf:   { cls: 'card-bodyf',   icon: '📝', label: 'Body fields' },
+  crmdata: { cls: 'card-crmdata', icon: '🗂',  label: 'CRM data fields' },
+  query:   { cls: 'card-query',   icon: '🔍', label: 'Query filters' },
+  filters: { cls: 'card-filters', icon: '✨', label: 'Expression filters' },
+  other:   { cls: 'card-other',   icon: '⚙',  label: 'Other params' },
+};
+
+const knownInner = new Set([
+  'accountId','templateName','templatesDict',
+  'body','crmData','language','daysBefore','demoNumber','dateFormat',
+  'maxAmount','filters','distinct','orderByField','orderByDirection',
+  'query','checkFutureAppointments',
+  'daysToCheckFutureAppointmentsStart','daysToCheckFutureAppointmentsEnd',
+  'reminderTemplatesQuery'
+]);
+
+function notify(msg) {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Sidebar ──
+function getFilteredIndices() {
+  const search = document.getElementById('search-input')?.value.toLowerCase() || '';
+  const methodF = document.getElementById('method-filter')?.value || '';
+  return tasks.map((t, i) => ({ t, i })).filter(({ t }) => {
+    const method = t.params?.method || '';
+    const title = t.params?.notes || t.task || '';
+    const matchSearch = !search || title.toLowerCase().includes(search) || t.task?.toLowerCase().includes(search) || method.toLowerCase().includes(search);
+    const cat = methodCategory(method);
+    const matchMethod = !methodF || (methodF === 'other' ? cat === 'other' : method === methodF);
+    return matchSearch && matchMethod;
+  });
+}
+
+function renderSidebar() {
+  const list = document.getElementById('task-list');
+  document.getElementById('task-count').textContent = tasks.length + ' task' + (tasks.length !== 1 ? 's' : '');
+  const filtered = getFilteredIndices();
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding:20px 16px;font-size:12px;color:rgba(255,255,255,0.35);text-align:center;">No tasks match</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(({ t, i }) => {
+    const on = t.params?.enabled !== false;
+    const method = t.params?.method || '';
+    const cat = methodCategory(method);
+    const alias = methodAlias(method);
+    const title = t.params?.notes || t.task || 'Unnamed task';
+    const badgeHtml = method
+      ? `<span class="alias-badge ${cat}">${escHtml(alias)}</span>`
+      : '';
+    const sub2Color = cat === 'appointment' ? '#93c5fd' : cat === 'send' ? '#c4b5fd' : '#818cf8';
+    return `<div class="task-item ${i === currentIndex ? 'active' : ''}" onclick="selectTask(${i})">
+      <div class="task-item-title">
+        <span class="enabled-dot ${on ? 'on' : 'off'}"></span>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;">${escHtml(title)}</span>
+        ${badgeHtml}
+      </div>
+      <div class="task-item-sub1">${escHtml(t.expr || '')}</div>
+      ${method ? `<div class="task-item-sub2" style="color:${sub2Color};">${escHtml(alias)}</div>` : ''}
+      <div class="task-item-actions">
+        <button class="task-item-btn" onclick="event.stopPropagation();duplicateTask(${i})" title="Duplicate">⎘</button>
+        <button class="task-item-btn danger" onclick="event.stopPropagation();deleteTask(${i})" title="Delete">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectTask(i) {
+  currentIndex = i;
+  currentView = 'form';
+  const tf = document.getElementById('tab-form');
+  const tj = document.getElementById('tab-json');
+  if (tf) tf.classList.add('active');
+  if (tj) tj.classList.remove('active');
+  renderSidebar();
+  renderEditor();
+}
+
+function addTask() {
+  tasks.push({ task: 'NewTask', expr: '0 9 * * 1', params: { notes: '', method: 'appointmentReminders', enabled: true, params: {} } });
+  selectTask(tasks.length - 1);
+}
+
+function duplicateTask(i) {
+  const copy = JSON.parse(JSON.stringify(tasks[i]));
+  copy.params = copy.params || {};
+  copy.params.notes = (copy.params.notes ? copy.params.notes + ' (copy)' : (copy.task || 'Task') + ' (copy)');
+  tasks.splice(i + 1, 0, copy);
+  selectTask(i + 1);
+  notify('✓ Task duplicated');
+}
+
+function duplicateCurrentTask() { if (currentIndex >= 0) duplicateTask(currentIndex); }
+
+function deleteTask(i) {
+  if (!confirm('Delete this task?')) return;
+  tasks.splice(i, 1);
+  if (currentIndex >= tasks.length) currentIndex = tasks.length - 1;
+  if (currentIndex < 0) {
+    document.getElementById('editor-title').textContent = 'Select a task to edit';
+    document.getElementById('toolbar-pills').innerHTML = '';
+    document.getElementById('toolbar-actions').style.display = 'none';
+    document.getElementById('view-tabs').style.display = 'none';
+    document.getElementById('editor-area').innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No tasks</h3><p>Add a task or import JSON</p></div>`;
+  } else { renderEditor(); }
+  renderSidebar();
+}
+
+function deleteCurrentTask() { if (currentIndex >= 0) deleteTask(currentIndex); }
+
+// ── View switching ──
+function switchView(v) {
+  currentView = v;
+  document.getElementById('tab-form').classList.toggle('active', v === 'form');
+  document.getElementById('tab-json').classList.toggle('active', v === 'json');
+  if (v === 'json') renderJSONView();
+  else renderFormView();
+}
+
+function updateToolbarPills() {
+  if (currentIndex < 0) return;
+  const t = tasks[currentIndex];
+  const p = t.params || {};
+  const method = p.method || '';
+  const cat = methodCategory(method);
+  let html = `<span class="cron-pill">${escHtml(t.expr || '—')}</span>`;
+  if (method) html += `&nbsp;<span class="method-pill ${cat}">${escHtml(methodAlias(method))}</span>`;
+  document.getElementById('toolbar-pills').innerHTML = html;
+}
+
+function renderEditor() {
+  if (currentIndex < 0) return;
+  document.getElementById('editor-title').textContent = tasks[currentIndex].params?.notes || tasks[currentIndex].task || 'Unnamed task';
+  document.getElementById('toolbar-actions').style.display = '';
+  document.getElementById('view-tabs').style.display = '';
+  updateToolbarPills();
+  if (currentView === 'json') renderJSONView();
+  else renderFormView();
+}
+
+// ── JSON Expert view ──
+function renderJSONView() {
+  const json = JSON.stringify(tasks[currentIndex], null, 2);
+  document.getElementById('editor-area').innerHTML = `
+    <div class="json-editor-wrap">
+      <div style="font-size:12px;color:#6b7280;">Edit the raw JSON for this task. Click Apply to save changes.</div>
+      <textarea id="json-edit-area" spellcheck="false">${escHtml(json)}</textarea>
+      <div id="json-error" class="json-error"></div>
+      <div class="json-actions">
+        <button class="btn btn-primary btn-sm" onclick="applyJSON()">Apply changes</button>
+        <button class="btn btn-sm" onclick="switchView('form')">← Back to form</button>
+      </div>
+    </div>`;
+}
+
+function applyJSON() {
+  const raw = document.getElementById('json-edit-area')?.value || '';
+  const errEl = document.getElementById('json-error');
+  try {
+    const parsed = JSON.parse(raw);
+    tasks[currentIndex] = parsed;
+    errEl.classList.remove('show');
+    notify('✓ JSON applied');
+    renderSidebar();
+    updateToolbarPills();
+    document.getElementById('editor-title').textContent = parsed.params?.notes || parsed.task || 'Unnamed task';
+  } catch(e) {
+    errEl.textContent = 'JSON error: ' + e.message;
+    errEl.classList.add('show');
+  }
+}
+
+// ── Form view ──
+function detectParamType(ip) {
+  if (ip.templatesDict !== undefined) return 'SendReminders';
+  return 'AppointmentReminders';
+}
+
+function renderFormView() {
+  if (currentIndex < 0) return;
+  const t = tasks[currentIndex];
+  const p = t.params || {};
+  const ip = p.params || {};
+  const isSend = detectParamType(ip) === 'SendReminders';
+
+  const typeSwitcher = `
+    <div style="display:flex;align-items:center;gap:10px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:9px 13px;margin-bottom:12px;">
+      <span style="font-size:11px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.4px;">Param type</span>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:${!isSend?'#4f46e5':'#6b7280'};font-weight:${!isSend?'600':'400'}">
+        <input type="radio" name="ptype" value="AppointmentReminders" ${!isSend?'checked':''} onchange="switchParamType(this.value)" style="accent-color:#6366f1;" />
+        Appointment Reminders
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:${isSend?'#4f46e5':'#6b7280'};font-weight:${isSend?'600':'400'}">
+        <input type="radio" name="ptype" value="SendReminders" ${isSend?'checked':''} onchange="switchParamType(this.value)" style="accent-color:#6366f1;" />
+        Regular Reminders
+      </label>
+      <span style="margin-left:auto;font-size:11px;color:#9ca3af;">${isSend?'SendReminders':'AppointmentReminders'}</span>
+    </div>`;
+
+  const generalSec = sec('general', `
+    <div class="field-row">
+      <div class="field"><label>Task name</label><input type="text" value="${escHtml(t.task)}" onchange="setField('task', this.value)" /></div>
+      <div class="field">
+        <label>Cron expression</label>
+        <input type="text" class="mono" value="${escHtml(t.expr)}" oninput="setField('expr', this.value); updateCronHint(this.value);" onchange="setField('expr', this.value); updateCronHint(this.value);" placeholder="* * * * *" />
+        <div class="cron-field-hint" id="cron-hint">${escHtml(describeCron(t.expr) || '')}</div>
+      </div>
+    </div>`);
+
+  const methodOptions = ['appointmentReminders','sendReminders',''].map(v =>
+    `<option value="${v}" ${p.method===v?'selected':''}>${v ? methodAlias(v) : '— other —'}</option>`
+  ).join('') + (p.method && !['appointmentReminders','sendReminders'].includes(p.method)
+    ? `<option value="${escHtml(p.method)}" selected>${escHtml(p.method)}</option>` : '');
+
+  const metaSec = sec('meta', `
+    <div class="field"><label>Notes / display name</label><input type="text" value="${escHtml(p.notes || '')}" onchange="setParam('notes', this.value); document.getElementById('editor-title').textContent=this.value||tasks[currentIndex].task||'Unnamed'; renderSidebar();" /></div>
+    <div class="field-row">
+      <div class="field">
+        <label>Method</label>
+        <select onchange="handleMethodChange(this.value)">
+          ${methodOptions}
+        </select>
+      </div>
+      <div class="field" id="method-custom-wrap" style="${(p.method && !['appointmentReminders','sendReminders'].includes(p.method)) ? '' : 'display:none;'}">
+        <label>Custom method value</label>
+        <input type="text" class="mono" id="method-custom-input" value="${escHtml(p.method || '')}" onchange="setParam('method', this.value); updateToolbarPills(); renderSidebar();" />
+      </div>
+      <div class="field" style="flex:0 0 auto;">
+        <label>Enabled</label>
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" ${p.enabled !== false ? 'checked' : ''} onchange="setParam('enabled', this.checked); renderSidebar();" /><span class="slider"></span></label>
+          <span class="toggle-label">${p.enabled !== false ? 'Active' : 'Disabled'}</span>
+        </div>
+      </div>
+    </div>`);
+
+  const sharedFields = `
+    <div class="field-row">
+      <div class="field"><label>Account ID <span style="color:#ef4444">*</span></label><input type="text" class="mono" value="${escHtml(ip.accountId || '')}" onchange="setInnerParam('accountId', this.value)" /></div>
+      <div class="field"><label>Language</label><input type="text" value="${escHtml(ip.language || '')}" placeholder="e.g. he" onchange="setInnerParam('language', this.value)" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Days before</label><input type="text" value="${escHtml(ip.daysBefore ?? '')}" onchange="setInnerParam('daysBefore', maybeNum(this.value))" /></div>
+      <div class="field"><label>Max amount</label><input type="text" value="${escHtml(ip.maxAmount ?? '')}" onchange="setInnerParam('maxAmount', maybeNum(this.value))" /></div>
+      <div class="field"><label>Demo number</label><input type="text" class="mono" value="${escHtml(ip.demoNumber || '')}" onchange="setInnerParam('demoNumber', this.value)" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Date format</label><input type="text" class="mono" value="${escHtml(ip.dateFormat || '')}" placeholder="e.g. DD/MM/YYYY" onchange="setInnerParam('dateFormat', this.value)" /></div>
+      <div class="field"><label>Order by field</label><input type="text" class="mono" value="${escHtml(ip.orderByField || '')}" onchange="setInnerParam('orderByField', this.value)" /></div>
+      <div class="field">
+        <label>Order direction</label>
+        <select onchange="setInnerParam('orderByDirection', this.value || undefined)">
+          <option value="" ${!ip.orderByDirection?'selected':''}>— none —</option>
+          <option value="asc" ${ip.orderByDirection==='asc'?'selected':''}>asc</option>
+          <option value="desc" ${ip.orderByDirection==='desc'?'selected':''}>desc</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field" style="flex:0 0 auto;">
+        <label>Distinct</label>
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" ${ip.distinct?'checked':''} onchange="setInnerParam('distinct', this.checked)" /><span class="slider"></span></label>
+          <span class="toggle-label">${ip.distinct?'Yes':'No'}</span>
+        </div>
+      </div>
+    </div>`;
+
+  const appointmentOnly = !isSend ? `
+    <div class="field">
+      <label>Template name <span style="color:#ef4444">*</span></label>
+      <input type="text" class="mono" value="${escHtml(ip.templateName || '')}" onchange="setInnerParam('templateName', this.value)" />
+    </div>` : '';
+
+  const sendOnly = isSend ? `
+    <div style="border-top:1px dashed #e5e7eb;margin:12px 0 10px;padding-top:10px;">
+      <div style="font-size:11px;font-weight:600;color:#7c3aed;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Regular Reminders–only fields</div>
+      <div class="field">
+        <label>Templates dict <span style="color:#ef4444">*</span> <span style="font-size:10px;font-weight:400;color:#9ca3af;">(language → templateName)</span></label>
+        ${buildKV('templatesDict', ip.templatesDict || {})}
+      </div>
+      <div class="field-row">
+        <div class="field" style="flex:0 0 auto;">
+          <label>Check future appointments</label>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" ${ip.checkFutureAppointments?'checked':''} onchange="setInnerParam('checkFutureAppointments', this.checked)" /><span class="slider"></span></label>
+            <span class="toggle-label">${ip.checkFutureAppointments?'Yes':'No'}</span>
+          </div>
+        </div>
+        <div class="field"><label>Future check start (days)</label><input type="text" value="${escHtml(ip.daysToCheckFutureAppointmentsStart ?? '')}" onchange="setInnerParam('daysToCheckFutureAppointmentsStart', maybeNum(this.value))" /></div>
+        <div class="field"><label>Future check end (days)</label><input type="text" value="${escHtml(ip.daysToCheckFutureAppointmentsEnd ?? '')}" onchange="setInnerParam('daysToCheckFutureAppointmentsEnd', maybeNum(this.value))" /></div>
+      </div>
+      <div class="field">
+        <label>Reminder templates query</label>
+        ${buildKV('reminderTemplatesQuery', ip.reminderTemplatesQuery || {})}
+      </div>
+    </div>` : '';
+
+  document.getElementById('editor-area').innerHTML = `
+    ${typeSwitcher}
+    ${generalSec}
+    ${metaSec}
+    ${sec('send', appointmentOnly + sharedFields + sendOnly)}
+    ${sec('bodyf',   buildList('body',    ip.body    || []))}
+    ${sec('crmdata', buildList('crmdata', ip.crmData || []))}
+    ${sec('query',   buildKV  ('query',   ip.query   || {}))}
+    ${sec('filters', buildList('filters', ip.filters || []))}
+    ${sec('other',   buildOther(ip))}
+  `;
+}
+
+function handleMethodChange(val) {
+  const wrap = document.getElementById('method-custom-wrap');
+  const inp  = document.getElementById('method-custom-input');
+  if (!val) {
+    if (wrap) wrap.style.display = '';
+    if (inp) inp.focus();
+  } else {
+    if (wrap) wrap.style.display = 'none';
+    setParam('method', val);
+    updateToolbarPills();
+    renderSidebar();
+  }
+}
+
+function switchParamType(newType) {
+  if (currentIndex < 0) return;
+  if (!tasks[currentIndex].params) tasks[currentIndex].params = {};
+  if (!tasks[currentIndex].params.params) tasks[currentIndex].params.params = {};
+  const ip = tasks[currentIndex].params.params;
+  if (newType === 'SendReminders') {
+    if (ip.templateName && !ip.templatesDict) ip.templatesDict = { default: ip.templateName };
+    delete ip.templateName;
+    if (!ip.templatesDict) ip.templatesDict = {};
+  } else {
+    if (ip.templatesDict && !ip.templateName) { const f = Object.values(ip.templatesDict)[0]; if (f) ip.templateName = f; }
+    delete ip.templatesDict;
+    delete ip.checkFutureAppointments;
+    delete ip.daysToCheckFutureAppointmentsStart;
+    delete ip.daysToCheckFutureAppointmentsEnd;
+    delete ip.reminderTemplatesQuery;
+  }
+  renderFormView();
+}
+
+function buildOther(ip) {
+  const o = Object.fromEntries(Object.entries(ip).filter(([k]) => !knownInner.has(k)));
+  if (!Object.keys(o).length) return '<p style="font-size:12px;color:#9ca3af;padding:4px 0;">No additional params outside known fields</p>';
+  return buildKV('other', o);
+}
+
+function sec(id, content) {
+  const c = SECTIONS[id];
+  return `<div class="card ${c.cls}" id="sec-${id}">
+    <div class="card-header" onclick="toggleSec('${id}')">
+      <div class="section-icon">${c.icon}</div>
+      <h3>${c.label}</h3>
+      <svg class="chevron open" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,4 10,8 6,12"/></svg>
+    </div>
+    <div class="card-body" id="sec-body-${id}">${content}</div>
+  </div>`;
+}
+
+function toggleSec(id) {
+  const body = document.getElementById(`sec-body-${id}`);
+  const chev = document.querySelector(`#sec-${id} .chevron`);
+  chev.classList.toggle('open', body.classList.toggle('collapsed') === false);
+}
+
+function buildList(key, arr) {
+  const items = arr.map((v, i) => `
+    <div class="list-item">
+      <input value="${escHtml(v)}" onchange="updateListItem('${key}', ${i}, this.value)" />
+      <button class="delete-item-btn" onclick="removeListItem('${key}', ${i})">✕</button>
+    </div>`).join('');
+  return `<div class="list-editor">
+    <div id="list-${key}">${items || '<div style="padding:9px 12px;font-size:12px;color:#9ca3af;">Empty — click below to add</div>'}</div>
+    <div class="list-add"><button onclick="addListItem('${key}')">+ Add item</button></div>
+  </div>`;
+}
+
+function buildKV(key, obj) {
+  const rows = Object.entries(obj).map(([k, v], i) => `
+    <div class="kv-row">
+      <input class="kv-key" value="${escHtml(k)}" placeholder="key" onchange="updateKV('${key}', ${i}, 'key', this.value)" />
+      <input class="kv-val" value="${escHtml(v)}" placeholder="value" onchange="updateKV('${key}', ${i}, 'val', this.value)" />
+      <button class="del-btn" onclick="removeKV('${key}', ${i})">✕</button>
+    </div>`).join('');
+  return `<div class="kv-editor">
+    <div class="kv-thead"><span>Key</span><span>Value</span></div>
+    <div id="kv-container-${key}">${rows || '<div style="padding:9px 12px;font-size:12px;color:#9ca3af;">Empty — click below to add</div>'}</div>
+    <div class="kv-add"><button onclick="addKV('${key}')">+ Add entry</button></div>
+  </div>`;
+}
+
+// ── Data helpers ──
+function setField(key, value) {
+  if (currentIndex < 0) return;
+  tasks[currentIndex][key] = value;
+  renderSidebar();
+  updateToolbarPills();
+}
+
+function setParam(key, value) {
+  if (currentIndex < 0) return;
+  if (!tasks[currentIndex].params) tasks[currentIndex].params = {};
+  tasks[currentIndex].params[key] = value;
+}
+
+function setInnerParam(key, value) {
+  if (currentIndex < 0) return;
+  if (!tasks[currentIndex].params) tasks[currentIndex].params = {};
+  if (!tasks[currentIndex].params.params) tasks[currentIndex].params.params = {};
+  if (value === '' || value === undefined) delete tasks[currentIndex].params.params[key];
+  else tasks[currentIndex].params.params[key] = value;
+}
+
+function maybeNum(v) { const n = Number(v); return (v !== '' && !isNaN(n)) ? n : v; }
+
+function getList(key) {
+  const ip = tasks[currentIndex]?.params?.params || {};
+  if (key === 'body') return ip.body || [];
+  if (key === 'crmdata') return ip.crmData || [];
+  if (key === 'filters') return ip.filters || [];
+  return [];
+}
+
+function setList(key, arr) {
+  if (!tasks[currentIndex].params) tasks[currentIndex].params = {};
+  if (!tasks[currentIndex].params.params) tasks[currentIndex].params.params = {};
+  if (key === 'body') tasks[currentIndex].params.params.body = arr;
+  else if (key === 'crmdata') tasks[currentIndex].params.params.crmData = arr;
+  else if (key === 'filters') tasks[currentIndex].params.params.filters = arr;
+}
+
+function updateListItem(key, idx, value) { const a = [...getList(key)]; a[idx] = value; setList(key, a); }
+function removeListItem(key, idx) { const a = [...getList(key)]; a.splice(idx, 1); setList(key, a); renderFormView(); }
+function addListItem(key) {
+  const a = [...getList(key)]; a.push(''); setList(key, a); renderFormView();
+  setTimeout(() => { const c = document.getElementById(`list-${key}`); if (c) { const ins = c.querySelectorAll('input'); if (ins.length) ins[ins.length-1].focus(); } }, 50);
+}
+
+const KV_KEYS = new Set(['query','templatesDict','reminderTemplatesQuery']);
+
+function getKVObj(ip, key) {
+  if (KV_KEYS.has(key)) return ip[key] || {};
+  return Object.fromEntries(Object.entries(ip).filter(([k]) => !knownInner.has(k)));
+}
+
+function updateKV(key, idx, field, value) {
+  const ip = tasks[currentIndex]?.params?.params; if (!ip) return;
+  const isNamed = KV_KEYS.has(key);
+  const src = getKVObj(ip, key);
+  const entries = Object.entries(src);
+  if (field === 'key') {
+    const rebuilt = {};
+    entries.forEach(([k, v], i) => { rebuilt[i === idx ? value : k] = v; });
+    if (isNamed) ip[key] = rebuilt;
+    else { entries.forEach(([k]) => { if (!knownInner.has(k)) delete ip[k]; }); Object.assign(ip, rebuilt); }
+  } else {
+    const k = entries[idx]?.[0];
+    if (k !== undefined) { if (isNamed) ip[key][k] = value; else ip[k] = value; }
+  }
+}
+
+function removeKV(key, idx) {
+  const ip = tasks[currentIndex]?.params?.params; if (!ip) return;
+  if (KV_KEYS.has(key)) { const e = Object.entries(ip[key]||{}); const k = e[idx]?.[0]; if (k !== undefined) delete ip[key][k]; }
+  else { const e = Object.entries(ip).filter(([k]) => !knownInner.has(k)); const k = e[idx]?.[0]; if (k) delete ip[k]; }
+  renderFormView();
+}
+
+function addKV(key) {
+  const ip = tasks[currentIndex]?.params?.params; if (!ip) return;
+  if (KV_KEYS.has(key)) { if (!ip[key]) ip[key] = {}; ip[key][''] = ''; }
+  else ip['newKey'] = '';
+  renderFormView();
+}
+
+// ── Import / Export ──
+function showImport() {
+  document.getElementById('import-textarea').value = '';
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function closeModal(e) { document.getElementById('modal-overlay').style.display = 'none'; }
+function closeModalDirect() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+function doImport() {
+  const text = document.getElementById('import-textarea').value.trim();
+  if (!text) { alert('Please paste some JSON first.'); return; }
+  try {
+    let parsed = JSON.parse(text);
+    if (!Array.isArray(parsed)) parsed = [parsed];
+    tasks = parsed;
+    currentIndex = tasks.length > 0 ? 0 : -1;
+    currentView = 'form';
+    closeModalDirect();
+    renderSidebar();
+    if (currentIndex >= 0) renderEditor();
+    notify('✓ Imported ' + tasks.length + ' task' + (tasks.length !== 1 ? 's' : ''));
+  } catch (e) { alert('Invalid JSON:\n' + e.message); }
+}
+
+function exportJSON() {
+  const json = JSON.stringify(tasks, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'tasks.json'; a.click();
+  URL.revokeObjectURL(url);
+  notify('✓ Exported tasks.json');
+}
+
+renderSidebar();
+
+// ── Cron expression parser ──
+function describeCron(expr) {
+  if (!expr || !expr.trim()) return '';
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length !== 5) return '';
+  const [min, hour, dom, month, dow] = parts;
+
+  function num(v) { return parseInt(v, 10); }
+  function pad(v) { return String(v).padStart(2, '0'); }
+
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  function describeField(val, type) {
+    if (val === '*') return null;
+
+    // Step: */n
+    const stepMatch = val.match(/^\*\/(\d+)$/);
+    if (stepMatch) {
+      const n = num(stepMatch[1]);
+      if (type === 'min') return `every ${n} minute${n>1?'s':''}`;
+      if (type === 'hour') return `every ${n} hour${n>1?'s':''}`;
+      if (type === 'dom') return `every ${n} day${n>1?'s':''}`;
+      if (type === 'month') return `every ${n} month${n>1?'s':''}`;
+      if (type === 'dow') return `every ${n} day${n>1?'s':''}`;
+    }
+
+    // Range: a-b
+    const rangeMatch = val.match(/^(\d+)-(\d+)$/);
+    if (rangeMatch) {
+      const a = num(rangeMatch[1]), b = num(rangeMatch[2]);
+      if (type === 'dow') return `every day-of-week from ${DAYS[a]||a} through ${DAYS[b]||b}`;
+      if (type === 'month') return `every month from ${MONTHS[a-1]||a} through ${MONTHS[b-1]||b}`;
+      return `${a}–${b}`;
+    }
+
+    // List: a,b,c
+    if (val.includes(',')) {
+      const vals = val.split(',').map(v => v.trim());
+      function describeListItem(v) {
+        // Allow ranges inside lists like "0-2,4"
+        const rm = v.match(/^(\d+)-(\d+)$/);
+        if (rm) {
+          const a = num(rm[1]), b = num(rm[2]);
+          if (type === 'dow') return `${DAYS[a] || a}–${DAYS[b] || b}`;
+          if (type === 'month') return `${MONTHS[a - 1] || a}–${MONTHS[b - 1] || b}`;
+          return `${a}–${b}`;
+        }
+        if (type === 'dow') return DAYS[num(v)] || v;
+        if (type === 'month') return MONTHS[num(v) - 1] || v;
+        return v;
+      }
+      if (type === 'dow') return vals.map(describeListItem).join(', ');
+      if (type === 'month') return vals.map(describeListItem).join(', ');
+      return vals.join(', ');
+    }
+
+    // Single value
+    const n = num(val);
+    if (type === 'dow') return DAYS[n] || val;
+    if (type === 'month') return MONTHS[n-1] || val;
+    return val;
+  }
+
+  // Build time string
+  let time = '';
+  if (min !== '*' && hour !== '*' && !min.includes('/') && !hour.includes('/') && !min.includes(',') && !hour.includes(',') && !min.includes('-') && !hour.includes('-')) {
+    time = `At ${pad(num(hour))}:${pad(num(min))}`;
+  } else if (hour !== '*' && !hour.includes('/') && !hour.includes(',') && !hour.includes('-')) {
+    const minDesc = describeField(min, 'min');
+    time = `At hour ${num(hour)}` + (minDesc ? `, ${minDesc}` : '');
+  } else {
+    const minDesc = describeField(min, 'min');
+    const hourDesc = describeField(hour, 'hour');
+    const parts2 = [];
+    if (hourDesc) parts2.push(hourDesc);
+    if (minDesc) parts2.push(minDesc);
+    time = parts2.length ? 'Every ' + parts2.join(', ') : 'Every minute';
+  }
+
+  const domDesc = describeField(dom, 'dom');
+  const monthDesc = describeField(month, 'month');
+  const dowDesc = describeField(dow, 'dow');
+
+  const clauses = [];
+  if (domDesc) clauses.push(`on day ${domDesc} of the month`);
+  if (monthDesc) clauses.push(`in ${monthDesc}`);
+  if (dowDesc) clauses.push(`on ${dowDesc}`);
+
+  return time + (clauses.length ? ', ' + clauses.join(', ') : ', every day') + '.';
+}
+
+function updateCronHint(val) {
+  const el = document.getElementById('cron-hint');
+  if (el) el.textContent = describeCron(val) || '';
+}
+
+// ── Sidebar resize ──
+(function() {
+  const handle = document.getElementById('resize-handle');
+  const sidebar = handle.parentElement;
+  let startX, startW;
+  handle.addEventListener('mousedown', e => {
+    startX = e.clientX;
+    startW = sidebar.offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    function onMove(e) {
+      const w = Math.min(600, Math.max(180, startW + e.clientX - startX));
+      sidebar.style.width = w + 'px';
+    }
+    function onUp() {
+      handle.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+})();
+
+</script>
+</body>
+</html>

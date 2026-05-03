@@ -2,11 +2,29 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-04-29T00:00:00.000Z</updated>
+    <updated>2026-05-03T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Provet Docs + Site Polish]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/03/provet-docs-site-polish</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/03/provet-docs-site-polish"/>
+        <updated>2026-05-03T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Deeper Provet adapter coverage—including the task editor tool and command behavior—plus navbar, footer, and general UI refinements across the docs site.]]></summary>
+        <content type="html"><![CDATA[<p>Deeper Provet adapter coverage—including the task editor tool and command behavior—plus navbar, footer, and general UI refinements across the docs site.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/03/provet-docs-site-polish#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Provet adapter</strong> — expanded onboarding material, task editor tool usage, and command reference so support teams can wire Provet flows with fewer guess-and-check cycles.</li>
+<li><strong>Navbar and footer</strong> — layout tweaks for clearer hierarchy and consistency with the rest of the theme.</li>
+<li><strong>General UI</strong> — small polish passes on shared components and styling for a steadier look in light and dark mode.</li>
+</ul>]]></content>
+        <category label="adapters" term="adapters"/>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+        <category label="site" term="site"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Premium Homepage + Theme Polish]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2</id>
