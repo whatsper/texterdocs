@@ -1,6 +1,12 @@
+---
+sidebar_position: 3
+---
+
 # API & External References
 
 API documentation for Texter and the third-party platforms it integrates with.
+
+For **chat auto-resolve** (system-managed scenarios, `GET`/`PATCH` `/system/automations/chats/auto-resolve`), see [Chat auto-resolve (system scenarios)](/docs/API/chat-auto-resolve).
 
 Most CRMs and platforms already have built-in adapter functions (`func_type: crm`) with predefined operations (`op`) that handle the API calls for you. You can find these operations documented in the [Adapters](/docs/YAML/Adapters/Overview) section. Use this page as a reference to explore the full API documentation for each platform — it's useful for understanding additional fields supported by certain calls, or when you need to interact with API endpoints not covered by the built-in adapter using the [`request` function](/docs/YAML/Types/Func/System/Request).
 

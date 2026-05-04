@@ -40,6 +40,7 @@ export const ACTION_DISPLAY: Record<string, string> = {
   runBot: 'Run Bot',
   sendEmail: 'Send Email',
   chatUpdateExternalBot: 'Set External Bot',
+  chatResolve: 'Resolve Chat',
   setData: 'Set Data Item',
   deleteData: 'Delete Data Item',
 };
@@ -2127,6 +2128,503 @@ export const SCENARIOS: Scenario[] = [
         },
       ],
       options: {unorderedActions: false},
+    },
+  },
+
+  // ── Chat auto-resolve (templates) ───────────────────────────────────────────
+  {
+    id: 'auto-resolve-chat',
+    name: '(Auto-Resolve) Auto Resolve',
+    tags: ['scheduled', 'add-label', 'auto-resolve'],
+    triggerEvents: ['app.scenarios.customTriggers.cron'],
+    description:
+      'Runs on a dedicated hourly cron. For each pending or assigned chat that already has the idle label, if the last message is older than your inactivity window, resolves the chat and removes the idle label. Deploy together with the other three auto-resolve templates and enable `features.autoResolveChatsAutomation` on the environment.',
+    configuration: [
+      {
+        field: 'Scenario configuration',
+        location: 'PATCH /system/automations/chats/auto-resolve',
+        description:
+          'Apply idle threshold, per-status hours, and master `enabled` with `PATCH` on this path; the service creates or updates all four system scenarios and DB cron rows when applicable. See [Chat auto-resolve](/docs/API/chat-auto-resolve).',
+        required: true,
+      },
+      {
+        field: 'Feature flag',
+        location: 'conditions[0][0].params.value',
+        description: 'Enable `features.autoResolveChatsAutomation` on the environment.',
+        required: true,
+      },
+    ],
+    relatedScenarios: [
+      'auto-resolve-mark-idle',
+      'auto-resolve-remove-idle-on-message',
+      'auto-resolve-remove-idle-on-chat-resolved',
+    ],
+    json: {
+      version: 'v1.1',
+      name: '(Auto-Resolve) Auto Resolve',
+      description:
+        'Auto resolve chat after x minutes of inactivity for chats with idle label in status pending or assigned',
+      triggerEvents: ['app.scenarios.customTriggers.cron'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'environment',
+            alias: 'environment',
+            params: {},
+            confidentialData: false,
+          },
+          {
+            name: 'chatsList',
+            alias: 'chats',
+            params: {
+              limit: 50,
+              skip: 0,
+              filters: [
+                {
+                  channel: [],
+                  department: [],
+                  agent: [],
+                  labels: {
+                    include: ['idle'],
+                    exclude: ['favorite'],
+                  },
+                  status: ['PENDING', 'ASSIGNED'],
+                },
+              ],
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: true,
+              value: {'##provide': {provider: 'environment', key: 'features.autoResolveChatsAutomation'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: 'auto-resolve-chat-scenario',
+              value: {'##provide': {provider: 'cron', key: 'name'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Less than',
+              compareTo: {
+                '##provide': {
+                  provider: 'time',
+                  key: 'now-48h',
+                  keyArgs: ['x'],
+                  transform: [{name: 'parseInt', args: []}],
+                },
+              },
+              value: {'##provide': {provider: 'chat', key: 'last_message_timestamp'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: {'##literal': 1},
+              value: {'##provide': {provider: 'chat', key: 'status'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              value: true,
+              compareTo: true,
+            },
+            confidentialData: false,
+          },
+        ],
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: true,
+              value: {'##provide': {provider: 'environment', key: 'features.autoResolveChatsAutomation'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: 'auto-resolve-chat-scenario',
+              value: {'##provide': {provider: 'cron', key: 'name'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Less than',
+              compareTo: {
+                '##provide': {
+                  provider: 'time',
+                  key: 'now-48h',
+                  keyArgs: ['x'],
+                  transform: [{name: 'parseInt', args: []}],
+                },
+              },
+              value: {'##provide': {provider: 'chat', key: 'last_message_timestamp'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: {'##literal': 2},
+              value: {'##provide': {provider: 'chat', key: 'status'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              value: true,
+              compareTo: true,
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatResolve',
+          params: {
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'chatUpdateLabels',
+          params: {
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+            operation: 'remove',
+            labels: ['idle'],
+          },
+          confidentialData: false,
+        },
+      ],
+      loops: [
+        {
+          loop: {
+            type: 'foreach',
+            foreachMode: 'parallel',
+            concurency: 10,
+            input: '%chats:chats%',
+            confidentialData: false,
+            as: 'chat',
+          },
+          position: 'beforeConditions',
+        },
+      ],
+      options: {
+        unorderedActions: false,
+      },
+    },
+  },
+  {
+    id: 'auto-resolve-mark-idle',
+    name: '(Auto-Resolve) Mark Idle Chats',
+    tags: ['scheduled', 'add-label', 'auto-resolve'],
+    triggerEvents: ['app.scenarios.customTriggers.cron'],
+    description:
+      'Runs on a dedicated hourly cron. Finds pending or assigned chats without the idle label whose last message is older than your threshold, and adds the idle label so the Auto Resolve scenario can later close them.',
+    configuration: [
+      {
+        field: 'Scenario configuration',
+        location: 'PATCH /system/automations/chats/auto-resolve',
+        description:
+          'Apply idle threshold, per-status hours, and master `enabled` with `PATCH` on this path; the service creates or updates all four system scenarios and DB cron rows when applicable. See [Chat auto-resolve](/docs/API/chat-auto-resolve).',
+        required: true,
+      },
+      {
+        field: 'Feature flag',
+        location: 'conditions[0][0].params.value',
+        description: 'Enable `features.autoResolveChatsAutomation` on the environment.',
+        required: true,
+      },
+    ],
+    relatedScenarios: [
+      'auto-resolve-chat',
+      'auto-resolve-remove-idle-on-message',
+      'auto-resolve-remove-idle-on-chat-resolved',
+    ],
+    json: {
+      version: 'v1.1',
+      name: '(Auto-Resolve) Mark Idle Chats',
+      description: 'Mark chats with idle label when there is no message for x hours',
+      triggerEvents: ['app.scenarios.customTriggers.cron'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'environment',
+            alias: 'environment',
+            params: {},
+            confidentialData: false,
+          },
+          {
+            name: 'chatsList',
+            alias: 'chats',
+            params: {
+              limit: 50,
+              skip: 0,
+              filters: [
+                {
+                  lastMessageTimestamp: {
+                    before: '%time:now-24h("x")|parseInt%',
+                  },
+                  status: ['PENDING', 'ASSIGNED'],
+                  channel: [],
+                  department: [],
+                  agent: [],
+                  labels: {
+                    include: [],
+                    exclude: ['idle'],
+                  },
+                },
+              ],
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: true,
+              value: {'##provide': {provider: 'environment', key: 'features.autoResolveChatsAutomation'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: 'auto-resolve-mark-idle-chat-scenario',
+              value: {'##provide': {provider: 'cron', key: 'name'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatUpdateLabels',
+          params: {
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+            operation: 'add',
+            labels: ['idle'],
+          },
+          confidentialData: false,
+        },
+      ],
+      loops: [
+        {
+          loop: {
+            type: 'foreach',
+            foreachMode: 'parallel',
+            concurency: 10,
+            input: '%chats:chats%',
+            confidentialData: false,
+            as: 'chat',
+          },
+          position: 'afterConditions',
+        },
+      ],
+      options: {
+        unorderedActions: false,
+      },
+    },
+  },
+  {
+    id: 'auto-resolve-remove-idle-on-message',
+    name: '(Auto-Resolve) Remove Idle Label on Message Sent',
+    tags: ['on-message', 'add-label', 'auto-resolve'],
+    triggerEvents: ['domain.message.created'],
+    description:
+      'When a new message is created on a chat (incoming or outgoing) that still has the idle label, removes the idle label so the conversation is treated as active again.',
+    configuration: [
+      {
+        field: 'Scenario configuration',
+        location: 'PATCH /system/automations/chats/auto-resolve',
+        description:
+          'Apply idle threshold, per-status hours, and master `enabled` with `PATCH` on this path; the service creates or updates all four system scenarios and DB cron rows when applicable. See [Chat auto-resolve](/docs/API/chat-auto-resolve).',
+        required: true,
+      },
+      {
+        field: 'Feature flag',
+        location: 'conditions[0][0].params.value',
+        description: 'Enable `features.autoResolveChatsAutomation` on the environment.',
+        required: true,
+      },
+    ],
+    relatedScenarios: [
+      'auto-resolve-chat',
+      'auto-resolve-mark-idle',
+      'auto-resolve-remove-idle-on-chat-resolved',
+    ],
+    json: {
+      version: 'v1',
+      name: '(Auto-Resolve) Remove Idle Label on Message Sent',
+      description: 'Remove idle label from chat when a new message is sent (outgoing or incoming)',
+      triggerEvents: ['domain.message.created'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'environment',
+            alias: 'environment',
+            params: {},
+            confidentialData: false,
+          },
+          {
+            name: 'chat',
+            alias: 'chat',
+            params: {
+              id: {'##provide': {provider: 'message', key: 'parent_chat'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: true,
+              value: {'##provide': {provider: 'environment', key: 'features.autoResolveChatsAutomation'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'arrayIncludes',
+            params: {
+              values: ['idle'],
+              condType: 'Includes any',
+              array: {'##provide': {provider: 'chat', key: 'labels'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatUpdateLabels',
+          params: {
+            chatId: {'##provide': {provider: 'message', key: 'parent_chat'}},
+            operation: 'remove',
+            labels: ['idle'],
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {
+        unorderedActions: false,
+      },
+    },
+  },
+  {
+    id: 'auto-resolve-remove-idle-on-chat-resolved',
+    name: '(Auto-Resolve) Remove Idle Label on Chat Resolved',
+    tags: ['on-resolve', 'add-label', 'auto-resolve'],
+    triggerEvents: ['domain.chat.resolved'],
+    description:
+      'When a chat is resolved manually (or by another automation) while it still has the idle label, strips the idle label so state stays consistent.',
+    configuration: [
+      {
+        field: 'Scenario configuration',
+        location: 'PATCH /system/automations/chats/auto-resolve',
+        description:
+          'Apply idle threshold, per-status hours, and master `enabled` with `PATCH` on this path; the service creates or updates all four system scenarios and DB cron rows when applicable. See [Chat auto-resolve](/docs/API/chat-auto-resolve).',
+        required: true,
+      },
+      {
+        field: 'Feature flag',
+        location: 'conditions[0][0].params.value',
+        description: 'Enable `features.autoResolveChatsAutomation` on the environment.',
+        required: true,
+      },
+    ],
+    relatedScenarios: [
+      'auto-resolve-chat',
+      'auto-resolve-mark-idle',
+      'auto-resolve-remove-idle-on-message',
+    ],
+    json: {
+      version: 'v1',
+      name: '(Auto-Resolve) Remove Idle Label on Chat Resolved',
+      description: 'Remove idle label from chat when the chat is resolved',
+      triggerEvents: ['domain.chat.resolved'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'environment',
+            alias: 'environment',
+            params: {},
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: true,
+              value: {'##provide': {provider: 'environment', key: 'features.autoResolveChatsAutomation'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'arrayIncludes',
+            params: {
+              values: ['idle'],
+              condType: 'Includes any',
+              array: {'##provide': {provider: 'chat', key: 'labels'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatUpdateLabels',
+          params: {
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+            operation: 'remove',
+            labels: ['idle'],
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {
+        unorderedActions: false,
+      },
     },
   },
 
