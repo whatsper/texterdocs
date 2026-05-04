@@ -9,10 +9,9 @@ import {
 import {useLocation} from '@docusaurus/router';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import ReactMarkdown from 'react-markdown';
 import type {Components} from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Link from '@docusaurus/Link';
+import Markdown from '@site/src/components/Markdown';
 import {Plus, Sparkles, X} from 'lucide-react';
 import styles from './styles.module.css';
 
@@ -576,32 +575,8 @@ export default function AIChat(): ReactNode {
           <table {...props}>{children}</table>
         </div>
       ),
-      a: ({href, children, ...props}) => {
-        if (!href) return <a {...props}>{children}</a>;
-        const isInternal =
-          href.startsWith('/') || href.startsWith(siteBase);
-        if (isInternal) {
-          const to = href.startsWith(siteBase)
-            ? href.slice(siteBase.length) || '/'
-            : href;
-          return (
-            <Link to={to} onClick={closePanel}>
-              {children}
-            </Link>
-          );
-        }
-        return (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            {...props}>
-            {children}
-          </a>
-        );
-      },
     }),
-    [closePanel, siteBase],
+    [],
   );
 
   return (
@@ -763,11 +738,11 @@ export default function AIChat(): ReactNode {
                               </span>
                             </span>
                           ) : (
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
+                            <Markdown
+                              onLinkClick={closePanel}
                               components={markdownComponents}>
                               {rendered || '...'}
-                            </ReactMarkdown>
+                            </Markdown>
                           )}
                           {t.streaming && t.text.trim().length > 0 ? (
                             <span className={styles.cursor} aria-hidden="true" />

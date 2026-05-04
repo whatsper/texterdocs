@@ -2,6 +2,7 @@ import {useState, type ReactNode} from 'react';
 import CodeBlock from '@theme/CodeBlock';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
+import Markdown from '@site/src/components/Markdown';
 import {
   ArrowRight,
   Bot,
@@ -70,6 +71,31 @@ function getUniqueActionLabels(json: object): string[] {
   return [...new Set(actions.map((a) => ACTION_DISPLAY[a.name ?? ''] ?? a.name ?? '').filter(Boolean))];
 }
 
+/** Renders scenario copy as Markdown (links, inline code, lists, line breaks). */
+function ScenarioMarkdown({text, className}: {text: string; className?: string}): ReactNode {
+  return (
+    <div className={className}>
+      <Markdown
+        hardBreaks
+        linkClassName={styles.mdLink}
+        components={{
+          code: ({className: codeClass, children, ...props}) => {
+            const isBlock = Boolean(codeClass?.includes('language-'));
+            return (
+              <code
+                className={isBlock ? codeClass : styles.inlineCode}
+                {...props}>
+                {children}
+              </code>
+            );
+          },
+        }}>
+        {text}
+      </Markdown>
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface ScenarioCardProps {
@@ -123,7 +149,7 @@ export default function ScenarioCard({scenario}: ScenarioCardProps): ReactNode {
       {/* ── Content ── */}
       <div className={styles.cardBody}>
         <h3 className={styles.cardTitle}>{scenario.name}</h3>
-        <p className={styles.description}>{scenario.description}</p>
+        <ScenarioMarkdown text={scenario.description} className={clsx(styles.description, styles.richText)} />
         <div className={styles.tags}>
           {scenario.tags.map((tag) => (
             <span key={tag} className={styles.tag}>{tag}</span>
@@ -160,7 +186,7 @@ export default function ScenarioCard({scenario}: ScenarioCardProps): ReactNode {
                       )}
                     </div>
                     <code className={styles.configLocation}>{item.location}</code>
-                    <p className={styles.configDesc}>{item.description}</p>
+                    <ScenarioMarkdown text={item.description} className={clsx(styles.configDesc, styles.richText)} />
                   </li>
                 ))}
               </ul>

@@ -70,7 +70,7 @@ The TypeScript shape is:
 
 Only create a ConfigItem for fields that actually need to be changed per customer. Do not list structural or static fields.
 
-If a `description` contains a multi-line code block (e.g. a cron config object), use `\n` to format it as pre-wrap text — the UI renders `white-space: pre-wrap`.
+Scenario **`description`** and each **`configuration[].description`** are rendered as **Markdown** on the marketplace card (`react-markdown` + GFM; single `\n` inside a block is turned into hard line breaks). Use `[label](/docs/...)` for internal doc links, `` `backticks` `` for paths, and `\n` for multi-line snippets (e.g. cron JSON examples). Use a blank line (`\n\n`) between distinct paragraphs if needed.
 
 **Subscription (`(SUB)`) scenarios:** For subscribe-to-events / webhook-forwarding templates in the **Subscription scenarios** section, the marketplace **`name`** and the embedded **`json.name`** must both use the **`(SUB) `** prefix (e.g. `(SUB) Chat Unsubscribed`), matching Postman import templates and the rest of the subscription suite.
 
@@ -104,6 +104,7 @@ Use only tags from this list. Each scenario can have multiple tags.
 - `ai-bot` — part of the Q-AI AI handoff suite
 - `salesforce` — integrates with Salesforce CRM
 - `failed-message` — specifically handles failed/undelivered message cases
+- `auto-resolve` — chat auto-resolve / idle-label suite (mark idle, resolve, clear idle on activity); see docs/API/Chat Auto-Resolve.md
 
 If a trigger event or action name is not in `TRIGGER_DISPLAY` or `ACTION_DISPLAY` in the file, add it to the appropriate map at the top of the file.
 

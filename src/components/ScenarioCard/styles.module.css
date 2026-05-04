@@ -158,6 +158,47 @@
   flex: 1;
 }
 
+/* Markdown body for description + config (react-markdown output) */
+.richText {
+  white-space: normal;
+}
+
+.richText :global(p) {
+  margin: 0 0 0.55em;
+}
+
+.richText :global(p:last-child) {
+  margin-bottom: 0;
+}
+
+.richText :global(ul),
+.richText :global(ol) {
+  margin: 0 0 0.55em;
+  padding-left: 1.25rem;
+}
+
+.richText :global(li) {
+  margin: 0.2em 0;
+}
+
+.inlineCode {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.88em;
+  padding: 0.08em 0.32em;
+  border-radius: 4px;
+  background: var(--ifm-color-emphasis-200);
+}
+
+.mdLink {
+  color: var(--ifm-link-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mdLink:hover {
+  text-decoration-thickness: 2px;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -302,7 +343,6 @@
   color: var(--ifm-color-emphasis-700);
   line-height: 1.55;
   margin: 0;
-  white-space: pre-wrap;
 }
 
 /* ── JSON section ─────────────────────────────────────────────────────────── */

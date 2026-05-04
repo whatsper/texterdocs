@@ -183,7 +183,7 @@ export const SCENARIOS: Scenario[] = [
         field: 'Keywords to match',
         location: 'conditions[0][1].params.expression',
         description:
-          'Replace {{word1}}, {{word2}} in the filtrex expression with the words you want to match (exact match on message text). Add or remove conditions to match more or fewer keywords.',
+          'Replace `{{word1}}`, `{{word2}}` in the filtrex expression with the words you want to match (exact match on message text):\n\n```\ntext == "keyword1" or text == "keyword2"\n```\n\nAdd or remove `or` clauses to match more or fewer keywords.',
         required: true,
       },
     ],
@@ -251,7 +251,7 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-message', 'webhook', 'subscription'],
     triggerEvents: ['domain.message.created'],
     description:
-      'Sends a webhook when an incoming message contains a media attachment — image, video, document, audio, or sticker. Useful for feeding media into processing pipelines or external storage.',
+      'Sends a webhook when an incoming message contains a media attachment — **image, video, document, audio, or sticker**. Useful for feeding media into processing pipelines or external storage.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -325,7 +325,7 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-message-status-change', 'webhook', 'subscription', 'failed-message'],
     triggerEvents: ['app.message.statusRequest'],
     description:
-      'Sends a webhook when an outgoing message fails to deliver (blocked or rejected by Meta). Fires on status codes 4 and 5. Useful for alerting, retry logic, or audit trails.',
+      'Sends a webhook when an outgoing message fails to deliver (blocked or rejected by Meta). Fires on status codes `4` and `5`. Useful for alerting, retry logic, or audit trails.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -406,7 +406,7 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-message-status-change', 'webhook', 'subscription'],
     triggerEvents: ['app.message.statusRequest'],
     description:
-      'Sends a webhook for every outgoing message status change — from Sent to Delivered, from Delivered to Seen, etc. Useful for tracking read receipts and delivery analytics in external systems.',
+      'Sends a webhook for every outgoing message status change — from **Sent** to **Delivered**, from **Delivered** to **Seen**, etc. Useful for tracking read receipts and delivery analytics in external systems.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -466,7 +466,7 @@ export const SCENARIOS: Scenario[] = [
     triggerEvents: ['domain.chat.unsubscribed'],
     relatedScenarios: ['sub-chat-subscribed'],
     description:
-      'Sends a webhook when a chat opts out of template messages — for example when the customer replies with an opt-out keyword such as "הסר". Use this to sync suppression lists or update consent in external systems.',
+      'Sends a webhook when a chat opts out of template messages — for example when the customer replies with an opt-out keyword such as **"הסר"**. Use this to sync suppression lists or update consent in external systems.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -556,7 +556,7 @@ export const SCENARIOS: Scenario[] = [
     triggerEvents: ['domain.chat.assigned'],
     relatedScenarios: ['sub-chat-subscribed', 'sub-chat-unsubscribed'],
     description:
-      'Sends a webhook when a chat is taken by an agent, including the full chat and a narrowed agent profile (id, crmId, email, displayName, roles). Use this to sync assignment with CRMs, routing tools, or custom backends.',
+      'Sends a webhook when a chat is taken by an agent, including the full chat and a narrowed agent profile (`id`, `crmId`, `email`, `displayName`, `roles`). Use this to sync assignment with CRMs, routing tools, or custom backends.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -609,12 +609,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-message', 'assign-chat'],
     triggerEvents: ['domain.message.created'],
     description:
-      'Automatically assigns a chat to a specific agent when an "echo message" is detected — a message sent directly from the WhatsApp Business App (not through Texter). This is a system scenario auto-generated during onboarding for WhatsApp Business accounts.',
+      'Automatically assigns a chat to a specific agent when an **echo message** is detected — a message sent directly from the WhatsApp Business App (not through Texter). This is a system scenario auto-generated during onboarding for WhatsApp Business accounts.',
     configuration: [
       {
         field: 'Agent User ID',
         location: 'actions[0].params.agent',
-        description: 'The Texter internal user ID of the agent to assign the chat to. Find this in your Texter team settings.',
+        description:
+          'The Texter internal user ID (`{{agentUserId}}`) of the agent to assign the chat to. Find this in your Texter team settings.',
         required: true,
       },
     ],
@@ -704,13 +705,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-message-status-change', 'add-label', 'failed-message'],
     triggerEvents: ['app.message.statusRequest'],
     description:
-      'Adds a label to a chat whenever a sent message fails to deliver (status 4 or 5). Makes it easy to filter and follow up on chats with delivery failures from the Texter inbox.',
+      'Adds a label to a chat whenever a sent message fails to deliver (status `4` or `5`). Makes it easy to filter and follow up on chats with delivery failures from the Texter inbox.',
     configuration: [
       {
         field: 'Label ID',
         location: 'actions[0].params.labels[0]',
         description:
-          'The label ID in Texter to apply when a message fails. Create this label in your Texter settings first. Default value in the example is "failed_message".',
+          'The label ID in Texter to apply when a message fails. Create this label in your Texter settings first. Default: `failed_message`.',
         required: true,
       },
     ],
@@ -777,13 +778,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-assign', 'send-message'],
     triggerEvents: ['domain.chat.assigned'],
     description:
-      "Sends an automatic greeting message to the customer the moment an agent takes a chat — but only if there was incoming activity in the last 24 hours (avoids sending to stale chats). The message dynamically includes the assigned agent's name via data injection.",
+      "Sends an automatic greeting message to the customer the moment an agent takes a chat — but only if there was incoming activity in the last 24 hours (avoids sending to stale chats). The message dynamically includes the assigned agent's name via [data injection](/docs/YAML/Data%20Injection/Overview).",
     configuration: [
       {
         field: 'Message Text',
         location: 'actions[0].params.message.text',
         description:
-          "The greeting message to send. Supports data injection — %chat:agent.displayName% is replaced with the assigned agent's name at send time.",
+          "The greeting message to send. Supports data injection — `%chat:agent.displayName%` is replaced with the assigned agent's name at send time.",
         required: true,
       },
     ],
@@ -833,18 +834,20 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-channel-event', 'send-email'],
     triggerEvents: ['domain.channel.health.problem.resolved'],
     description:
-      'Sends a formatted HTML email alert whenever a WhatsApp account health problem is detected. Includes the error code, severity, affected functionality, and remediation instructions. Useful for proactive monitoring without needing a separate alerting system.',
+      'Sends a formatted HTML email alert whenever a **WhatsApp account health problem** is detected. Includes the error code, severity, affected functionality, and remediation instructions. Useful for proactive monitoring without needing a separate alerting system.',
     configuration: [
       {
         field: 'SMTP Email',
         location: 'actions[0].params.transport.auth.user, actions[0].params.from, actions[0].params.replyTo',
-        description: 'The Gmail address used to send the alert. Replace all three occurrences of {{yourSmtpEmail}}.',
+        description:
+          'The Gmail address used to send the alert. Replace **all three** occurrences of `{{yourSmtpEmail}}`.',
         required: true,
       },
       {
         field: 'SMTP App Password',
         location: 'actions[0].params.transport.auth.pass',
-        description: 'Gmail App Password (not your account password). Generate one in Google Account → Security → App Passwords.',
+        description:
+          'Gmail **App Password** (not your account password). Generate one at **Google Account → Security → App Passwords**.',
         required: true,
       },
       {
@@ -1017,13 +1020,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-resolve', 'run-bot'],
     triggerEvents: ['domain.chat.resolved'],
     description:
-      'When an agent (not the bot) resolves a chat, automatically resumes the bot from a configurable node — for example "close_chat" to run a closing branch. Equivalent to the agent manually clicking "close and route to bot branch", but applied to every agent resolve. Limitation: the resume node is the same for all chats, so the post-resolve flow is identical for everyone.',
+      'When an agent (not the bot) resolves a chat, automatically resumes the bot from a configurable node — for example `close_chat` to run a closing branch. Equivalent to the agent manually clicking **"close and route to bot branch"**, but applied to every agent resolve.\n\n**Limitation:** the resume node is the same for all chats, so the post-resolve flow is identical for everyone.',
     configuration: [
       {
         field: 'Bot Resume Node',
         location: 'actions[0].params.nodeName',
         description:
-          'The bot node name to resume from after the agent resolves the chat. Must match a node in your bot YAML (e.g. "close_chat").',
+          'The bot node name to resume from after the agent resolves the chat. Must match a node in your [bot YAML](/docs/YAML/Overview) (e.g. `close_chat`).',
         required: true,
       },
     ],
@@ -1065,13 +1068,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['sla', 'on-message'],
     triggerEvents: ['domain.message.created'],
     description:
-      'When a customer sends an incoming message in an active chat (pending, taken or resolved chats), if there is no record in the SLA chats collection, set one with the current timestamp and chat id so other SLA scenarios can later add/remove labels.',
+      'When a customer sends an incoming message in an active chat (**pending**, **assigned**, or **resolved**), and no SLA record exists yet, writes one with the current timestamp and chat id so other SLA scenarios can later add/remove the SLA label.',
     configuration: [
       {
         field: 'Data Collection Name',
         location: 'actions[0].params.collection, loaders.beforeConditions[1].params.collection',
         description:
-          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+          'The [data store](/docs/YAML/Data%20Injection/Overview) collection used to track SLA timestamps per chat. Keep the **same value across all SLA scenarios**. Default: `sla_chats_collection`.',
         required: false,
       },
       {
@@ -1168,13 +1171,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['sla', 'on-pending'],
     triggerEvents: ['domain.chat.pending'],
     description:
-      'When a chat is set to pending status, check if a record exists in the SLA chats collection and if not, create one with the current timestamp and chat id so other SLA scenarios can later add/remove labels.',
+      'When a chat is set to **pending** status and no SLA record exists yet, writes one with the current timestamp and chat id so other SLA scenarios can later add/remove the SLA label.',
     configuration: [
       {
         field: 'Data Collection Name',
         location: 'actions[0].params.collection, loaders.beforeConditions[0].params.collection',
         description:
-          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+          'The [data store](/docs/YAML/Data%20Injection/Overview) collection used to track SLA timestamps per chat. Keep the **same value across all SLA scenarios**. Default: `sla_chats_collection`.',
         required: false,
       },
       {
@@ -1247,34 +1250,34 @@ export const SCENARIOS: Scenario[] = [
     tags: ['sla', 'scheduled', 'add-label'],
     triggerEvents: ['app.scenarios.customTriggers.cron'],
     description:
-      'On a cron schedule, scans all stored SLA records and adds the SLA label to chats whose timer exceeded the threshold (default: 20 minutes). This is the enforcement step that marks chats as breached/late.',
+      'On a cron schedule, scans all stored SLA records and adds the `sla` label to chats whose timer exceeded the threshold (default: **20 minutes**). This is the enforcement step that marks chats as breached/late.',
     configuration: [
       {
         field: 'Cron Schedule',
         location: 'Nihul → Customer Config',
         description:
-          'Add this entry to the customer config cron schedule in Nihul:\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "*/10 * * * *",\n  "params": {\n    "name": "sla_scenario"\n  }\n}\nThe scenario uses the cron name to filter executions, so the name must match exactly.',
+          'Add this entry to the customer config `cron.schedule` array in Nihul:\n\n```json\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "*/10 * * * *",\n  "params": { "name": "sla_scenario" }\n}\n```\n\nThe scenario uses the cron name to filter executions, so `params.name` must match exactly.',
         required: true,
       },
       {
         field: 'Cron Name',
         location: 'conditions[0][0].params.compareTo (cron.name)',
         description:
-          'Must match the cron trigger name in Nihul. Default in this template: "sla_scenario".',
+          'Must match the cron `params.name` registered in Nihul. Default in this template: `sla_scenario`.',
         required: true,
       },
       {
         field: 'SLA Threshold',
         location: 'conditions[0][1].params.expression',
         description:
-          'Adjust the time window by changing `now-20m` to your desired threshold (default is 20 minutes, but should be set per customer — e.g. `now-10m`, `now-30m`).',
+          'Adjust the time window by changing `now-20m` to your desired threshold. Default is **20 minutes** but should be set per customer — e.g. `now-10m`, `now-30m`.',
         required: true,
       },
       {
         field: 'Data Collection Name',
         location: 'loaders.beforeConditions[0].params.collection',
         description:
-          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+          'The [data store](/docs/YAML/Data%20Injection/Overview) collection used to track SLA timestamps per chat. Keep the **same value across all SLA scenarios**. Default: `sla_chats_collection`.',
         required: false,
       },
     ],
@@ -1356,13 +1359,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['sla', 'on-resolve', 'add-label'],
     triggerEvents: ['domain.chat.resolved'],
     description:
-      'When a chat is resolved, clears the SLA tracking record and removes the SLA label (if present). Keeps the data store clean and ensures resolved chats are not shown as SLA-breached.',
+      'When a chat is resolved, clears the SLA tracking record and removes the `sla` label (if present). Keeps the data store clean and ensures resolved chats are not shown as SLA-breached.',
     configuration: [
       {
         field: 'Data Collection Name',
         location: 'actions[1].params.collection, loaders.beforeConditions[0].params.collection',
         description:
-          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+          'The [data store](/docs/YAML/Data%20Injection/Overview) collection used to track SLA timestamps per chat. Keep the **same value across all SLA scenarios**. Default: `sla_chats_collection`.',
         required: false,
       }
     ],
@@ -1424,13 +1427,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['sla', 'on-message', 'add-label'],
     triggerEvents: ['domain.message.created'],
     description:
-      'When an agent sends an outgoing message in an active chat, clears the SLA tracking record and removes the SLA label. This marks the chat as “responded” and resets SLA tracking until the next incoming message.',
+      'When an agent sends an outgoing message in an active chat, clears the SLA tracking record and removes the `sla` label. Marks the chat as **responded** and resets SLA tracking until the next incoming message.',
     configuration: [
       {
         field: 'Data Collection Name',
         location: 'actions[0].params.collection, loaders.beforeConditions[1].params.collection',
         description:
-          'The data store collection used to track SLA timestamps per chat. Keep the same value across all SLA scenarios, default is "sla_chats_collection"',
+          'The [data store](/docs/YAML/Data%20Injection/Overview) collection used to track SLA timestamps per chat. Keep the **same value across all SLA scenarios**. Default: `sla_chats_collection`.',
         required: false,
       },
     ],
@@ -1517,18 +1520,20 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-assign', 'crm-update', 'salesforce'],
     triggerEvents: ['domain.chat.assigned'],
     description:
-      "When an agent takes a chat in Texter, updates the Owner ID of the linked Salesforce Service Request to match the agent's CRM ID. Requires the chat to have a CRM opportunity ID set via the Salesforce adapter. Uses OAuth for authentication.",
+      "When an agent takes a chat in Texter, updates the `OwnerId` of the linked Salesforce Service Request to match the agent's CRM ID. Requires the chat to have a CRM opportunity ID set via the [Salesforce adapter](/docs/YAML/Adapters/Salesforce). Uses OAuth for authentication.",
     configuration: [
       {
         field: 'Salesforce Instance URL',
         location: 'actions[0].params.url',
-        description: 'Your Salesforce instance URL with the object type path. Replace the domain (e.g. "yourorg.my.salesforce.com") and object type with your actual Salesforce setup.',
+        description:
+          'Your Salesforce instance URL with the object type path. Replace `{{yourOrg}}` (e.g. `acme.my.salesforce.com`) and `{{YourObject__c}}` with your actual Salesforce setup.',
         required: true,
       },
       {
         field: 'CRM Opportunity Field',
         location: 'conditions[0][0].params.expression',
-        description: 'The dot-notation path to the CRM field holding the linked service request ID. Default: "crmData.opportunityid".',
+        description:
+          'The dot-notation path to the CRM field holding the linked service request ID. Default: `crmData.opportunityid`.',
         required: false,
       },
     ],
@@ -1583,18 +1588,20 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-resolve', 'crm-update', 'salesforce'],
     triggerEvents: ['domain.chat.resolved'],
     description:
-      'When a chat is resolved in Texter, closes the linked Salesforce Service Request by updating its status field. Only fires if the chat has an associated CRM opportunity ID. Pairs well with "Update Service Request on Chat Taken".',
+      'When a chat is resolved in Texter, closes the linked Salesforce Service Request by updating its status field. Only fires if the chat has an associated CRM opportunity ID. Pairs well with **Update Service Request on Chat Taken**.',
     configuration: [
       {
         field: 'Salesforce Instance URL',
         location: 'actions[0].params.url',
-        description: 'Your Salesforce instance URL with the object type. Replace the domain and object name with your actual Salesforce setup.',
+        description:
+          'Your Salesforce instance URL with the object type. Replace `{{yourOrg}}` and `{{YourObject__c}}` with your actual Salesforce setup.',
         required: true,
       },
       {
         field: 'Closed Status Value',
         location: 'actions[0].params.data',
-        description: 'The field name and value that marks the record as closed in Salesforce (e.g. Status__c: "Closed").',
+        description:
+          'The field name and value that marks the record as closed in Salesforce, e.g. `{ "Status__c": "Closed" }`.',
         required: true,
       },
     ],
@@ -1651,12 +1658,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-external-bot', 'webhook', 'ai-bot'],
     triggerEvents: ['domain.chat.updated.externalBot', 'app.bot.chat.setExternal'],
     description:
-      'Part of the Q-AI suite. When external bot is enabled on a chat, forwards the full chat object and current session messages to your AI service. This is the entry point of the AI handoff flow.',
+      'Part of the **Q-AI suite**. When `externalBot` is enabled on a chat, forwards the full chat object and current session messages to your AI service as a `setExternalTrue` event — the entry point of the AI handoff flow.',
     configuration: [
       {
         field: 'AI Webhook URL',
         location: 'actions[0].params.url',
-        description: 'Your AI service webhook that receives the chat and session messages when AI mode is turned on.',
+        description:
+          'Your AI service webhook that receives the `setExternalTrue` event with the chat and session messages when AI mode is turned on.',
         required: true,
       },
     ],
@@ -1731,12 +1739,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-message', 'webhook', 'ai-bot'],
     triggerEvents: ['domain.message.created'],
     description:
-      'Part of the Q-AI suite. When a new incoming message arrives and external bot is active, forwards the message and chat objects to the AI service for processing.',
+      'Part of the **Q-AI suite**. When a new incoming message arrives and `externalBot` is active, forwards the message and chat objects to the AI service as a `newIncomingMessage` event.',
     configuration: [
       {
         field: 'AI Webhook URL',
         location: 'actions[0].params.url',
-        description: 'Your AI service webhook that receives each incoming message while AI mode is active.',
+        description:
+          'Your AI service webhook that receives the `newIncomingMessage` payload for each inbound message while AI mode is active.',
         required: true,
       },
     ],
@@ -1818,18 +1827,20 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-external-bot', 'webhook', 'run-bot', 'ai-bot'],
     triggerEvents: ['domain.chat.updated.externalBot', 'app.bot.chat.setExternal'],
     description:
-      'Part of the Q-AI suite. When external bot is disabled and the chat is in "with bot" status, resumes the Texter bot from a specified node and notifies the AI service to close the session. Handles the handoff back from AI to Texter.',
+      'Part of the **Q-AI suite**. When `externalBot` is disabled and the chat is in **with bot** status, resumes the Texter bot from a specified node and notifies the AI service with `setExternalFalse`. Handles the handoff back from AI to Texter.',
     configuration: [
       {
         field: 'Bot Resume Node',
         location: 'actions[0].params.nodeName',
-        description: 'The bot node name to resume from when returning from AI. Must match a node in your bot YAML (e.g. "back_to_texter").',
+        description:
+          'The bot node name to resume from when returning from AI. Must match a node in your [bot YAML](/docs/YAML/Overview) (e.g. `back_to_texter`).',
         required: true,
       },
       {
         field: 'AI Webhook URL',
         location: 'actions[1].params.url',
-        description: 'Your AI service webhook that receives the "setExternalFalse" event to close the AI session.',
+        description:
+          'Your AI service webhook that receives the `setExternalFalse` event to close the AI session.',
         required: true,
       },
     ],
@@ -1905,12 +1916,12 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-message', 'webhook', 'ai-bot'],
     triggerEvents: ['domain.message.created'],
     description:
-      'Part of the Q-AI suite. If AI mode is active and a template message is sent (chat moves to "bulk" status), automatically disables the external bot and notifies the AI service. Prevents AI from handling a chat that was just contacted via a template.',
+      'Part of the **Q-AI suite**. If AI mode is active and a template message is sent (chat moves to **bulk** status), automatically disables `externalBot` and notifies the AI service with `setExternalFalse`. Prevents AI from handling a chat that was just contacted via a template.',
     configuration: [
       {
         field: 'AI Webhook URL',
         location: 'actions[1].params.url',
-        description: 'Your AI service webhook that receives the "setExternalFalse" event.',
+        description: 'Your AI service webhook that receives the `setExternalFalse` event.',
         required: true,
       },
     ],
@@ -1993,12 +2004,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-resolve', 'webhook', 'ai-bot'],
     triggerEvents: ['domain.chat.resolved'],
     description:
-      'Part of the Q-AI suite. When a chat is resolved manually in Texter while AI mode is active, disables the external bot flag and notifies the AI service to end the session.',
+      'Part of the **Q-AI suite**. When a chat is resolved manually in Texter while AI mode is active, disables `externalBot` and notifies the AI service with `setExternalFalse` to end the session.',
     configuration: [
       {
         field: 'AI Webhook URL',
         location: 'actions[1].params.url',
-        description: 'Your AI service webhook that receives the "setExternalFalse" event when a chat is manually resolved.',
+        description:
+          'Your AI service webhook that receives the `setExternalFalse` event when a chat is manually resolved.',
         required: true,
       },
     ],
@@ -2064,12 +2076,13 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-assign', 'webhook', 'ai-bot'],
     triggerEvents: ['domain.chat.assigned'],
     description:
-      'Part of the Q-AI suite. When an agent manually takes a chat while AI mode is active, disables the external bot flag and notifies the AI service. Ensures the AI stops handling a chat once a human steps in.',
+      'Part of the **Q-AI suite**. When an agent manually takes a chat while AI mode is active, disables `externalBot` and notifies the AI service with `setExternalFalse`. Ensures the AI stops handling a chat once a human steps in.',
     configuration: [
       {
         field: 'AI Webhook URL',
         location: 'actions[1].params.url',
-        description: 'Your AI service webhook that receives the "setExternalFalse" event when a chat is manually assigned.',
+        description:
+          'Your AI service webhook that receives the `setExternalFalse` event when a chat is manually assigned.',
         required: true,
       },
     ],
@@ -2137,31 +2150,34 @@ export const SCENARIOS: Scenario[] = [
     tags: ['scheduled', 'send-message'],
     triggerEvents: ['app.scenarios.customTriggers.cron'],
     description:
-      'Finds all pending chats active within the last ~9 hours at the end of the business day and sends a notification that a response will be provided the following business day, excluding those with the "waiting_for_customer" label. The task runs on a custom cron schedule configured per customer in Nihul, sending up to 10 messages concurrently.',
+      'Finds all pending chats active within the last **~9 hours** at the end of the business day and sends a notification that a response will be provided the following business day, excluding those with the `waiting_for_customer` label. Runs on a custom cron schedule configured per customer in Nihul and sends up to **10 messages concurrently**.',
     configuration: [
       {
         field: 'Cron Schedule',
         location: 'Nihul → Customer Config',
         description:
-          'Add to the schedule array in the customer config in Nihul:\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "30 18 * * 0-4",\n  "params": {\n    "name": "end-of-day-message-sending"\n  }\n}\nThe example runs Sun–Thu at 18:30 — adjust the cron expression per customer request.',
+          'Add to the `cron.schedule` array in the customer config in Nihul:\n\n```json\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "30 18 * * 0-4",\n  "params": { "name": "end-of-day-message-sending" }\n}\n```\n\nThe example runs **Sun–Thu at 18:30** — adjust the cron expression per customer request.',
         required: true,
       },
       {
         field: 'Exclude Label',
         location: 'loaders.afterConditions[0].params.filters[0].labels.exclude[0]',
-        description: 'Label ID to skip — chats tagged with this label won\'t receive the message.',
+        description:
+          'Label ID to skip — chats tagged with this label won\'t receive the message. Default: `waiting_for_customer`.',
         required: false,
       },
       {
         field: 'Time Window',
         location: 'loaders.afterConditions[0].params.filters[0].lastMessageTimestamp.after',
-        description: 'How far back to look for pending chats. Defaults to 9 hours ("now-9h"). Can be adjusted per customer, but must stay under 24 hours.',
+        description:
+          'How far back to look for pending chats. Defaults to **9 hours** (`now-9h`). Can be adjusted per customer but must stay under 24 hours.',
         required: false,
       },
       {
         field: 'Message Text',
         location: 'actions[0].params.message.text',
-        description: 'The closing message to send. Can be customized per customer.',
+        description:
+          'The closing message body to send. Customize per customer. Supports the full [message payload](/docs/YAML/Types/Notify) (text, media, template).',
         required: false,
       },
     ],
@@ -2251,47 +2267,47 @@ export const SCENARIOS: Scenario[] = [
     tags: ['scheduled', 'assign-chat', 'crm-update', 'webhook', 'rapid'],
     triggerEvents: ['app.scenarios.customTriggers.cron'],
     description:
-      'Runs once a day to find BULK chats from the previous day whose last message was one of the configured marketing templates. For each matching chat, assigns it to the sales department with Pending status and updates the lead status in Rapid CRM. Designed for Rapid CRM customers using the Tyntec WhatsApp provider (see configuration for other providers).',
+      'Runs once a day to find **BULK** chats from the previous day whose last message was one of the configured marketing templates. For each matching chat, assigns it to the `sales` department with **Pending** status and updates the lead status in **Rapid CRM**.\n\nDesigned for Rapid CRM customers using the **Tyntec** WhatsApp provider — see the configuration items below for the non-Tyntec variant.',
     configuration: [
       {
         field: 'Cron Schedule',
         location: 'Nihul → Customer Config',
         description:
-          'Add to the schedule array in the customer config in Nihul:\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "0 8 * * *",\n  "params": {\n    "name": "reassign-and-update-passive-bulk-chats"\n  }\n}\nThe example runs daily at 08:00 — adjust the cron expression per customer request.',
+          'Add to the `cron.schedule` array in the customer config in Nihul:\n\n```json\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "0 8 * * *",\n  "params": { "name": "reassign-and-update-passive-bulk-chats" }\n}\n```\n\nThe example runs **daily at 08:00** — adjust the cron expression per customer request.',
         required: true,
       },
       {
         field: 'Rapid API URL',
         location: 'actions[1].params.url',
         description:
-          'Replace the subdomain with the customer\'s Rapid subdomain.\nExample: https://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%chat:crmData.leadExternalId%\n\nPrerequisite: the chat\'s crmData must contain leadExternalId (populated when the bot creates the lead) and leadSource. Without these the request action will silently fail — verify crmData is populated before enabling.',
+          'Replace the subdomain with the customer\'s Rapid subdomain. Example:\n\n```\nhttps://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%chat:crmData.leadExternalId%\n```\n\n**Prerequisite:** the chat\'s `crmData` must contain `leadExternalId` (populated when the bot creates the lead) and `leadSource`. Without these the `request` action silently fails — verify `crmData` is populated before enabling.',
         required: true,
       },
       {
         field: 'Marketing Template IDs',
         location: 'conditions[0][1].params.expression',
         description:
-          'Ask the customer which templates should trigger this flow and update the ID list accordingly.\nTo match any template (no ID filtering), simplify the expression to:\nexists(special.whatsappTyntec.template)',
+          'Ask the customer which templates should trigger this flow and update the ID list accordingly.\n\nTo match any template (no ID filtering), simplify the filtrex to:\n\n```\nexists(special.whatsappTyntec.template)\n```',
         required: true,
       },
       {
         field: 'Sales Department ID',
         location: 'actions[0].params.departmentId',
-        description: 'The department ID to assign matching chats to. Defaults to "sales".',
+        description: 'The department ID to assign matching chats to. Defaults to `sales`.',
         required: false,
       },
       {
         field: 'Rapid Update Payload',
         location: 'actions[1].params.data',
         description:
-          'Key-value pairs to send to the Rapid API on the matched lead. Can be any fields the customer\'s Rapid API accepts — not limited to status.',
+          'Key-value pairs to send to the Rapid API on the matched lead. Any fields the customer\'s Rapid API accepts — not limited to `status`.',
         required: false,
       },
       {
         field: 'WhatsApp Provider (non-Tyntec)',
         location: 'conditions[0][1].params.expression',
         description:
-          'This scenario is built for the Tyntec provider. For other providers, replace the filtrex expression with:\nexists(special.whatsapp.template) and (special.whatsapp.template.name in ("template_name_1", "template_name_2"))\nOr to match any template:\nexists(special.whatsapp.template)',
+          'This scenario is built for the Tyntec provider. For other providers, replace the filtrex expression with:\n\n```\nexists(special.whatsapp.template) and (special.whatsapp.template.name in ("template_name_1", "template_name_2"))\n```\n\nOr to match any template:\n\n```\nexists(special.whatsapp.template)\n```',
         required: false,
       },
     ],
