@@ -2,11 +2,26 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-05-04T00:00:00.000Z</updated>
+    <updated>2026-05-10T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Transformers — `get` Examples + API JSON Tip]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/10/transformers-get</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/10/transformers-get"/>
+        <updated>2026-05-10T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[The Data Injection Transformers page now highlights a practical get pattern for nested values inside JSON returned from API calls, and the crmData example shows a non-ASCII property key.]]></summary>
+        <content type="html"><![CDATA[<p>The Data Injection <strong>Transformers</strong> page now highlights a practical <code>get</code> pattern for nested values inside JSON returned from API calls, and the <code>crmData</code> example shows a non-ASCII property key.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/10/transformers-get#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Transformers (<code>get</code>)</strong> — new tip with a <code>jsonParse</code> → <code>get(...)</code> chain for drilling into API response strings, plus a short inline comment on the evaluated result.</li>
+<li><strong><code>crmData</code> example</strong> — uses a Hebrew field name so dot-path access with <code>get</code> reads clearly for localized CRM payloads.</li>
+</ul>]]></content>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Rich Scenario Cards + Shared Markdown]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/05/04/scenario-markdown</id>
