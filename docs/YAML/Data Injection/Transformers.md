@@ -872,10 +872,19 @@ Accesses a nested property from an object using dot notation or separate path se
 
 #### Examples
 
+:::tip[Useful Use Case]
+
+get transformer is useful when you need to access a nested property from a json-string that is returned from an API call.
 ```yaml
-# Access a top-level crmData field
-value: '%chat:crmData|get("status")%'
-# {status: "active", name: "Alice"} → "active"
+value: '%state:node.api_call.response|jsonParse|get("user.profile.email")|toUpperCase%'
+# "{\"user\": {\"profile\": {\"email\": \"a@b.com\"}}}" → "a@b.com" → "A@B.COM"
+```
+:::
+
+```yaml
+# Access a top-level crmData field, even in Hebrew
+value: '%chat:crmData|get("סטטוס")%'
+# {סטטוס: "active", name: "Alice"} → "active"
 ```
 
 ```yaml
