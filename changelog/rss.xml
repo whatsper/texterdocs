@@ -4,10 +4,42 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Sun, 10 May 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 11 May 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Multi-Select Filters + Mobile Nav Fixes]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes</guid>
+            <pubDate>Mon, 11 May 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The Scenario Marketplace tag filter is now multi-select with OR by default and an explicit Match all toggle for AND; the mobile hamburger drawer covers the viewport cleanly on phones; and the landing page no longer churns on 120 Hz Macs.]]></description>
+            <content:encoded><![CDATA[<p>The Scenario Marketplace tag filter is now multi-select with OR by default and an explicit <strong>Match all</strong> toggle for AND; the mobile hamburger drawer covers the viewport cleanly on phones; and the landing page no longer churns on 120 Hz Macs.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Multi-select scenario filters</strong> — pick more than one tag; matching defaults to OR (any selected tag) with a <strong>Match all</strong> checkbox that switches to AND when 2+ tags are active. An active-filters strip below the chip row shows the current selection with <code>×</code> removable chips and a one-click <strong>Clear all</strong>.</li>
+<li><strong>Q-AI: Disable External Bot On Pending Chat</strong> — 7th scenario in the Q-AI suite. Fires when a chat is set to pending (e.g. an agent reassigns to another agent during an AI session) and ends the AI handoff cleanly.</li>
+<li><strong>Remember Last Agent on Chat Assigned</strong> — writes the assigned agent's UID and display name into the <code>ChatsLastAgent</code> data storage collection so a bot or follow-up scenario can route the next inbound message back to the same agent. Configurable collection name, TTL (max 7 days), and stored fields.</li>
+<li><strong><code>data-storage</code> tag</strong> — applied to every scenario that reads or writes data storage (the SLA suite, plus the new last-agent scenario), so the marketplace filter can surface them as a group.</li>
+<li><strong><code>preserveOriginalAttachmentFilenames</code></strong> — new <code>sendEmail</code> parameter. When <code>true</code>, email attachments use the original uploaded filename (falling back to the file's stored <code>originalName</code>, then to the message caption) instead of the chat caption. A new <strong>Attachment filenames</strong> section in the Send Mail page documents the behavior.</li>
+<li><strong><code>parseJson</code> transformer alias</strong> — accepted as a synonym for <code>jsonParse</code>. Both names work identically.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Filtered scenarios sort alphabetically</strong> — the marketplace still shuffles for discovery when no filters are applied, but as soon as a search query or tag is active the list switches to alphabetical order.</li>
+<li><strong>Send Mail params layout</strong> — required and optional parameter lists are now tables with a dedicated <strong>Default</strong> column for optional params, matching the tables used elsewhere on the page.</li>
+<li><strong>Landing page performance</strong> — removed a hero background animation that was causing scroll lag on 120 Hz Macs. All static visuals (gradient, glow, grid lines) are unchanged.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>Sticky navbar</strong> — the top navigation no longer disappears when scrolling.</li>
+<li><strong>Mobile hamburger drawer</strong> — multiple bugs resolved on phones: the drawer now has an opaque background instead of bleeding through to the navbar, covers the full viewport width (previously left a strip of the page visible on the right), and its secondary sub-menu panel slides in cleanly over the primary one (previously left a gap on the side).</li>
+</ul>]]></content:encoded>
+            <category>scenarios</category>
+            <category>site</category>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
         <item>
             <title><![CDATA[Transformers — `get` Examples + API JSON Tip]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/05/10/transformers-get</link>
