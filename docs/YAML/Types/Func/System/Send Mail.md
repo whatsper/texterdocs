@@ -31,23 +31,30 @@ ___
 ```
 
 ### required params
-- `type` type of the node
-- `func_type` here it will be a system function
-- `func_id` what function are we calling (`sendEmail`)
-- `params.to` recipient email address(es). **Multiple addresses:** separate with **commas** (`,`). Goes to `on_failure` if missing
-- `params.subject` email subject line
-- `params.content` array of strings. Each item becomes a segment of the HTML body (joined with `<br/>`). Use `""` for a blank line
-- `on_complete` next node after email is sent
+
+| Field | Description |
+|---|---|
+| `type` | Type of the node (`func`). |
+| `func_type` | Function category (`system`). |
+| `func_id` | What function are we calling (`sendEmail`). |
+| `params.to` | Recipient email address(es). **Multiple addresses:** separate with **commas** (`,`). Goes to `on_failure` if missing. |
+| `params.subject` | Email subject line. |
+| `params.content` | Array of strings. Each item becomes a segment of the HTML body (joined with `<br/>`). Use `""` for a blank line. |
+| `on_complete` | Next node after email is sent. |
 
 ### optional params
-- `params.replyTo` **Strongly recommended** — replies to this email will go to this inbox
-- `params.cc` carbon copy — additional visible recipients; **comma-separated** if several.
-- `params.bcc` blind carbon copy — **comma-separated** if several.
-- `params.sendUrlsAsAttachments` whether to attach **media files from recent chat messages** to the email. Default: **`true`**.
-- `params.amountOfMessages` how many recent messages are loaded for this send (default: `20`). Used for **`%MESSAGES%`**, for **media attachments** when `sendUrlsAsAttachments` is true, and matches the window `sendEmail` uses for the built-in transcript
-- `on_failure` fallback node if `to` is missing or sending fails
-- `department` assigns the chat to a department
-- `agent` assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager)
+
+| Field | Default | Description |
+|---|---|---|
+| `params.replyTo` | — | **Strongly recommended** — replies to this email will go to this inbox. |
+| `params.cc` | — | Carbon copy — additional visible recipients; **comma-separated** if several. |
+| `params.bcc` | — | Blind carbon copy — **comma-separated** if several. |
+| `params.sendUrlsAsAttachments` | `true` | Whether to attach **media files from recent chat messages** to the email. |
+| `params.preserveOriginalAttachmentFilenames` | `false` | Keep the **original uploaded filename** on attached media (falls back to the file's stored `originalName`, then to `caption`). When `false`, attachments use the message **caption** as the filename. Only relevant when `sendUrlsAsAttachments` is `true`. See [Attachment filenames](#attachment-filenames) below. |
+| `params.amountOfMessages` | `20` | How many recent messages are loaded for this send. Used for **`%MESSAGES%`**, for **media attachments** when `sendUrlsAsAttachments` is true, and matches the window `sendEmail` uses for the built-in transcript. |
+| `on_failure` | — | Fallback node if `to` is missing or sending fails. |
+| `department` | — | Assigns the chat to a department. |
+| `agent` | — | Assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager). |
 
 ___
 ## Reply-To and from address
@@ -74,6 +81,35 @@ ___
 - **`false`:** No media is attached. The email contains only the HTML body from your `content` lines (and `%MESSAGES%` transcript if used). Use this for lighter emails when you don't need the actual files.
 
 This setting is about **chat media**, not about URLs you write inside `content` strings.
+
+___
+## Attachment filenames
+
+Controls what name media files appear under in the email — only relevant when `sendUrlsAsAttachments: true`.
+
+| `preserveOriginalAttachmentFilenames` | Filename used for each attachment |
+|---|---|
+| `false` *(default)* | The message **`caption`**. |
+| `true` | The original uploaded **`filename`** if available; otherwise the file's stored **`originalName`**; otherwise the message **`caption`**. |
+
+Use `true` when recipients need the original document names (e.g. `lease_agreement_2026.pdf`) instead of the chat caption (e.g. `Please sign this`). Captions can still appear in the email body via `%MESSAGES%` or `messages:latest`.
+
+```yaml
+  send_with_original_names:
+    type: func
+    func_type: system
+    func_id: sendEmail
+    params:
+      to: "ops@company.com"
+      replyTo: "admin@company.com"
+      subject: "Documents from %chat:title%"
+      sendUrlsAsAttachments: true
+      preserveOriginalAttachmentFilenames: true
+      content:
+        - "<p>Attached documents from the customer:</p>"
+        - "%MESSAGES%"
+    on_complete: done
+```
 
 ___
 ## Conversation text in the email: `%MESSAGES%` vs data injection

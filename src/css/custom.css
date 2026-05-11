@@ -117,14 +117,30 @@
 }
 
 /* ── Premium dark navbar + search ───────────────────────────────────────── */
+/*
+  The translucent + blurred background is applied via a ::before pseudo, NOT
+  on .navbar itself. `backdrop-filter` (and `filter`/`transform`) on .navbar
+  would create a new containing block for `position: fixed` descendants,
+  which collapses the mobile drawer (.navbar-sidebar) to the navbar's height.
+*/
 [data-theme='light'] .navbar {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: color-mix(in srgb, var(--td-bg) 88%, transparent);
-  backdrop-filter: blur(12px);
+  background: transparent;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 10px 40px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme='light'] .navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--td-bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
 }
 
 [data-theme='light'] .navbar__title {
@@ -180,10 +196,20 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: color-mix(in srgb, var(--td-bg) 75%, transparent);
-  backdrop-filter: blur(14px);
+  background: transparent;
   border-bottom: 1px solid var(--td-border);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--td-bg) 75%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: none;
 }
 
 [data-theme='dark'] .navbar__title {
@@ -233,22 +259,59 @@
   content: none;
 }
 
-/* ── Sticky footer + minimal styling ───────────────────────────────────── */
-html,
-body,
-#__docusaurus {
-  height: 100%;
+/* ── Mobile drawer (hamburger menu) ─────────────────────────────────────── */
+/*
+  --ifm-navbar-background-color is set to transparent above so the sticky
+  .navbar can apply its own blur/translucent look. But Docusaurus reuses that
+  variable as the background of .navbar-sidebar (the mobile drawer) — leaving
+  the drawer see-through, which makes the underlying navbar's brand/toggle/
+  theme-switch bleed through and visually overlap the drawer's __brand bar.
+  Force an opaque background on the drawer itself.
+*/
+.navbar-sidebar,
+.navbar-sidebar__brand {
+  background: var(--td-bg);
 }
 
+/*
+  Default Docusaurus mobile drawer is only ~83vw wide, leaving a strip of the
+  underlying page visible through the backdrop on the right. Force full width
+  so the drawer fully covers the viewport on phones. The CSS variable also
+  drives the transform that slides the secondary (sub-menu) panel into view —
+  if we only set `width: 100%` without updating the variable, the secondary
+  panel slides in by 83vw instead of 100vw, leaving a visible strip of the
+  primary panel on the left and overflow on the right.
+*/
+:root {
+  --ifm-navbar-sidebar-width: 100vw;
+}
+
+.navbar-sidebar {
+  width: 100%;
+}
+
+[data-theme='light'] .navbar-sidebar__brand {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+[data-theme='dark'] .navbar-sidebar__brand {
+  border-bottom: 1px solid var(--td-border);
+}
+
+/* ── Sticky footer + minimal styling ───────────────────────────────────── */
+/*
+  Use min-height: 100vh on #__docusaurus instead of height: 100% on the
+  html/body/#__docusaurus chain — the height-100% chain pins the navbar's
+  containing block to viewport height and breaks `position: sticky` on .navbar.
+*/
 #__docusaurus {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: 100vh;
 }
 
 .main-wrapper {
   flex: 1 0 auto;
-  min-height: 0;
 }
 
 .footer {

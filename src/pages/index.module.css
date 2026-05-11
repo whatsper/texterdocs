@@ -26,7 +26,13 @@
     linear-gradient(0deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: auto, auto, 52px 52px, 52px 52px;
-  animation: gridFloat 18s linear infinite;
+  /*
+    No infinite `background-position` animation here. Such animations are not
+    GPU-composited — at 120 Hz (ProMotion Macs) they cause continuous full
+    paints of all four gradient layers (incl. the 950px radial) plus the
+    blurred .bg::after every frame, which makes the landing page very laggy.
+    Phones are 60 Hz so the cost was less visible there.
+  */
 }
 
 .bg::before {
@@ -228,11 +234,3 @@
   }
 }
 
-@keyframes gridFloat {
-  from {
-    background-position: 0 0, 0 0, 0 0, 0 0;
-  }
-  to {
-    background-position: 0 0, 0 0, 0 52px, 52px 0;
-  }
-}

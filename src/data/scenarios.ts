@@ -829,6 +829,75 @@ export const SCENARIOS: Scenario[] = [
     },
   },
   {
+    id: 'remember-last-agent-on-chat-assigned',
+    name: 'Remember Last Agent on Chat Assigned',
+    tags: ['on-assign', 'data-storage'],
+    triggerEvents: ['domain.chat.assigned'],
+    description:
+      "When an agent takes a chat, stores the agent's **UID** and **display name** into the **`ChatsLastAgent`** data storage collection, keyed by chat ID. Use this as a building block: a bot can later read who the last agent was via a `dataStorage` func node and act on it — e.g. auto-assign the chat back to that agent the next time the customer messages, or include the agent in a webhook payload. Records expire after **1 day** by default (max **7 days**, server-enforced).",
+    configuration: [
+      {
+        field: 'Data Collection Name',
+        location: 'actions[0].params.collection',
+        description:
+          'The data storage collection name. Default: `ChatsLastAgent`. Customize for namespacing or to avoid collisions with other scenarios. Allowed characters: `a-z`, `A-Z`, `0-9`, `_`, `-`. Max 100 chars.',
+        required: false,
+      },
+      {
+        field: 'Record TTL',
+        location: 'actions[0].params.expiresIn, actions[0].params.expiresInUnit',
+        description:
+          'How long each record lives before expiring. Default: **1 day**. Units: `minutes`, `hours`, or `days`. **Server-enforced maximum: 7 days** (≈168 hours / 10080 minutes) — values above the cap are rejected. Pick a TTL that fits how long after a hand-off you still want to route follow-ups back to the same agent.',
+        required: false,
+      },
+      {
+        field: 'Stored Data Shape',
+        location: 'actions[0].params.data',
+        description:
+          'The object written into storage. Defaults capture `latestAgentUid`, `latestAgentName`, and the assignment date. Add or remove fields per your use case — any [data injection](/docs/YAML/Data%20Injection/Overview) expression is supported.',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: 'Set agent details when chat is taken',
+      description: "When agent takes a chat, set ChatsLastAgent collection with the agents display name and uid",
+      triggerEvents: ['domain.chat.assigned'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'exists(agent.uid)',
+              value: '%chat:chat%',
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'setData',
+          params: {
+            expiresInUnit: 'days',
+            collection: 'ChatsLastAgent',
+            key: '%chat:_id|toString%',
+            data: {
+              latestAgentUid: '%chat:agent.uid%',
+              latestAgentName: '%chat:agent.displayName%',
+              date: '%time:now("dd/MM/yyyy")%',
+            },
+            tags: [],
+            expiresIn: 1,
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
     id: 'alert-new-account-issue',
     name: 'Alert New Account Issue',
     tags: ['on-channel-event', 'send-email'],
@@ -1065,7 +1134,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'sla-set-item-on-incoming-message',
     name: '(SLA) Set Item On Incoming Message',
-    tags: ['sla', 'on-message'],
+    tags: ['sla', 'on-message', 'data-storage'],
     triggerEvents: ['domain.message.created'],
     description:
       'When a customer sends an incoming message in an active chat (**pending**, **assigned**, or **resolved**), and no SLA record exists yet, writes one with the current timestamp and chat id so other SLA scenarios can later add/remove the SLA label.',
@@ -1168,7 +1237,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'sla-set-item-on-chat-pending',
     name: '(SLA) Set Item On Set to pending',
-    tags: ['sla', 'on-pending'],
+    tags: ['sla', 'on-pending', 'data-storage'],
     triggerEvents: ['domain.chat.pending'],
     description:
       'When a chat is set to **pending** status and no SLA record exists yet, writes one with the current timestamp and chat id so other SLA scenarios can later add/remove the SLA label.',
@@ -1247,7 +1316,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'sla-apply-sla-label-by-cron',
     name: '(SLA) Set SLA Label For all Records',
-    tags: ['sla', 'scheduled', 'add-label'],
+    tags: ['sla', 'scheduled', 'add-label', 'data-storage'],
     triggerEvents: ['app.scenarios.customTriggers.cron'],
     description:
       'On a cron schedule, scans all stored SLA records and adds the `sla` label to chats whose timer exceeded the threshold (default: **20 minutes**). This is the enforcement step that marks chats as breached/late.',
@@ -1356,7 +1425,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'sla-remove-item-on-chat-resolved',
     name: '(SLA) Remove Item On Resolve Chat',
-    tags: ['sla', 'on-resolve', 'add-label'],
+    tags: ['sla', 'on-resolve', 'add-label', 'data-storage'],
     triggerEvents: ['domain.chat.resolved'],
     description:
       'When a chat is resolved, clears the SLA tracking record and removes the `sla` label (if present). Keeps the data store clean and ensures resolved chats are not shown as SLA-breached.',
@@ -1424,7 +1493,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'sla-remove-item-on-outgoing-message',
     name: '(SLA) Remove Item On outgoing Message',
-    tags: ['sla', 'on-message', 'add-label'],
+    tags: ['sla', 'on-message', 'add-label', 'data-storage'],
     triggerEvents: ['domain.message.created'],
     description:
       'When an agent sends an outgoing message in an active chat, clears the SLA tracking record and removes the `sla` label. Marks the chat as **responded** and resets SLA tracking until the next incoming message.',
@@ -1674,6 +1743,7 @@ export const SCENARIOS: Scenario[] = [
       'q-ai-disable-after-template-message',
       'q-ai-disable-after-manual-resolve',
       'q-ai-disable-after-manual-assign',
+      'q-ai-disable-on-chat-pending',
     ],
     json: {
       version: 'v1',
@@ -1755,6 +1825,7 @@ export const SCENARIOS: Scenario[] = [
       'q-ai-disable-after-template-message',
       'q-ai-disable-after-manual-resolve',
       'q-ai-disable-after-manual-assign',
+      'q-ai-disable-on-chat-pending',
     ],
     json: {
       version: 'v1',
@@ -1850,6 +1921,7 @@ export const SCENARIOS: Scenario[] = [
       'q-ai-disable-after-template-message',
       'q-ai-disable-after-manual-resolve',
       'q-ai-disable-after-manual-assign',
+      'q-ai-disable-on-chat-pending',
     ],
     json: {
       version: 'v1',
@@ -1931,6 +2003,7 @@ export const SCENARIOS: Scenario[] = [
       'q-ai-end-ai-session-run-bot',
       'q-ai-disable-after-manual-resolve',
       'q-ai-disable-after-manual-assign',
+      'q-ai-disable-on-chat-pending',
     ],
     json: {
       version: 'v1',
@@ -2020,6 +2093,7 @@ export const SCENARIOS: Scenario[] = [
       'q-ai-end-ai-session-run-bot',
       'q-ai-disable-after-template-message',
       'q-ai-disable-after-manual-assign',
+      'q-ai-disable-on-chat-pending',
     ],
     json: {
       version: 'v1',
@@ -2092,12 +2166,86 @@ export const SCENARIOS: Scenario[] = [
       'q-ai-end-ai-session-run-bot',
       'q-ai-disable-after-template-message',
       'q-ai-disable-after-manual-resolve',
+      'q-ai-disable-on-chat-pending',
     ],
     json: {
       version: 'v1',
       name: 'Q-AI Disable External Bot After Manual Assign',
       description: 'When chat is assigned within Texter and externalBot is true, set externalBot to false and forward the event',
       triggerEvents: ['domain.chat.assigned'],
+      loaders: {
+        afterConditions: [
+          {name: 'environment', alias: 'env', params: {}, confidentialData: false},
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'exists(externalBot) and externalBot',
+              value: {'##provide': {provider: 'chat', key: 'chat'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'chatUpdateExternalBot',
+          params: {
+            externalBot: false,
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'request',
+          params: {
+            url: '{{yourAIWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              projectId: '%env:projectId|replace("texter-", "")%',
+              eventName: 'setExternalFalse',
+              eventData: {chat: {'##provide': {provider: 'chat', key: 'chat'}}},
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'q-ai-disable-on-chat-pending',
+    name: 'Q-AI: Disable External Bot On Pending Chat',
+    tags: ['on-pending', 'webhook', 'ai-bot'],
+    triggerEvents: ['domain.chat.pending'],
+    description:
+      'Part of the **Q-AI suite**. When a chat is set to **pending** status (e.g. an agent manually reassigns the chat to a different agent while AI mode is active), disables `externalBot` and notifies the AI service with `setExternalFalse`. Covers the handoff case where the AI session should end because a human took over via the pending workflow.',
+    configuration: [
+      {
+        field: 'AI Webhook URL',
+        location: 'actions[1].params.url',
+        description:
+          'Your AI service webhook that receives the `setExternalFalse` event when a chat is set to pending while AI mode was active.',
+        required: true,
+      },
+    ],
+    relatedScenarios: [
+      'q-ai-turn-on-ai-bot',
+      'q-ai-forward-incoming-message',
+      'q-ai-end-ai-session-run-bot',
+      'q-ai-disable-after-template-message',
+      'q-ai-disable-after-manual-resolve',
+      'q-ai-disable-after-manual-assign',
+    ],
+    json: {
+      version: 'v1',
+      name: 'Q-AI Disable External Bot On Pending Chat',
+      description: 'When chat is set to pending and externalBot is true, set externalBot to false and forward the event',
+      triggerEvents: ['domain.chat.pending'],
       loaders: {
         afterConditions: [
           {name: 'environment', alias: 'env', params: {}, confidentialData: false},

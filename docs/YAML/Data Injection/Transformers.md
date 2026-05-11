@@ -43,7 +43,7 @@ Data injection does **not** support nesting `%...%` inside another `%...%` expre
 | [`toUpperCase`](#touppercase) | Convert to uppercase |
 | [`toLowerCase`](#tolowercase) | Convert to lowercase |
 | [`parseInt`](#parseint) | Parse string to integer |
-| [`jsonParse`](#jsonparse) | Parse a JSON string into an object |
+| [`jsonParse`](#jsonparse) *(alias: `parseJson`)* | Parse a JSON string into an object |
 | [`parseXml`](#parsexml) | Parse an XML string into an object |
 | [`encodeURI`](#encodeuri) | URL-encode a string |
 | [`decodeURI`](#decodeuri) | URL-decode a string |
@@ -306,8 +306,11 @@ ___
 
 Parses a JSON string into an object. Useful when an API returns JSON as a string field.
 
+Also available as **`parseJson`** — identical behavior, either name works.
+
 ```
 |jsonParse
+|parseJson
 ```
 
 Takes no arguments.
@@ -317,6 +320,9 @@ Takes no arguments.
 ```yaml
 value: "%state:store.apiPayload|jsonParse%"
 # "{\"name\":\"Alice\",\"age\":30}" → {name: "Alice", age: 30}
+
+value: "%state:store.apiPayload|parseJson%"
+# same result
 ```
 
 ___
