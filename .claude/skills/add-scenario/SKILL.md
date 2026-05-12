@@ -88,6 +88,8 @@ Use only tags from this list. Each scenario can have multiple tags.
 - `on-channel-event` — `domain.channel.health.problem.resolved`
 - `on-unsubscribe` — `domain.chat.unsubscribed`
 - `on-subscribe` — `domain.chat.subscribed`
+- `on-pending` — `domain.chat.pending`
+- `on-labels` — `domain.chat.labels`
 - `scheduled` — `app.scenarios.customTriggers.cron`
 
 **Action tags** (what the scenario does):

@@ -26,9 +26,11 @@ export const TRIGGER_DISPLAY: Record<string, string> = {
   'app.bot.chat.setExternal': 'External Bot Changed',
   'app.message.statusRequest': 'Message Status Update',
   'app.scenarios.customTriggers.cron': 'Scheduled',
-  'domain.channel.health.problem.resolved': 'Channel Health Alert',
+  'domain.channel.health.problem.created': 'Channel Health Alert',
+  'domain.channel.health.problem.resolved': 'Channel Health Recovered',
   'domain.chat.unsubscribed': 'Chat Unsubscribed',
   'domain.chat.subscribed': 'Chat Subscribed',
+  'domain.chat.labels': 'Chat Labels Updated',
 };
 
 // Human-readable display for action types
@@ -601,6 +603,527 @@ export const SCENARIOS: Scenario[] = [
       options: {unorderedActions: false},
     },
   },
+  {
+    id: 'sub-chat-pending',
+    name: '(SUB) Chat Pending',
+    tags: ['on-pending', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.pending'],
+    relatedScenarios: ['sub-chat-assigned'],
+    description:
+      'Sends a webhook when a chat moves to pending status — waiting for a human agent to pick it up (e.g. after a bot handoff). Use this to alert routing tools, ticketing systems, or dashboards that a chat is ready to be claimed.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when a chat moves to pending status.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Pending',
+      description:
+        'Sends a webhook when a chat moves to pending status (waiting for a human agent).',
+      triggerEvents: ['domain.chat.pending'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatPending',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-chat-resolved',
+    name: '(SUB) Chat Resolved',
+    tags: ['on-resolve', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.resolved'],
+    relatedScenarios: ['sub-chat-resolved-by-agent', 'sub-chat-resolved-by-bot', 'sub-chat-assigned', 'sub-chat-pending'],
+    description:
+      'Sends a webhook when a chat is resolved, with the full chat object (including the agent who resolved it and `resolvedUpdateTime`). Use this to close out tickets in external systems, log handling time, or trigger post-resolution follow-ups.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when a chat is resolved.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Resolved',
+      description:
+        'Sends a webhook when a chat is resolved.',
+      triggerEvents: ['domain.chat.resolved'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatResolved',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-chat-resolved-by-agent',
+    name: '(SUB) Chat Resolved by Agent',
+    tags: ['on-resolve', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.resolved'],
+    relatedScenarios: ['sub-chat-resolved', 'sub-chat-resolved-by-bot'],
+    description:
+      'Sends a webhook when a chat is resolved by a human agent. Uses a filter on `chat.agent.uid` so only agent-driven resolutions fire — bot/auto-resolve events are excluded. Use this to log handling time, attribute resolutions, or trigger post-conversation surveys only for human interactions.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when an agent resolves a chat.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Resolved by Agent',
+      description:
+        'Sends a webhook when a chat is resolved by a human agent.',
+      triggerEvents: ['domain.chat.resolved'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'exists(agent.uid)',
+              value: '%chat:chat%',
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatResolvedByAgent',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-chat-resolved-by-bot',
+    name: '(SUB) Chat Resolved by Bot',
+    tags: ['on-resolve', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.resolved'],
+    relatedScenarios: ['sub-chat-resolved', 'sub-chat-resolved-by-agent'],
+    description:
+      'Sends a webhook when a chat is resolved automatically by the bot — no human agent involved (`chat.agent.uid` is null/missing). Use this to track bot deflection rates, drive analytics on bot-only journeys, or trigger external follow-ups for unattended conversations.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when the bot resolves a chat.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Resolved by Bot',
+      description:
+        'Sends a webhook when a chat is resolved automatically by the bot (no human agent assigned).',
+      triggerEvents: ['domain.chat.resolved'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'not exists(agent.uid)',
+              value: '%chat:chat%',
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatResolvedByBot',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-chat-labels-updated',
+    name: '(SUB) Chat Labels Updated',
+    tags: ['on-labels', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.labels'],
+    relatedScenarios: ['sub-specific-label-added'],
+    description:
+      "Sends a webhook whenever a chat's labels change. The payload includes the full chat, the previous label set (`oldLabels`), and a precomputed diff (`addedLabels`, `removedLabels`) so subscribers don't have to reconstruct the change themselves. Use this to sync label-driven workflows, CRM tags, or routing tables in real time.",
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat and label-diff payload.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Chat Labels Updated',
+      description:
+        "Sends a webhook when a chat's labels change, with the chat, previous labels, and the added/removed diff.",
+      triggerEvents: ['domain.chat.labels'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatLabelsUpdated',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+                oldLabels: {'##provide': {provider: 'oldLabels', key: 'labels'}},
+                addedLabels: {'##provide': {provider: 'addedLabels', key: 'labels'}},
+                removedLabels: {'##provide': {provider: 'removedLabels', key: 'labels'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-specific-label-added',
+    name: '(SUB) Specific Label Added',
+    tags: ['on-labels', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.labels'],
+    relatedScenarios: ['sub-chat-labels-updated'],
+    description:
+      'Sends a webhook only when a **specific label** is added to a chat. Uses a filtrex condition that inspects the `addedLabels` diff so the webhook fires for additions of the target label only — other label changes (different label added, label removed) are filtered out. Use this to drive routing, alerting, or external automations keyed off a single label like `vip`, `urgent`, or `escalated`.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat and label-diff payload.',
+        required: true,
+      },
+      {
+        field: 'Target Label ID',
+        location: 'conditions[0][0].params.expression',
+        description:
+          'The label ID to watch for. Replace `{{targetLabelId}}` inside the filtrex expression (`inArray(addedLabels, "{{targetLabelId}}")`) with your actual label ID (e.g. `vip`, `urgent`). The scenario only fires when this exact label is in the `addedLabels` diff.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Specific Label Added',
+      description:
+        'Sends a webhook when a specific label is added to a chat.',
+      triggerEvents: ['domain.chat.labels'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'inArray(addedLabels, "{{targetLabelId}}")',
+              value: {
+                addedLabels: {'##provide': {provider: 'addedLabels', key: 'labels'}},
+              },
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'chatSpecificLabelAdded',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+                oldLabels: {'##provide': {provider: 'oldLabels', key: 'labels'}},
+                addedLabels: {'##provide': {provider: 'addedLabels', key: 'labels'}},
+                removedLabels: {'##provide': {provider: 'removedLabels', key: 'labels'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-external-bot-enabled',
+    name: '(SUB) External Bot Enabled',
+    tags: ['on-external-bot', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.updated.externalBot', 'app.bot.chat.setExternal'],
+    relatedScenarios: ['sub-external-bot-disabled'],
+    description:
+      'Sends a webhook when `externalBot` is set to `true` on a chat — i.e. an external AI/automation just took over. Use this to start an AI session, light up a control panel, or sync state in an external system. Mirrors the trigger and condition used by the Q-AI handoff scenarios.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when externalBot is enabled.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) External Bot Enabled',
+      description:
+        'Sends a webhook when externalBot is set to true on a chat.',
+      triggerEvents: ['domain.chat.updated.externalBot', 'app.bot.chat.setExternal'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'exists(externalBot) and externalBot',
+              value: {'##provide': {provider: 'chat', key: 'chat'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'externalBotEnabled',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-external-bot-disabled',
+    name: '(SUB) External Bot Disabled',
+    tags: ['on-external-bot', 'webhook', 'subscription'],
+    triggerEvents: ['domain.chat.updated.externalBot', 'app.bot.chat.setExternal'],
+    relatedScenarios: ['sub-external-bot-enabled'],
+    description:
+      'Sends a webhook when `externalBot` is set to `false` on a chat — i.e. external AI/automation control was just released. Use this to close an AI session, archive context, or hand control back to your CRM/agent UI. Mirrors the trigger used by the Q-AI handoff scenarios.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the chat payload when externalBot is disabled.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) External Bot Disabled',
+      description:
+        'Sends a webhook when externalBot is set to false on a chat.',
+      triggerEvents: ['domain.chat.updated.externalBot', 'app.bot.chat.setExternal'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: false,
+              value: {'##provide': {provider: 'chat', key: 'externalBot'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'externalBotDisabled',
+              eventData: {
+                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-channel-health-problem-created',
+    name: '(SUB) Channel Health Problem Created',
+    tags: ['on-channel-event', 'webhook', 'subscription'],
+    triggerEvents: ['domain.channel.health.problem.created'],
+    relatedScenarios: ['sub-channel-health-problem-resolved', 'alert-new-account-issue'],
+    description:
+      'Sends a webhook when a new channel health problem is detected on a WhatsApp account (e.g. send/receive impairment, rate-limit warnings, account suspension). Forward to a monitoring system, on-call paging tool, or Slack/Teams to react to outages in real time. See [problem object](https://apidocs.texterchat.com/#probelm-object) for the payload schema.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the problem payload when a new channel health issue is detected.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Channel Health Problem Created',
+      description:
+        'Sends a webhook when a channel health problem is detected on a WhatsApp account.',
+      triggerEvents: ['domain.channel.health.problem.created'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'channelHealthProblemCreated',
+              eventData: {
+                problem: {'##provide': {provider: 'problem', key: 'problem'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'sub-channel-health-problem-resolved',
+    name: '(SUB) Channel Health Problem Resolved',
+    tags: ['on-channel-event', 'webhook', 'subscription'],
+    triggerEvents: ['domain.channel.health.problem.resolved'],
+    relatedScenarios: ['sub-channel-health-problem-created'],
+    description:
+      'Sends a webhook when a previously detected channel health problem is resolved (the channel is healthy again). Pairs with `(SUB) Channel Health Problem Created` to close out incidents in your monitoring/paging system. The `problem.resolvedAt` field will be populated. See [problem object](https://apidocs.texterchat.com/#probelm-object) for the payload schema.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description:
+          'Your endpoint that will receive the problem payload when a channel health issue is resolved.',
+        required: true,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: '(SUB) Channel Health Problem Resolved',
+      description:
+        'Sends a webhook when a previously detected channel health problem is resolved.',
+      triggerEvents: ['domain.channel.health.problem.resolved'],
+      loaders: {},
+      conditions: [],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'channelHealthProblemResolved',
+              eventData: {
+                problem: {'##provide': {provider: 'problem', key: 'problem'}},
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
 
   // ── Automation scenarios ────────────────────────────────────────────────────
   {
@@ -861,9 +1384,20 @@ export const SCENARIOS: Scenario[] = [
     json: {
       version: 'v1',
       name: 'Set agent details when chat is taken',
-      description: "When agent takes a chat, set ChatsLastAgent collection with the agents display name and uid",
+      description: 'When agent takes a chat, set ChatsLastAgent collection with the agents display name and uid',
       triggerEvents: ['domain.chat.assigned'],
-      loaders: {},
+      loaders: {
+        afterConditions: [
+          {
+            name: 'user',
+            alias: 'user',
+            params: {
+              id: '%agent:_id%',
+            },
+            confidentialData: false,
+          },
+        ],
+      },
       conditions: [
         [
           {
@@ -885,7 +1419,7 @@ export const SCENARIOS: Scenario[] = [
             key: '%chat:_id|toString%',
             data: {
               latestAgentUid: '%chat:agent.uid%',
-              latestAgentName: '%chat:agent.displayName%',
+              latestAgentName: '%user:displayName%',
               date: '%time:now("dd/MM/yyyy")%',
             },
             tags: [],
@@ -894,14 +1428,14 @@ export const SCENARIOS: Scenario[] = [
           confidentialData: false,
         },
       ],
-      options: {unorderedActions: false},
+      options: {unorderedActions: true},
     },
   },
   {
     id: 'alert-new-account-issue',
     name: 'Alert New Account Issue',
     tags: ['on-channel-event', 'send-email'],
-    triggerEvents: ['domain.channel.health.problem.resolved'],
+    triggerEvents: ['domain.channel.health.problem.created'],
     description:
       'Sends a formatted HTML email alert whenever a **WhatsApp account health problem** is detected. Includes the error code, severity, affected functionality, and remediation instructions. Useful for proactive monitoring without needing a separate alerting system.',
     configuration: [
@@ -930,7 +1464,7 @@ export const SCENARIOS: Scenario[] = [
       version: 'v1',
       name: 'Alert New Account Issue',
       description: 'alert by mail when a new account error occurs on ',
-      triggerEvents: ['domain.channel.health.problem.resolved'],
+      triggerEvents: ['domain.channel.health.problem.created'],
       loaders: {},
       conditions: [],
       actions: [

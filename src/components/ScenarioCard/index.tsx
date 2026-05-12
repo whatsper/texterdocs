@@ -19,7 +19,9 @@ import {
   MailX,
   MessageSquare,
   Play,
+  ShieldCheck,
   Tag,
+  Tags,
   Trash2,
   TriangleAlert,
   UserPlus,
@@ -44,8 +46,10 @@ const TRIGGER_ICONS: Record<string, ReactNode> = {
   'Message Status Update': <CheckCheck {...L13} />,
   'Scheduled': <Clock {...L13} />,
   'Channel Health Alert': <TriangleAlert {...L13} />,
+  'Channel Health Recovered': <ShieldCheck {...L13} />,
   'Chat Unsubscribed': <MailX {...L13} />,
   'Chat Subscribed': <MailCheck {...L13} />,
+  'Chat Labels Updated': <Tags {...L13} />,
 };
 
 const ACTION_ICONS: Record<string, ReactNode> = {
