@@ -4,10 +4,49 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Tue, 12 May 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 13 May 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Subscription Scenarios + Data Storage Docs Polish]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish</guid>
+            <pubDate>Wed, 13 May 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Ten new (SUB) webhook scenarios cover the full chat lifecycle — pending, resolved (with by-agent / by-bot variants), labels, external bot toggles, and channel health — so you can subscribe an external system to any of them via a single webhook. The newly-added Data Storage and updateCrmData docs are refined to match the rest of the Func reference style, with worked before/after examples for every mergingMode.]]></description>
+            <content:encoded><![CDATA[<p>Ten new <strong>(SUB)</strong> webhook scenarios cover the full chat lifecycle — pending, resolved (with by-agent / by-bot variants), labels, external bot toggles, and channel health — so you can subscribe an external system to any of them via a single webhook. The newly-added Data Storage and <code>updateCrmData</code> docs are refined to match the rest of the Func reference style, with worked before/after examples for every <code>mergingMode</code>.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>(SUB) Chat Pending</strong> — webhook fires when a chat moves to pending (waiting for a human agent).</li>
+<li><strong>(SUB) Chat Resolved</strong> — webhook on any resolution, with the full chat payload.</li>
+<li><strong>(SUB) Chat Resolved by Agent</strong> — same as above, filtered to human-driven resolutions only (<code>exists(agent.uid)</code>).</li>
+<li><strong>(SUB) Chat Resolved by Bot</strong> — bot/auto-resolve only.</li>
+<li><strong>(SUB) Chat Labels Updated</strong> — fires whenever labels change on a chat, with the new label set.</li>
+<li><strong>(SUB) Specific Label Added</strong> — narrower variant that only fires for one configured label.</li>
+<li><strong>(SUB) External Bot Enabled</strong> / <strong>Disabled</strong> — pair of webhooks for <code>externalBot</code> flips, useful for AI handoff observability.</li>
+<li><strong>(SUB) Channel Health Problem Created</strong> / <strong>Resolved</strong> — alert/recovery pair for channel health events.</li>
+<li><strong>New trigger labels</strong> — <code>Channel Health Recovered</code> and <code>Chat Labels Updated</code> added to the marketplace display map, with matching icons.</li>
+<li><strong><code>on-pending</code> / <code>on-labels</code> scenario tags</strong> — registered in the <code>add-scenario</code> skill taxonomy so future scenarios can reuse them.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong><code>updateCrmData</code> docs</strong> — full rewrite to match the Func reference style. Each <code>mergingMode</code> (<code>replace</code>, <code>assign</code>, <code>merge</code>, <code>defaults</code>, <code>defaultsDeep</code>) now has a worked <strong>Before / After</strong> JSON example showing exactly what survives and what doesn't, plus a dedicated "reset <code>crmData</code> completely" example. <code>merge</code> is called out as the default.</li>
+<li><strong>Data Storage Overview</strong> — restructured as a short concept page: the four functions (<code>get</code> / <code>set</code> / <code>list</code> / <code>delete</code>), the <code>collection</code> + <code>key</code> model, output paths on <code>%state:node.&lt;name&gt;%</code>, TTL rules, and a single Limits table.</li>
+<li><strong><code>get</code> / <code>set</code> / <code>list</code> / <code>delete</code> pages</strong> — rewritten consistently. Output JSON shapes shown explicitly so it's clear how to read <code>.data</code> and <code>.items</code>.</li>
+<li><strong><code>get</code> "not found" pattern</strong> — clarified that a missing or expired record routes to <code>on_complete</code> with <code>null</code> in state (it is <strong>not</strong> a failure). Pairs with a follow-up <code>matchExpression</code> using <code>exists(...)</code> for the existence check.</li>
+<li><strong><code>set</code> TTL cap</strong> — documented the 7-day maximum.</li>
+<li><strong><code>delete</code> failure semantics</strong> — documented that missing/expired keys raise an error and route to <code>on_failure</code>.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong><code>func_id</code> values</strong> — corrected across Data Storage docs: <code>get</code>, <code>set</code>, <code>list</code>, <code>delete</code> (the docs previously suggested <code>getData</code>, <code>setData</code>, <code>listData</code>, <code>deleteData</code>, which would not match the bot engine's function registry).</li>
+<li><strong><code>listData</code> <code>total</code></strong> — corrected to reflect the upcoming fix: <code>total</code> counts non-expired items <strong>on the current page</strong> (equal to <code>items.length</code>), not the raw collection count. The existence-check example uses <code>total</code> against the first page.</li>
+</ul>]]></content:encoded>
+            <category>scenarios</category>
+            <category>automation</category>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
         <item>
             <title><![CDATA[Data Storage Funcs + Chat `updateCrmData` Docs]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm</link>
@@ -413,28 +452,6 @@
 <li>Tazman adapter page cleaned up</li>
 </ul>]]></content:encoded>
             <category>adapters</category>
-        </item>
-        <item>
-            <title><![CDATA[Tazman CRM Adapter + Feedback Widget]]></title>
-            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback</link>
-            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback</guid>
-            <pubDate>Tue, 24 Mar 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[New Tazman CRM adapter docs, an expanded Markdown examples reference, and a feedback widget on every page.]]></description>
-            <content:encoded><![CDATA[<p>New Tazman CRM adapter docs, an expanded Markdown examples reference, and a feedback widget on every page.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Tazman CRM adapter</strong> — full documentation with configuration examples</li>
-<li><strong>Feedback widget</strong> — appears on every page, lets users report issues or request clarification. Submissions open tasks for the Texter team</li>
-<li><strong>Markdown Examples page</strong> — greatly expanded with detailed examples covering all supported syntax</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/24/tazman-feedback#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
-<ul>
-<li>Feedback form submit button is now disabled until all required fields are filled</li>
-<li>Various clarifications and corrections in Rapid adapter docs</li>
-</ul>]]></content:encoded>
-            <category>feature</category>
-            <category>adapters</category>
-            <category>site</category>
         </item>
     </channel>
 </rss>
