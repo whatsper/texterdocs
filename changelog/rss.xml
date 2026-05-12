@@ -4,10 +4,31 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Mon, 11 May 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 12 May 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Data Storage Funcs + Chat `updateCrmData` Docs]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm</guid>
+            <pubDate>Tue, 12 May 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The YAML reference now covers customer-scoped data storage func nodes and the updateCrmData chat func for persisting crmData, with cross-links from Parse CRM Data and the Data Injection providers table.]]></description>
+            <content:encoded><![CDATA[<p>The YAML reference now covers <strong>customer-scoped data storage</strong> func nodes and the <strong><code>updateCrmData</code></strong> chat func for persisting <code>crmData</code>, with cross-links from Parse CRM Data and the Data Injection providers table.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Data Storage</strong> — new Func subsection with an overview plus pages for <code>getData</code>, <code>setData</code>, <code>listData</code>, and <code>deleteData</code> (<code>func_type: dataStorage</code>): collections, keys, TTL, tags, and when to use them instead of <code>storeValue</code> or chat <code>crmData</code>.</li>
+<li><strong><code>updateCrmData</code></strong> — chat-level documentation for merging or replacing <code>crmData</code> on the current conversation, including the allowed <code>mergingMode</code> values.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>YAML Overview</strong> — Func table lists <code>dataStorage</code> and links the new overview; <code>chat</code> row includes <code>updateCrmData</code>.</li>
+<li><strong>Data Injection Providers</strong> — documents <code>state:node</code> paths for data-storage node outputs.</li>
+<li><strong>Parse CRM Data</strong> — points to <code>updateCrmData</code> when you need structured writes beyond regex capture.</li>
+</ul>]]></content:encoded>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
         <item>
             <title><![CDATA[Multi-Select Filters + Mobile Nav Fixes]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes</link>
@@ -414,44 +435,6 @@
             <category>feature</category>
             <category>adapters</category>
             <category>site</category>
-        </item>
-        <item>
-            <title><![CDATA[Documentation Site Live — Full YAML Reference + Rapid Adapter]]></title>
-            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/22/initial-launch</link>
-            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/22/initial-launch</guid>
-            <pubDate>Sun, 22 Mar 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[The Texter documentation site is now live with complete YAML bot configuration reference and the first CRM adapter docs.]]></description>
-            <content:encoded><![CDATA[<p>The Texter documentation site is now live with complete YAML bot configuration reference and the first CRM adapter docs.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/22/initial-launch#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<p><strong>YAML Node Types</strong></p>
-<ul>
-<li><code>Choice</code> and <code>Text</code> prompt nodes</li>
-<li><code>Notify</code> and <code>Send Media</code> notify nodes</li>
-<li><code>WhatsApp Flow</code> node</li>
-<li>System functions: <code>Bot State Split</code>, <code>Check Working Hours</code>, <code>Format Date</code>, <code>Keyword Route</code>, <code>Match Expression</code>, <code>Noop</code>, <code>Parse CRM Data</code>, <code>Request</code>, <code>Send Mail</code>, <code>Send Webhook</code>, <code>Set Language</code>, <code>Store Value</code>, <code>Switch Node</code></li>
-<li>Chat functions: <code>Add Label</code>, <code>External Bot</code>, <code>Sensitive Session</code></li>
-<li>Utility functions: <code>Match Values</code>, <code>Random Code</code>, <code>Share File</code></li>
-</ul>
-<p><strong>Data Injection</strong></p>
-<ul>
-<li>YAML Overview</li>
-<li>Data Injection: Overview, Legacy Syntax, Providers, and Transformers</li>
-<li>Bot Configuration reference</li>
-</ul>
-<p><strong>Adapters</strong></p>
-<ul>
-<li>Adapters section with Overview page</li>
-<li>Full Rapid CRM adapter documentation</li>
-</ul>
-<p><strong>Site</strong></p>
-<ul>
-<li>Full-text local search</li>
-<li>Last updated timestamps on every page</li>
-</ul>]]></content:encoded>
-            <category>feature</category>
-            <category>docs</category>
-            <category>yaml</category>
-            <category>adapters</category>
         </item>
     </channel>
 </rss>
