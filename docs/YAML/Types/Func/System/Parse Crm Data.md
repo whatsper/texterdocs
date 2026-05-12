@@ -121,6 +121,8 @@ flowchart TD
 
 :::tip
 The matched value is stored in `%chat:crmData.<crmKey>%` and can be used in subsequent nodes for messages, API calls, or routing.
+
+To **persist arbitrary structured fields** on the chat (not from a regex on the last message), use [`updateCrmData`](../Chat/Update%20CRM%20Data) with a `data` object.
 :::
 
 :::danger

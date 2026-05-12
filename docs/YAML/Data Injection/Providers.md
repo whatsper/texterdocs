@@ -93,6 +93,10 @@ The state provider only exposes specific root keys (all others are blocked for s
 | `state:node.<node_name>.statusCode` | HTTP status from a `request` node |
 | `state:node.<node_name>.response` | Full HTTP response body (when `keepResponse: true`) |
 | `state:node.<node_name>.response.<path>` | Nested field from a response (e.g. `.response.data.0.firstName`) |
+| `state:node.<node_name>.data` | Stored JSON payload from a **data storage** `getData` / `setData` node when a record exists ([Data Storage funcs](../Types/Func/Data%20Storage/Get%20Data)) |
+| `state:node.<node_name>.items` | Array from a **data storage** `listData` node ([List Data](../Types/Func/Data%20Storage/List%20Data)) |
+| `state:node.<node_name>.total` | Total count from a **data storage** `listData` node |
+| `state:node.<node_name>.deleted` | `true` after a successful **data storage** `deleteData` node ([Delete Data](../Types/Func/Data%20Storage/Delete%20Data)) |
 | `state:store.<key>` | A value saved via `storeValue` |
 | `state:store.<key>.<nested>` | Nested field inside a stored JSON object (e.g. `store.customer.type`) |
 | `state:id` | Current bot session ID |
