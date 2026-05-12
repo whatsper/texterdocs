@@ -9,6 +9,24 @@
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
         <item>
+            <title><![CDATA[Set Display Name Func Docs]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name</guid>
+            <pubDate>Wed, 13 May 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The YAML reference now documents the new setDisplayName chat func — sets a custom chat title (stored separately from the channel-provided %chat:title%), with optional length capping and overflow handling.]]></description>
+            <content:encoded><![CDATA[<p>The YAML reference now documents the new <strong><code>setDisplayName</code></strong> chat func — sets a custom chat title (stored separately from the channel-provided <code>%chat:title%</code>), with optional length capping and overflow handling.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Set Display Name</strong> — new page under <code>Func / Chat</code> covering <code>setDisplayName</code>: required <code>displayName</code>, plus optional <code>setOnlyIfEmpty</code>, <code>maxLength</code> (1–255), and <code>onOverflow</code> (<code>truncate</code> / <code>skip</code> / <code>fail</code>). Examples include setting from collected first+last name, only-if-empty (don't clobber WhatsApp profile names), CRM-lookup with cap, strict-fail for re-prompt flows, and clearing the value.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>YAML Overview</strong> — chat row now lists <code>setDisplayName</code>; the <code>dataStorage</code> row uses the real <code>func_id</code>s (<code>get</code> / <code>set</code> / <code>list</code> / <code>delete</code>) instead of the stale <code>getData</code> / <code>setData</code> / <code>listData</code> / <code>deleteData</code> labels.</li>
+</ul>]]></content:encoded>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
+        <item>
             <title><![CDATA[Subscription Scenarios + Data Storage Docs Polish]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish</link>
             <guid>https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish</guid>
@@ -431,25 +449,6 @@
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/28/powerlink#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Powerlink (Fireberry) CRM adapter</strong> — full documentation with configuration, field mapping, and YAML examples</li>
-</ul>]]></content:encoded>
-            <category>adapters</category>
-        </item>
-        <item>
-            <title><![CDATA[Zoho CRM Adapter]]></title>
-            <link>https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho</link>
-            <guid>https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho</guid>
-            <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[Full documentation for the Zoho CRM adapter is now available.]]></description>
-            <content:encoded><![CDATA[<p>Full documentation for the Zoho CRM adapter is now available.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Zoho CRM adapter</strong> — full documentation with field mapping, configuration, and YAML examples</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/27/zoho#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li>Feedback widget now shows a success toast after submission</li>
-<li><code>Keyword Route</code> node docs clarified</li>
-<li>Tazman adapter page cleaned up</li>
 </ul>]]></content:encoded>
             <category>adapters</category>
         </item>
