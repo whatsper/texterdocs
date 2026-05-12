@@ -5,89 +5,80 @@ sidebar_position: 4
 # List Data
 
 ### What does it do?
+Queries documents in a `collection`, optionally filtered by `tags`, with pagination (`limit` / `skip`). Returns `{ items, total }`. Each item is the full DTO (same shape as [`get`](./Get%20Data#2-output)).
 
-Queries documents in a **collection**, optionally filtered by **tags**, with **pagination** (`limit` / `skip`). Only **non-expired** documents are included. **`items`** is the current page of results; **`total`** is how many rows match the same query **counting only non-expired** documents (so it matches paging over the live set — typically `items.length` equals `limit` except on the last page, and `total` is independent of `skip`).
-
-The result object `{ items, total }` is written to bot state under this node’s name.
-
-:::tip
-
-Pair with **`prompt.choice`** node or downstream logic that iterates over `%state:node.<name>.items%`. 
-<br/> For a **single** key, [Get Data](./Get%20Data) is simpler and cheaper in resources.
-
-:::
-
----
-
+For a single keyed read, use [`get`](./Get%20Data) — it's cheaper and simpler.
+___
 ## 1. Syntax
-
 ```yaml
-<node_name>:
-  type: func
-  func_type: dataStorage
-  func_id: list
-  params:
-    collection: "<collection_name>"
-  on_complete: <next_node>
+  <node_name>:
+    type: func
+    func_type: dataStorage
+    func_id: list
+    params:
+      collection: "<collection_name>"
+      tags:
+        - "<tag>"
+      limit: <1-1000>
+      skip: <0+>
+    on_complete: <next_node>
 ```
 
-### Required params
+### required params
+- `type` type of the node
+- `func_type` here it will be `dataStorage`
+- `func_id` what function are we calling (`list`)
+- `params.collection` collection name (non-empty, max 100 chars)
+- `on_complete` next node after the query finishes
 
-- `type` — must be `func`
-- `func_type` — `dataStorage`
-- `func_id` — `list`
-- `params.collection` — non-empty string, must only contain letters, digits, `_` , `-`
-- `on_complete` — next node after the query finishes
+### optional params
+- `params.tags` array of tags — items must have **all** specified tags (`AND`, not `OR`). Max 50 tags, each up to 100 chars. Omit for no tag filter
+- `params.limit` page size, 1–1000. Defaults to `100`
+- `params.skip` how many rows to skip. Defaults to `0`
+- `on_failure` fallback node
+- `department` assigns the chat to a department
+- `agent` assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager)
 
-### Optional params
+___
+## 2. Output
 
-- `params.tags` — array of non-empty strings (per-item max length and max array size enforced by the product); omit or `null` to ignore tag filter
-- `params.limit` — integer from 1 to 1000; default **100** when omitted
-- `params.skip` — integer ≥ 0; default **0** when omitted
-- `on_failure` — fallback node
-- `department` — assigns the chat to a department
-- `agent` — assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager)
+Stored at `%state:node.<node_name>%`:
 
----
+```json
+{
+  "items": [
+    { "_id": "...", "collection": "...", "key": "...", "data": {...}, "tags": [...], "expiresAt": ..., "createdAt": ..., "updatedAt": ... }
+  ],
+  "total": 42
+}
+```
 
-## 2. Behavior notes
+Common access paths:
+- `%state:node.<name>.items%` — array of item DTOs (current page only, expired rows excluded)
+- `%state:node.<name>.total%` — number of non-expired items **on the current page** (equal to `items.length`)
+- `%state:node.<name>.items.0.data.<field>%` — a field from the first result
 
-- **Customer scope** — the implementation resolves storage against the current **customer** (`customerId` in request context). If that context is missing, the handler throws (treat as a configuration / environment issue).
-- **Expiry** — expired documents are excluded everywhere for this call: both **`items`** and **`total`** refer only to non-expired rows.
-- **Additional params** — implementation rejects any unknown keys in `params`.
+:::info[`total` is page-scoped, not a full match count]
+`total` reflects only the non-expired items returned **on this page** — it's not the total number of matching rows across the whole collection. If you need to know whether more pages exist, request `limit + 1` and check whether you got back the extra row, or keep paging with `skip` until `items` comes back empty.
+:::
 
----
-
-## 3. Accessing results
-
-After the node runs:
-
-| Path | Meaning |
-|------|---------|
-| `%state:node.<node_name>.items%` | Array of record DTOs (each includes the stored `data` object and metadata — align with your `setData` payloads) |
-| `%state:node.<node_name>.total%` | Count of matching **non-expired** documents for the query (entire result set, not capped by `limit`) |
-
----
-
-## 4. Examples
+___
+## 3. Examples
 
 ### First page of a collection
-
 ```yaml
   list_sla_candidates:
     type: func
     func_type: dataStorage
     func_id: list
     params:
-      collection: "sla_chats_collection"
+      collection: "sla_chats"
       limit: 50
-      skip: 0
-      tags: []
     on_complete: process_batch
 ```
 
-### Tagged subset with smaller page size
-
+### Tagged query with pagination
+Returns rows that have **both** `icq_campaign` AND `interested` tags.
 ```yaml
   list_active_promos:
     type: func
@@ -96,8 +87,37 @@ After the node runs:
     params:
       collection: "campaign_events"
       tags:
-        - "summer_sale"
+        - "icq_campaign"
+        - "interested"
       limit: 25
       skip: 0
     on_complete: foreach_promo
 ```
+
+### Branch on whether the first page is empty
+Since `total` reflects only the current page, use it to detect "nothing matched at all" by checking the first page.
+```yaml
+  list_drafts:
+    type: func
+    func_type: dataStorage
+    func_id: list
+    params:
+      collection: "draft_orders"
+      tags:
+        - "%chat:channelInfo.id%"
+    on_complete: check_draft_count
+
+  check_draft_count:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: 'count > 0'
+      count: "%state:node.list_drafts.total%"
+    on_complete: show_drafts
+    on_failure: no_drafts_message
+```
+
+:::tip
+For tag filtering, multiple tags act as **AND** — an item must have all listed tags to match. To OR across tags, run multiple `list` nodes and combine the results downstream.
+:::

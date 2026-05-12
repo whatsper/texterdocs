@@ -5,68 +5,76 @@ sidebar_position: 2
 # Get Data
 
 ### What does it do?
+Reads a single document from the customer-scoped data store by `collection` + `key`. If the row is missing or already expired, the result is `null`. The loaded value is written to bot state under this node's name.
 
-Loads a single **keyed document** from the customer-scoped data store (same store used by [Set Data](./Set%20Data), [List Data](./List%20Data), and [Delete Data](./Delete%20Data)). If the row is missing or **already expired**, the result is `null`.
+**A missing record is not a failure** — the node still routes to `on_complete` with `null` in state. To branch on existence, follow `get` with a [`matchExpression`](../System/Match%20Expression) (see [Examples](#3-examples)). `on_failure` only fires on configuration errors (e.g. invalid params), not on "not found".
 
-The loaded value (or `null`) is written to bot state under this node’s name, so you can read it with the [`state` provider](/docs/YAML/Data%20Injection/Providers#state) (for example `%state:node.<this_node_name>.data%` when a record exists).
-
----
-
+For querying many rows at once, use [`list`](./List%20Data) instead.
+___
 ## 1. Syntax
-
 ```yaml
-<node_name>:
-  type: func
-  func_type: dataStorage
-  func_id: get
-  params:
-    collection: "<collection_name>"
-    key: "<record_key>"
-  on_complete: <next_node>
+  <node_name>:
+    type: func
+    func_type: dataStorage
+    func_id: get
+    params:
+      collection: "<collection_name>"
+      key: "<record_key>"
+    on_complete: <next_node>
 ```
 
-### Required params
+### required params
+- `type` type of the node
+- `func_type` here it will be `dataStorage`
+- `func_id` what function are we calling (`get`)
+- `params.collection` collection name (non-empty, max 100 chars)
+- `params.key` record key within the collection (non-empty, max 200 chars)
+- `on_complete` next node after the read finishes
 
-- `type` — must be `func`
-- `func_type` — `dataStorage`
-- `func_id` — `getData`
-- `params.collection` — non-empty string, must only contain letters, digits, `_` , `-`
-- `params.key` — non-empty string, must only contain letters, digits, `_` , `-`
-- `on_complete` — next node after the read finishes
+### optional params
+- `on_failure` fallback node
+- `department` assigns the chat to a department
+- `agent` assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager)
 
-### Optional params
+___
+## 2. Output
 
-- `on_failure` — fallback node
-- `department` — assigns the chat to a department
-- `agent` — assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager)
+The loaded item (or `null`) is stored at `%state:node.<node_name>%`. When a record exists:
 
----
+```json
+{
+  "_id": "...",
+  "collection": "sla_chats",
+  "key": "972501234567",
+  "data": { "timestamp": 1715520000000, "chatId": "..." },
+  "tags": ["urgent"],
+  "expiresAt": 1715606400000,
+  "createdAt": 1715520000000,
+  "updatedAt": 1715520000000
+}
+```
 
-## 2. Behavior notes
+Common access paths:
+- `%state:node.<name>.data%` — the stored payload object
+- `%state:node.<name>.data.<field>%` — a specific field inside the payload
+- `%state:node.<name>%` — the whole DTO (or `null` if not found / expired)
 
-- **Customer scope** — the implementation resolves storage against the current **customer** (`customerId` in request context). If that context is missing, the handler throws (treat as a configuration / environment issue).
-- **TTL** — expired rows are treated as **not found** (`null` in state), same as a missing key.
-- **Additional params** — implementation rejects any unknown keys in `params`.
-
----
-
+___
 ## 3. Examples
 
 ### Load a record by stable key, then branch
-
 ```yaml
   load_sla_record:
     type: func
     func_type: dataStorage
     func_id: get
     params:
-      collection: "sla_chats_collection"
+      collection: "sla_chats"
       key: "%chat:channelInfo.id%"
     on_complete: check_if_timer_started
 ```
 
 ### Use injected key from another node
-
 ```yaml
   fetch_prefs:
     type: func
@@ -78,8 +86,46 @@ The loaded value (or `null`) is written to bot state under this node’s name, s
     on_complete: apply_theme
 ```
 
+### Branch on whether a record exists (common pattern)
+Because `get` routes to `on_complete` even when the item is `null`, the standard pattern is to follow it with a [`matchExpression`](../System/Match%20Expression) that checks existence, then act on `.data` only in the "found" branch.
+
+```yaml
+  smart_resolved:
+    type: func
+    func_type: dataStorage
+    func_id: get
+    params:
+      collection: "ChatsLastAgent"
+      key: "%chat:_id|toString%"
+    on_complete: check_if_item_exists
+    on_failure: noop_back_to_agent
+
+  check_if_item_exists:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: "exists(item)"
+      item: "%state:node.smart_resolved%"
+    on_complete: handoff_to_last_agent
+    on_failure: noop_back_to_agent
+
+  handoff_to_last_agent:
+    type: func
+    func_type: system
+    func_id: noop
+    agent: "%state:node.smart_resolved.data.latestAgentUid%"
+    on_complete: handoff
+
+  noop_back_to_agent:
+    type: func
+    func_type: system
+    func_id: noop
+    on_complete: back_to_agent
+```
+
+Here `on_failure` on the `get` node only catches setup-level errors; the **"record not found"** case is handled by the `matchExpression` right after.
+
 :::tip
-
-This is the **read** counterpart to [`setData`](./Set%20Data). For many keys at once, use [`listData`](./List%20Data) with `tags`, `limit`, and `skip` instead.
-
+Expired rows are treated the same as missing — `%state:node.<name>%` is `null`. Always follow `get` with an existence check (`matchExpression` with `exists(...)`) before reading `.data`.
 :::
