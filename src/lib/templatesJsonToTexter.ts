@@ -426,6 +426,17 @@ export async function runTemplatesImport(
 
   const totals = computePhaseTotals(templates, submitMode);
 
+  /**
+   * Tracks which (template name, language) pairs successfully completed the
+   * localization phase, so the submit phase can skip ones that failed
+   * (rather than blindly iterating over the original JSON's localizations
+   * and attempting to submit something that was never localized).
+   * Key format: `${apiName} ${language}`. NULL is invalid in template
+   * names and language codes so collisions can't happen.
+   */
+  const successfulLocalizations = new Set<string>();
+  const locKey = (name: string, language: string) => `${name} ${language}`;
+
   // Counters tracked per phase. `step` is total events emitted (calls + skips).
   let createOk = 0,
     createFailed = 0,
@@ -609,6 +620,9 @@ export async function runTemplatesImport(
         log('Localization added.');
         localizationResults.push({name: apiName, status: 'success', response: res});
         locOk++;
+        if (typeof language === 'string' && language) {
+          successfulLocalizations.add(locKey(apiName, language));
+        }
       } catch (e) {
         log('Localization failed:');
         logIndentedMessage(log, e);
@@ -701,6 +715,22 @@ export async function runTemplatesImport(
             language: 'N/A',
             status: 'skipped',
             message: 'Language missing in localization',
+          });
+          submitSkipped++;
+          submitStep++;
+          emitSubmit();
+          continue;
+        }
+        // Skip submit if Phase 2 didn't successfully localize this language.
+        // The Texter API will reject the submit (no localization to submit),
+        // and emitting the call wastes time + rate limit.
+        if (!successfulLocalizations.has(locKey(apiName, language))) {
+          log(`Skipped submit ${apiName} / ${language} — localization did not succeed.`);
+          submissionResults.push({
+            name: apiName,
+            language,
+            status: 'skipped',
+            message: 'Localization step did not succeed',
           });
           submitSkipped++;
           submitStep++;

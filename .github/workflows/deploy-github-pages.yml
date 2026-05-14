@@ -62,8 +62,8 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          EMBED_WEBHOOK_URL: ${{ secrets.EMBED_WEBHOOK_URL }}
-          EMBED_WEBHOOK_SECRET: ${{ secrets.EMBED_WEBHOOK_SECRET }}
+        #   EMBED_WEBHOOK_URL: ${{ secrets.EMBED_WEBHOOK_URL }}
+        #   EMBED_WEBHOOK_SECRET: ${{ secrets.EMBED_WEBHOOK_SECRET }}
         run: npm run build
 
       - name: Push to gh-pages
