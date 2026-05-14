@@ -25,6 +25,7 @@
     "@giscus/react": "^3.1.0",
     "@langchain/textsplitters": "^1.0.1",
     "@mdx-js/react": "^3.0.0",
+    "axios": "^1.9.0",
     "clsx": "^2.0.0",
     "lucide-react": "^0.544.0",
     "posthog-docusaurus": "^2.0.5",
