@@ -67,6 +67,10 @@ const config: Config = {
       {
         redirects: [
           {
+            from: '/templates-import',
+            to: '/docs/tools/template-json-import',
+          },
+          {
             from: '/docs/YAML/Types/Func/System/Split',
             to: '/docs/YAML/Types/Func/System/Bot State Split',
           },
