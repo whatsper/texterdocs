@@ -48,7 +48,11 @@
 }
 
 .label {
-  display: block;
+  /* `baseline` so the label text and any inline tags (e.g. red *, (optional))
+     line up by their visible text baseline regardless of font-size diffs.
+     The HelpIcon overrides this back to center via .helpIcon { align-self }. */
+  display: flex;
+  align-items: baseline;
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 0.35rem;
@@ -56,7 +60,7 @@
 }
 
 .req {
-  color: var(--ifm-color-danger, #dc3545);
+  color: var(--ifm-color-danger, #c84450);
   font-weight: 700;
   margin-left: 0.15rem;
 }
@@ -70,6 +74,150 @@
   font-size: 0.78rem;
   color: var(--ifm-color-content-secondary);
   margin-left: 0.2rem;
+}
+
+/* ? help icon used inline next to labels. Hover or keyboard focus reveals a
+   short popover, so the form stays tight without sacrificing discoverability. */
+.helpIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  background: var(--ifm-color-emphasis-300);
+  color: var(--ifm-color-content);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: help;
+  /* Pushed to the right end of the label row so it doesn't clutter the
+     label text. Flex parent (.label / .checkboxRow) makes this work. */
+  margin-left: auto;
+  /* Parent label uses baseline so text aligns. Override back to center for
+     the icon circle so it sits vertically centered on the row instead of
+     dropping to text baseline. */
+  align-self: center;
+  position: relative;
+  user-select: none;
+  border: none;
+  padding: 0;
+  vertical-align: middle;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.helpIcon:hover,
+.helpIcon:focus {
+  background: var(--ifm-color-emphasis-400);
+  outline: none;
+}
+
+.helpTip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ifm-color-content);
+  color: var(--ifm-background-surface-color);
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.45;
+  width: max-content;
+  max-width: 18rem;
+  z-index: 10;
+  pointer-events: none;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  white-space: normal;
+}
+
+.helpTip code {
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+  padding: 0.05rem 0.25rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.helpIcon:hover .helpTip,
+.helpIcon:focus .helpTip,
+.helpIcon:focus-visible .helpTip {
+  display: block;
+}
+
+[data-theme='dark'] .helpTip {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content);
+}
+
+[data-theme='dark'] .helpTip code {
+  background: var(--ifm-color-emphasis-300);
+}
+
+/* Result-count label above the exported JSON block — bigger than .hint and
+   matches the visual weight of the Copy button rendered by CodeBlock. */
+.resultCount {
+  font-size: 0.92rem;
+  margin: 0 0 0.75rem;
+  color: var(--ifm-color-content);
+  line-height: 1.4;
+}
+
+/* Wrap around the exported JSON CodeBlock so it can flex-fill the remaining
+   card height and scroll internally instead of pushing the card taller. */
+.resultBlockWrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Make the Docusaurus CodeBlock fill the remaining card height and scroll
+   internally. Docusaurus renders:
+     <div theme-code-block codeBlockContainer>
+       <div codeBlockContent>          ← position:relative, hosts overlay buttons
+         <pre codeBlock>...</pre>      ← the scrollable code
+         <div buttonGroup>...</div>    ← position:absolute, overlay
+   So every wrapper down to <pre> needs to be a flex column with min-height:0
+   for the inner overflow:auto to actually clip + scroll. */
+.codeBlockHost {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Container (theme-code-block wrapper). */
+.codeBlockHost > div {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
+  margin: 0 !important;
+  width: 100%;
+}
+
+/* codeBlockContent — wraps the pre + the absolute-positioned buttons. */
+.codeBlockHost > div > div {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The actual <pre> — force it to flex-fill and scroll. !important beats the
+   bundled `.codeBlock { margin:0; padding:0 }` rule which doesn't set height
+   but does set styles that can interfere when overridden lower-specificity. */
+.codeBlockHost pre {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: auto !important;
 }
 
 .input,
@@ -102,6 +250,26 @@
   border-color: var(--ifm-color-primary);
 }
 
+/* Clear, consistent disabled affordance — placeholder + dashed border + not-allowed
+   cursor tell users "this is locked, not just empty". Used on Name suffix when
+   "Keep original names" is off, etc. */
+.input:disabled,
+.fileInput:disabled,
+.pasteArea:disabled {
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-content-secondary);
+  border-style: dashed;
+  border-color: var(--ifm-color-emphasis-300);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+[data-theme='dark'] .input:disabled,
+[data-theme='dark'] .fileInput:disabled,
+[data-theme='dark'] .pasteArea:disabled {
+  background: var(--ifm-color-emphasis-200);
+}
+
 .modeTabs {
   display: inline-flex;
   border: 1px solid var(--ifm-color-emphasis-300);
@@ -109,6 +277,18 @@
   overflow: hidden;
   margin-bottom: 0.6rem;
   background: var(--ifm-background-color);
+}
+
+/* Top-level Import / Export tabs. Slightly bigger than the inline ones
+   inside the Templates JSON field. */
+.modeTabsLarge {
+  margin-bottom: 1.25rem;
+  border-width: 1.5px;
+}
+
+.modeTabsLarge .modeTab {
+  padding: 0.55rem 1.4rem;
+  font-size: 0.95rem;
 }
 
 .modeTab {
@@ -182,24 +362,38 @@
 .logHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
-  flex-wrap: wrap;
   margin-bottom: 0.85rem;
+  /* Right card is a flex column when the log is open; lock fixed-height
+     siblings so only the log itself flexes. */
+  flex: 0 0 auto;
 }
 
 .logHeader .cardTitle {
   margin-bottom: 0;
 }
 
+/* "Last run" sits on its own row, separate from the Progress title, so that
+   shorter status text (e.g. "1/1") doesn't change the vertical layout vs
+   longer text (e.g. "1 ok, 1 failed"). The pill shrinks to its content. */
+.summaryRow {
+  display: flex;
+  margin: 0 0 0.85rem;
+  flex: 0 0 auto;
+}
+
 .summaryPill {
-  font-size: 0.8rem;
-  padding: 0.35rem 0.7rem;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
   border: 1px solid var(--ifm-color-emphasis-300);
   background: var(--ifm-background-color);
   color: var(--ifm-color-content-secondary);
   font-weight: 600;
+  line-height: 1.4;
+  /* Don't push the pill to fill the row — content-sized only. */
+  align-self: flex-start;
+  max-width: 100%;
 }
 
 /* Outcome-tinted pill backgrounds — used on summary "Last run" chip.
@@ -252,7 +446,16 @@
 
 .overallBar {
   position: relative;
-  height: 1.4rem;
+  /* Tall enough to give the centered status word (e.g. "Partial") clear
+     vertical breathing room from the bar's top/bottom edges. */
+  height: 2.25rem;
+  /* The right card is `display: flex; flex-direction: column` (set inline)
+     and the log inside uses flex:1. Without explicit flex basis + min/max
+     here, the bar subtly stretches/shrinks when the log opens or closes.
+     Locking all three so the bar stays visually identical in every state. */
+  flex: 0 0 2.25rem;
+  min-height: 2.25rem;
+  max-height: 2.25rem;
   border-radius: 999px;
   background: var(--ifm-color-emphasis-200);
   overflow: hidden;
@@ -289,15 +492,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  /* Scales with the bar height: ~45% of the 2.25rem bar so short words
+     like "Done" and longer ones like "Partial" / "Running…" both fill
+     the bar consistently rather than reading as too small. */
+  font-size: 1rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
   color: #fff;
   pointer-events: none;
   /* White text everywhere; dark halo keeps it readable over the unfilled
      light-grey track when the bar isn't full yet. */
   text-shadow:
-    0 0 2px rgba(0, 0, 0, 0.55),
-    0 0 4px rgba(0, 0, 0, 0.35);
+    0 0 2px rgba(0, 0, 0, 0.65),
+    0 0 5px rgba(0, 0, 0, 0.4);
 }
 
 .phaseList {
@@ -307,6 +515,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  flex: 0 0 auto;
 }
 
 .phaseRow {
@@ -433,7 +642,7 @@
   background: #d28a14;
 }
 .fillFailed {
-  background: var(--ifm-color-danger, #dc3545);
+  background: var(--ifm-color-danger, #c84450);
 }
 .fillSkipped {
   background: var(--ifm-color-emphasis-500, #888);
@@ -484,6 +693,7 @@
   align-items: center;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  flex: 0 0 auto;
 }
 
 .logToggle {

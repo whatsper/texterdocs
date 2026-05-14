@@ -217,7 +217,17 @@ function logIndentedMessage(
   }
 }
 
-async function postJson(
+type ProxyMethod = 'GET' | 'POST';
+
+/**
+ * Send a single upstream HTTP call through the n8n CORS proxy.
+ * The proxy expects `{ method, url, headers, payload? }` in the body and
+ * forwards it server-side to *.texterchat.com, passing the upstream status
+ * + body straight back. The browser always POSTs to the proxy itself; the
+ * `method` field controls what method the proxy uses upstream.
+ */
+async function requestViaProxy(
+  method: ProxyMethod,
   proxyUrl: string,
   targetUrl: string,
   apiKey: string,
@@ -232,7 +242,7 @@ async function postJson(
   }
 
   const envelope: Record<string, unknown> = {
-    method: 'POST',
+    method,
     url: targetUrl,
     headers: upstreamHeaders,
   };
@@ -280,6 +290,16 @@ async function postJson(
   }
 
   return parsed ?? null;
+}
+
+async function postJson(
+  proxyUrl: string,
+  targetUrl: string,
+  apiKey: string,
+  body: unknown | undefined,
+  signal: AbortSignal | undefined
+): Promise<unknown> {
+  return requestViaProxy('POST', proxyUrl, targetUrl, apiKey, body, signal);
 }
 
 function sleep(ms: number, signal: AbortSignal | undefined): Promise<void> {
@@ -792,4 +812,53 @@ function getTemplateNameFromCreateResponse(response: unknown): string | undefine
   }
   const n = response.name;
   return typeof n === 'string' ? n : undefined;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Export
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type TemplatesExportConfig = {
+  projectId: string;
+  apiKey: string;
+  accountId: string;
+  proxyUrl: string;
+};
+
+/**
+ * GET all WhatsApp templates for a project + account, via the same n8n CORS
+ * proxy used for import. Returns the raw array exactly as the Texter API
+ * returns it (no normalization) so callers can save it verbatim and feed it
+ * back through `runTemplatesImport` later if needed.
+ */
+export async function runTemplatesExport(
+  config: TemplatesExportConfig,
+  signal?: AbortSignal
+): Promise<unknown[]> {
+  const proxyUrl = config.proxyUrl.trim();
+  const projectId = config.projectId.trim();
+  const apiKey = config.apiKey.trim();
+  const accountId = config.accountId.trim();
+
+  if (!proxyUrl) {
+    throw new Error(
+      'Template import proxy URL is not configured for this deployment. Set TEMPLATE_IMPORT_PROXY_URL at build time.'
+    );
+  }
+  if (!projectId) throw new Error('Project ID is required.');
+  if (!apiKey) throw new Error('API key is required.');
+  if (!accountId) throw new Error('Account ID is required.');
+
+  const url =
+    `https://${projectId}.texterchat.com/server/api/v2/whatsapp/templates` +
+    `?accountId=${encodeURIComponent(accountId)}`;
+
+  const result = await requestViaProxy('GET', proxyUrl, url, apiKey, undefined, signal);
+
+  if (!Array.isArray(result)) {
+    throw new Error(
+      `Unexpected response: expected an array of templates, got ${typeof result}.`
+    );
+  }
+  return result;
 }

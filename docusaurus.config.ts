@@ -68,8 +68,8 @@ const config: Config = {
       {
         redirects: [
           {
-            from: '/templates-import',
-            to: '/docs/tools/template-json-import',
+            from: ['/templates-import', '/docs/tools/template-json-import'],
+            to: '/docs/templates-import-export',
           },
           {
             from: '/docs/YAML/Types/Func/System/Split',

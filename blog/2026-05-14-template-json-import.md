@@ -10,4 +10,4 @@ A new in-browser flow under **Bot documentation → Tools** uploads provider tem
 
 ## Added
 
-- **Template JSON import** — page at [Template JSON import](/docs/tools/template-json-import): enter project ID, API key, and WhatsApp account ID; upload JSON (array of templates, a `templates` wrapper, or a single object); optional keep-names, suffix, and delay between creates; live log and per-phase summary. Old `/templates-import` URLs redirect here.
+- **Template JSON import** — page at [Templates Import / Export](/docs/templates-import-export): enter project ID, API key, and WhatsApp account ID; upload JSON (array of templates, a `templates` wrapper, or a single object); optional keep-names, suffix, and delay between creates; live log and per-phase summary. Old `/templates-import` URLs redirect here.

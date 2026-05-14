@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import CodeBlock from '@theme/CodeBlock';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
   useCallback,
@@ -11,16 +12,40 @@ import {
 } from 'react';
 import {
   parseTemplatesJsonFile,
+  runTemplatesExport,
   runTemplatesImport,
   type ImportPhase,
   type ImportProgress,
   type TemplateInput,
+  type TemplatesExportConfig,
   type TemplatesImportConfig,
 } from '@site/src/lib/templatesJsonToTexter';
 
 import styles from './styles.module.css';
 
+type Mode = 'import' | 'export';
 type InputMode = 'file' | 'paste';
+type ExportOutput = 'file' | 'inline';
+
+/**
+ * Small hover/focus tooltip used in place of inline helper paragraphs. The form
+ * gets crowded fast — surfacing hints behind a ? icon keeps the visible UI
+ * cleaner while staying discoverable.
+ */
+function HelpIcon({tip, label}: {tip: ReactNode; label?: string}): ReactNode {
+  return (
+    <button
+      type="button"
+      className={styles.helpIcon}
+      tabIndex={0}
+      aria-label={label ?? (typeof tip === 'string' ? tip : 'Help')}>
+      <span aria-hidden="true">?</span>
+      <span className={styles.helpTip} role="tooltip">
+        {tip}
+      </span>
+    </button>
+  );
+}
 
 type PhaseState = {
   step: number;
@@ -107,6 +132,7 @@ export default function TemplatesImportTool(): ReactNode {
     '';
   const proxyConfigured = Boolean(proxyUrl);
 
+  const [mode, setMode] = useState<Mode>('import');
   const [projectId, setProjectId] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [accountId, setAccountId] = useState('');
@@ -114,6 +140,15 @@ export default function TemplatesImportTool(): ReactNode {
   const [nameSuffix, setNameSuffix] = useState('');
   const [delayMs, setDelayMs] = useState(2000);
   const [submitMode, setSubmitMode] = useState<'submit' | 'draft'>('submit');
+
+  // Export mode state
+  const [exportOutput, setExportOutput] = useState<ExportOutput>('file');
+  const [exportRunning, setExportRunning] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportResultJson, setExportResultJson] = useState<string | null>(null);
+  const [exportCount, setExportCount] = useState<number | null>(null);
+  const [exportDownloadedAs, setExportDownloadedAs] = useState<string | null>(null);
+  const exportAbortRef = useRef<AbortController | null>(null);
 
   const [inputMode, setInputMode] = useState<InputMode>('file');
   const [pasteText, setPasteText] = useState('');
@@ -171,7 +206,7 @@ export default function TemplatesImportTool(): ReactNode {
     const obs = new ResizeObserver(compute);
     obs.observe(formEl);
     return () => obs.disconnect();
-  }, [showFullLog, hasStarted]);
+  }, [showFullLog, hasStarted, mode, submitMode, keepNames, exportRunning]);
 
   const parsePaste = useCallback((text: string) => {
     setInputError(null);
@@ -240,6 +275,8 @@ export default function TemplatesImportTool(): ReactNode {
   const handleAbort = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
+    exportAbortRef.current?.abort();
+    exportAbortRef.current = null;
   }, []);
 
   const resetProgress = useCallback(() => {
@@ -251,6 +288,88 @@ export default function TemplatesImportTool(): ReactNode {
     setActivePhase(null);
     setHasStarted(false);
   }, []);
+
+  /** Trigger a browser download of arbitrary text content as a file. */
+  const downloadTextAsFile = useCallback(
+    (filename: string, content: string, mimeType = 'application/json') => {
+      const blob = new Blob([content], {type: mimeType});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Defer revocation so Safari has time to start the download.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    },
+    []
+  );
+
+  const exportRequiredOk = Boolean(
+    projectId.trim() && apiKey.trim() && accountId.trim()
+  );
+
+  const handleRunExport = useCallback(async () => {
+    if (!proxyConfigured) {
+      setExportError(
+        'The template import proxy URL is not configured for this site. Set TEMPLATE_IMPORT_PROXY_URL at build time.'
+      );
+      return;
+    }
+    if (!exportRequiredOk) {
+      setExportError('Fill in all required fields (marked *).');
+      return;
+    }
+    setExportRunning(true);
+    setExportError(null);
+    setExportResultJson(null);
+    setExportCount(null);
+    setExportDownloadedAs(null);
+
+    const ac = new AbortController();
+    exportAbortRef.current = ac;
+
+    const config: TemplatesExportConfig = {
+      projectId: projectId.trim(),
+      apiKey,
+      accountId: accountId.trim(),
+      proxyUrl,
+    };
+
+    try {
+      const templates = await runTemplatesExport(config, ac.signal);
+      const pretty = JSON.stringify(templates, null, 2);
+      setExportCount(templates.length);
+      if (exportOutput === 'file') {
+        const safeProject = projectId.trim().replace(/[^a-zA-Z0-9_-]+/g, '_') || 'project';
+        const filename = `${safeProject}_templates.json`;
+        downloadTextAsFile(filename, pretty);
+        setExportDownloadedAs(filename);
+      } else {
+        setExportResultJson(pretty);
+      }
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        setExportError('Stopped by user.');
+      } else {
+        setExportError(e instanceof Error ? e.message : String(e));
+      }
+    } finally {
+      setExportRunning(false);
+      exportAbortRef.current = null;
+    }
+  }, [
+    proxyConfigured,
+    exportRequiredOk,
+    projectId,
+    apiKey,
+    accountId,
+    proxyUrl,
+    exportOutput,
+    downloadTextAsFile,
+  ]);
+
 
   const handleRun = useCallback(async () => {
     if (!proxyConfigured) {
@@ -284,7 +403,16 @@ export default function TemplatesImportTool(): ReactNode {
     };
 
     const onProgress = (p: ImportProgress) => {
-      setActivePhase(p.phase);
+      // The lib emits one "seed" event per phase at the start of every run so
+      // the UI can render full-width bars at 0/total. Those events all have
+      // step=0 and zero counters — we must NOT shift activePhase on them, or
+      // the last seed (submit) would briefly flash the spinner on Phase 3
+      // before Phase 1's first real event corrects it.
+      const isSeed =
+        p.step === 0 && p.ok === 0 && p.failed === 0 && p.skipped === 0;
+      if (!isSeed) {
+        setActivePhase(p.phase);
+      }
       setPhaseStates((prev) => ({
         ...prev,
         [p.phase]: {
@@ -407,13 +535,42 @@ export default function TemplatesImportTool(): ReactNode {
 
   return (
     <div className={styles.root}>
-      <p className={styles.lead}>
-        Bulk-create WhatsApp message templates in a Texter project from a JSON file. Useful
-        when migrating templates between projects, seeding a fresh account, or restoring a
-        saved export. Each template runs through three Texter v2 API calls in order — create
-        the template, add its localizations, then submit each localization for WhatsApp
-        approval (skip the last step with draft mode).
-      </p>
+      {/* Mode toggle — swaps the entire tool between Import and Export. */}
+      <div
+        className={clsx(styles.modeTabs, styles.modeTabsLarge)}
+        role="tablist"
+        aria-label="Tool mode">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'import'}
+          className={clsx(styles.modeTab, mode === 'import' && styles.modeTabActive)}
+          onClick={() => setMode('import')}
+          disabled={running || exportRunning}>
+          Import
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'export'}
+          className={clsx(styles.modeTab, mode === 'export' && styles.modeTabActive)}
+          onClick={() => setMode('export')}
+          disabled={running || exportRunning}>
+          Export
+        </button>
+      </div>
+
+      {mode === 'import' ? (
+        <p className={styles.lead}>
+          Bulk-create WhatsApp templates in a Texter project from JSON — for seeding a new
+          account or restoring an export.
+        </p>
+      ) : (
+        <p className={styles.lead}>
+          Download all WhatsApp templates from one Texter account as JSON — mainly for
+          backups or feeding the import tab.
+        </p>
+      )}
 
       <div className={styles.warn}>
         Your API key is sent from this browser to the Texter Docs proxy and forwarded to{' '}
@@ -424,11 +581,12 @@ export default function TemplatesImportTool(): ReactNode {
 
       {!proxyConfigured ? (
         <div className={styles.warn}>
-          <strong>Import proxy is not configured for this deploy.</strong> Set the
+          <strong>Proxy is not configured for this deploy.</strong> Set the
           <code> TEMPLATE_IMPORT_PROXY_URL</code> environment variable at build time.
         </div>
       ) : null}
 
+      {mode === 'import' ? (
       <div className={styles.grid}>
         <section className={styles.card} ref={formCardRef}>
           <h2 className={styles.cardTitle}>Configuration</h2>
@@ -436,6 +594,15 @@ export default function TemplatesImportTool(): ReactNode {
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-project">
               Project ID <span className={styles.req} aria-hidden="true">*</span>
+              <HelpIcon
+                tip={
+                  <>
+                    Host becomes{' '}
+                    <code>https://&lt;project&gt;.texterchat.com/server/api/v2</code>
+                  </>
+                }
+                label="Project ID help"
+              />
             </label>
             <input
               id="ti-project"
@@ -448,14 +615,19 @@ export default function TemplatesImportTool(): ReactNode {
               required
               aria-required="true"
             />
-            <p className={styles.hint}>
-              Host becomes <code>https://&lt;project&gt;.texterchat.com/server/api/v2</code>
-            </p>
           </div>
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-key">
               API key <span className={styles.req} aria-hidden="true">*</span>
+              <HelpIcon
+                tip={
+                  <>
+                    Bearer token with the <strong>Manage Template Messages</strong> scope.
+                  </>
+                }
+                label="API key help"
+              />
             </label>
             <input
               id="ti-key"
@@ -474,6 +646,10 @@ export default function TemplatesImportTool(): ReactNode {
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-account">
               WhatsApp account ID <span className={styles.req} aria-hidden="true">*</span>
+              <HelpIcon
+                tip="The phone-number ID of the WhatsApp Business account that owns these templates."
+                label="WhatsApp account ID help"
+              />
             </label>
             <input
               id="ti-account"
@@ -491,6 +667,16 @@ export default function TemplatesImportTool(): ReactNode {
           <div className={styles.field}>
             <span className={styles.label}>
               Templates JSON <span className={styles.req} aria-hidden="true">*</span>
+              <HelpIcon
+                tip={
+                  <>
+                    Accepts an array of template objects with{' '}
+                    <code>provider_template</code>,{' '}
+                    <code>{'{"templates": [...] }'}</code>, or a single template object.
+                  </>
+                }
+                label="Templates JSON format"
+              />
             </span>
             <div className={styles.modeTabs} role="tablist" aria-label="Input mode">
               <button
@@ -563,15 +749,15 @@ export default function TemplatesImportTool(): ReactNode {
                 ) : null}
               </>
             )}
-            <p className={styles.hint}>
-              Array of objects with <code>provider_template</code>, or{' '}
-              <code>{'{"templates": [...] }'}</code>, or a single template object.
-            </p>
           </div>
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-submit-mode">
               Submit mode
+              <HelpIcon
+                tip="Draft skips the final submit-for-approval call, so localizations stay editable in the Texter UI."
+                label="Submit mode help"
+              />
             </label>
             <select
               id="ti-submit-mode"
@@ -582,10 +768,6 @@ export default function TemplatesImportTool(): ReactNode {
               <option value="submit">Auto-submit for WhatsApp approval</option>
               <option value="draft">Draft - create + localize only (no submit)</option>
             </select>
-            <p className={styles.hint}>
-              Draft mode skips the final submit-for-approval step, leaving localizations editable
-              in the Texter UI.
-            </p>
           </div>
 
           <div className={styles.field}>
@@ -598,15 +780,25 @@ export default function TemplatesImportTool(): ReactNode {
                 disabled={running}
               />
               <label htmlFor="ti-keep">Keep original template names from JSON</label>
+              <HelpIcon
+                tip={
+                  <>
+                    When off, the create payload omits <code>name</code> so the API
+                    auto-assigns one.
+                  </>
+                }
+                label="Keep names help"
+              />
             </div>
-            <p className={styles.hint}>
-              When off, the create payload omits <code>name</code> so the API can auto-assign.
-            </p>
           </div>
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-suffix">
               Name suffix <span className={styles.optional}>(optional)</span>
+              <HelpIcon
+                tip="Appended to each name. Letters, digits and underscores only. Only used when 'Keep original names' is on."
+                label="Name suffix help"
+              />
             </label>
             <input
               id="ti-suffix"
@@ -616,15 +808,15 @@ export default function TemplatesImportTool(): ReactNode {
               onChange={(e) => setNameSuffix(e.target.value)}
               disabled={running || !keepNames}
             />
-            <p className={styles.hint}>
-              Letters, digits and underscores only. Only applied when &quot;Keep original
-              names&quot; is on.
-            </p>
           </div>
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-delay">
               Delay between API calls (ms)
+              <HelpIcon
+                tip="Wait this long between every create / localize / submit call to avoid rate-limiting on the Texter API."
+                label="Delay help"
+              />
             </label>
             <input
               id="ti-delay"
@@ -636,9 +828,6 @@ export default function TemplatesImportTool(): ReactNode {
               onChange={(e) => setDelayMs(Number(e.target.value))}
               disabled={running}
             />
-            <p className={styles.hint}>
-              Wait this long between every create / localize / submit call to avoid rate limits.
-            </p>
           </div>
 
           <div className={styles.actions}>
@@ -663,9 +852,9 @@ export default function TemplatesImportTool(): ReactNode {
         <section
           className={styles.card}
           style={
-            rightCardMaxHeight && showFullLog
+            rightCardMaxHeight
               ? {
-                  maxHeight: `${rightCardMaxHeight}px`,
+                  height: `${rightCardMaxHeight}px`,
                   display: 'flex',
                   flexDirection: 'column',
                 }
@@ -673,12 +862,15 @@ export default function TemplatesImportTool(): ReactNode {
           }>
           <div className={styles.logHeader}>
             <h2 className={styles.cardTitle}>Progress</h2>
-            {lastSummary && (
+          </div>
+
+          {lastSummary && (
+            <div className={styles.summaryRow}>
               <span className={clsx(styles.summaryPill, styles[`pill_${aggregateOutcome(visiblePhases.map((p) => phaseOutcome(phaseStates[p], false, hasStarted)))}`])}>
                 Last run: {lastSummary}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
           {hasStarted ? (() => {
             const outcomes = visiblePhases.map((p) =>
@@ -809,6 +1001,178 @@ export default function TemplatesImportTool(): ReactNode {
           ) : null}
         </section>
       </div>
+      ) : (
+        <div className={styles.grid}>
+          <section className={styles.card} ref={formCardRef}>
+            <h2 className={styles.cardTitle}>Configuration</h2>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="te-project">
+                Project ID <span className={styles.req} aria-hidden="true">*</span>
+                <HelpIcon
+                  tip={
+                    <>
+                      Host becomes{' '}
+                      <code>https://&lt;project&gt;.texterchat.com/server/api/v2</code>
+                    </>
+                  }
+                  label="Project ID help"
+                />
+              </label>
+              <input
+                id="te-project"
+                className={styles.input}
+                autoComplete="off"
+                placeholder="e.g. mycompany"
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                disabled={exportRunning}
+                required
+                aria-required="true"
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="te-key">
+                API key <span className={styles.req} aria-hidden="true">*</span>
+                <HelpIcon
+                  tip={
+                    <>
+                      Bearer token with the <strong>View Template Messages</strong> scope.
+                    </>
+                  }
+                  label="API key help"
+                />
+              </label>
+              <input
+                id="te-key"
+                type="password"
+                className={styles.input}
+                autoComplete="off"
+                placeholder="Bearer token"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                disabled={exportRunning}
+                required
+                aria-required="true"
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="te-account">
+                WhatsApp account ID <span className={styles.req} aria-hidden="true">*</span>
+                <HelpIcon
+                  tip="The phone-number ID of the WhatsApp Business account you want to export."
+                  label="WhatsApp account ID help"
+                />
+              </label>
+              <input
+                id="te-account"
+                className={styles.input}
+                autoComplete="off"
+                placeholder="e.g. 972501234567"
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+                disabled={exportRunning}
+                required
+                aria-required="true"
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="te-output">
+                Output
+                {exportOutput === 'file' ? (
+                  <HelpIcon
+                    tip={
+                      <>
+                        Saves as <code>&lt;projectId&gt;_templates.json</code> in your
+                        browser&apos;s downloads folder.
+                      </>
+                    }
+                    label="Output help"
+                  />
+                ) : null}
+              </label>
+              <select
+                id="te-output"
+                className={styles.input}
+                value={exportOutput}
+                onChange={(e) => setExportOutput(e.target.value as ExportOutput)}
+                disabled={exportRunning}>
+                <option value="file">Download JSON File</option>
+                <option value="inline">Print JSON Result</option>
+              </select>
+            </div>
+
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className="button button--primary"
+                disabled={exportRunning || !exportRequiredOk || !proxyConfigured}
+                title={!exportRequiredOk ? 'Fill in all required fields (marked *)' : undefined}
+                onClick={() => void handleRunExport()}>
+                {exportRunning ? 'Running…' : 'Run export'}
+              </button>
+            </div>
+          </section>
+
+          <section
+            className={styles.card}
+            style={
+              rightCardMaxHeight
+                ? {
+                    height: `${rightCardMaxHeight}px`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }
+                : undefined
+            }>
+            <h2 className={styles.cardTitle}>Result</h2>
+
+            {exportRunning ? (
+              <p className={styles.hint}>
+                <span className={styles.spinner} aria-hidden="true" /> Fetching templates…
+              </p>
+            ) : null}
+
+            {exportError ? (
+              <p className={styles.hint}>
+                <span className={styles.metaBad}>{exportError}</span>
+              </p>
+            ) : null}
+
+            {!exportRunning && !exportError && exportCount === null ? (
+              <p className={styles.hint}>
+                Output appears here when you run export.
+              </p>
+            ) : null}
+
+            {!exportRunning && exportCount !== null && exportDownloadedAs ? (
+              <p className={styles.hint}>
+                <span className={styles.metaOk}>
+                  Downloaded {exportCount} template{exportCount === 1 ? '' : 's'}
+                </span>{' '}
+                as <code>{exportDownloadedAs}</code>.
+              </p>
+            ) : null}
+
+            {!exportRunning && exportResultJson !== null ? (
+              <div className={styles.resultBlockWrap}>
+                <p className={styles.resultCount}>
+                  <span className={styles.metaOk}>
+                    {exportCount} template{exportCount === 1 ? '' : 's'}
+                  </span>{' '}
+                  returned.
+                </p>
+                <div className={styles.codeBlockHost}>
+                  <CodeBlock language="json">{exportResultJson}</CodeBlock>
+                </div>
+              </div>
+            ) : null}
+          </section>
+        </div>
+      )}
     </div>
   );
 }
