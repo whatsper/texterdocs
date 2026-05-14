@@ -306,7 +306,11 @@
   border-right: 1px solid var(--ifm-color-emphasis-300);
 }
 
-.modeTab:hover:not(:disabled) {
+/* Hover applies ONLY when the tab is NOT active, so there's no specificity /
+   source-order battle with the active state. Without this, the two hover
+   rules tie at 0,3,0 and whichever the CSS minifier emits later wins —
+   which can flip between dev and prod builds. */
+.modeTab:not(.modeTabActive):hover:not(:disabled) {
   background: var(--ifm-color-emphasis-100);
 }
 
@@ -315,14 +319,13 @@
   opacity: 0.6;
 }
 
-.modeTabActive {
-  background: var(--ifm-color-primary);
-  color: #fff;
-}
-
-.modeTabActive:hover:not(:disabled) {
-  background: var(--ifm-color-primary);
-  color: #fff;
+/* Compound selector (0,2,0) + !important guarantees active state wins
+   over Infima button resets and any minifier reordering in production. */
+.modeTab.modeTabActive,
+.modeTab.modeTabActive:hover,
+.modeTab.modeTabActive:focus {
+  background: var(--ifm-color-primary) !important;
+  color: #fff !important;
 }
 
 .checkboxRow {
@@ -357,6 +360,17 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1rem;
+}
+
+/* Force white text on the primary "Run import" / "Run export" button in
+   dark mode. Docusaurus's --ifm-button-color flips to a dark value in
+   dark theme because the Texter primary purple is lighter — but white
+   on our specific primary purple still has enough contrast (WCAG AA),
+   and it matches what the light-mode button looks like. */
+[data-theme='dark'] .actions :global(.button--primary),
+[data-theme='dark'] .actions :global(.button--primary:hover),
+[data-theme='dark'] .actions :global(.button--primary:focus) {
+  color: #fff !important;
 }
 
 .logHeader {
