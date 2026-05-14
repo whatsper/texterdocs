@@ -1,6 +1,9 @@
 import clsx from 'clsx';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
   useCallback,
+  useEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -9,37 +12,185 @@ import {
 import {
   parseTemplatesJsonFile,
   runTemplatesImport,
+  type ImportPhase,
+  type ImportProgress,
   type TemplateInput,
   type TemplatesImportConfig,
 } from '@site/src/lib/templatesJsonToTexter';
 
 import styles from './styles.module.css';
 
+type InputMode = 'file' | 'paste';
+
+type PhaseState = {
+  step: number;
+  totalSteps: number;
+  ok: number;
+  failed: number;
+  skipped: number;
+};
+
+const PHASE_LABELS: Record<ImportPhase, string> = {
+  create: 'Create templates',
+  localization: 'Add localizations',
+  submit: 'Submit for approval',
+};
+
+const PHASES: ImportPhase[] = ['create', 'localization', 'submit'];
+
+type Outcome = 'idle' | 'running' | 'success' | 'partial' | 'failed' | 'skipped';
+
+function emptyPhase(): PhaseState {
+  return {step: 0, totalSteps: 0, ok: 0, failed: 0, skipped: 0};
+}
+
+function phaseOutcome(
+  s: PhaseState,
+  isActive: boolean,
+  hasStarted: boolean
+): Outcome {
+  if (isActive) return 'running';
+  if (!hasStarted || s.totalSteps === 0) return 'idle';
+  const completed = s.step >= s.totalSteps;
+  if (!completed) return 'running';
+  // Phase loop completed. Classify by produced outcomes.
+  const realWork = s.ok + s.failed;
+  if (realWork === 0) return 'skipped';
+  if (s.failed === 0) return 'success';
+  if (s.ok === 0) return 'failed';
+  return 'partial';
+}
+
+function aggregateOutcome(outcomes: Outcome[]): Outcome {
+  if (outcomes.includes('running')) return 'running';
+  if (outcomes.every((o) => o === 'idle')) return 'idle';
+  const real = outcomes.filter((o) => o !== 'idle' && o !== 'skipped');
+  if (real.length === 0) return 'skipped';
+  if (real.every((o) => o === 'success')) return 'success';
+  if (real.every((o) => o === 'failed')) return 'failed';
+  return 'partial';
+}
+
+const OUTCOME_CLASS: Record<Outcome, string> = {
+  idle: '',
+  running: '',
+  success: 'fillSuccess',
+  partial: 'fillPartial',
+  failed: 'fillFailed',
+  skipped: 'fillSkipped',
+};
+
+function outcomeLabel(o: Outcome): string {
+  switch (o) {
+    case 'success':
+      return 'Done';
+    case 'partial':
+      return 'Partial';
+    case 'failed':
+      return 'Failed';
+    case 'skipped':
+      return 'Skipped';
+    case 'running':
+      return 'Running…';
+    default:
+      return '';
+  }
+}
+
 /**
  * Embedded in docs (MDX). Doc layout supplies the page title; this is the form + log only.
  */
 export default function TemplatesImportTool(): ReactNode {
+  const {siteConfig} = useDocusaurusContext();
+  const proxyUrl =
+    (siteConfig.customFields?.templateImportProxyUrl as string | undefined) ??
+    '';
+  const proxyConfigured = Boolean(proxyUrl);
+
   const [projectId, setProjectId] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [accountId, setAccountId] = useState('');
   const [keepNames, setKeepNames] = useState(false);
   const [nameSuffix, setNameSuffix] = useState('');
   const [delayMs, setDelayMs] = useState(2000);
+  const [submitMode, setSubmitMode] = useState<'submit' | 'draft'>('submit');
+
+  const [inputMode, setInputMode] = useState<InputMode>('file');
+  const [pasteText, setPasteText] = useState('');
   const [fileLabel, setFileLabel] = useState<string | null>(null);
   const [templates, setTemplates] = useState<TemplateInput[] | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
+  const [inputError, setInputError] = useState<string | null>(null);
+
   const [logLines, setLogLines] = useState<string[]>([]);
   const [running, setRunning] = useState(false);
+  const [showFullLog, setShowFullLog] = useState(false);
   const [lastSummary, setLastSummary] = useState<string | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+
+  const [phaseStates, setPhaseStates] = useState<Record<ImportPhase, PhaseState>>(
+    {
+      create: emptyPhase(),
+      localization: emptyPhase(),
+      submit: emptyPhase(),
+    }
+  );
+  const [activePhase, setActivePhase] = useState<ImportPhase | null>(null);
+
   const abortRef = useRef<AbortController | null>(null);
+  const logScrollRef = useRef<HTMLPreElement | null>(null);
+  const formCardRef = useRef<HTMLElement | null>(null);
+  /** Right card's own max-height tracks the left form card's total height,
+      so the bottoms align exactly when the log is long. */
+  const [rightCardMaxHeight, setRightCardMaxHeight] = useState<number | undefined>(undefined);
 
   const appendLog = useCallback((line: string) => {
     setLogLines((prev) => [...prev, line]);
   }, []);
 
+  useEffect(() => {
+    if (!showFullLog) return;
+    const el = logScrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  }, [logLines, showFullLog]);
+
+  /**
+   * Mirror the left form card's height onto the right card as a max-height.
+   * Combined with `display: flex; flex-direction: column` on the right card
+   * and `flex: 1 1 auto; min-height: 0; overflow: auto` on the log, this means:
+   * - log content fits within the right card's natural size → card content-sized,
+   *   log content-sized, no fake stretching;
+   * - log content exceeds available space → card caps at the form's height, log
+   *   shrinks to fit and scrolls internally, card bottoms align exactly.
+   */
+  useEffect(() => {
+    const formEl = formCardRef.current;
+    if (!formEl || typeof ResizeObserver === 'undefined') return;
+    const compute = () => setRightCardMaxHeight(formEl.offsetHeight);
+    compute();
+    const obs = new ResizeObserver(compute);
+    obs.observe(formEl);
+    return () => obs.disconnect();
+  }, [showFullLog, hasStarted]);
+
+  const parsePaste = useCallback((text: string) => {
+    setInputError(null);
+    setTemplates(null);
+    const trimmed = text.trim();
+    if (!trimmed) {
+      return;
+    }
+    try {
+      const parsed = parseTemplatesJsonFile(trimmed);
+      setTemplates(parsed);
+    } catch (err) {
+      setInputError(err instanceof Error ? err.message : String(err));
+    }
+  }, []);
+
   const onFile = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    setFileError(null);
+    setInputError(null);
     setTemplates(null);
     setFileLabel(null);
     if (!file) {
@@ -53,28 +204,71 @@ export default function TemplatesImportTool(): ReactNode {
         const parsed = parseTemplatesJsonFile(text);
         setTemplates(parsed);
       } catch (err) {
-        setFileError(err instanceof Error ? err.message : String(err));
+        setInputError(err instanceof Error ? err.message : String(err));
       }
     };
     reader.onerror = () => {
-      setFileError('Could not read the selected file.');
+      setInputError('Could not read the selected file.');
     };
     reader.readAsText(file, 'UTF-8');
   }, []);
+
+  const onPasteChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
+      const text = e.target.value;
+      setPasteText(text);
+      parsePaste(text);
+    },
+    [parsePaste]
+  );
+
+  const switchInputMode = useCallback(
+    (mode: InputMode) => {
+      if (running) return;
+      setInputMode(mode);
+      setInputError(null);
+      setTemplates(null);
+      if (mode === 'file') {
+        setPasteText('');
+      } else {
+        setFileLabel(null);
+      }
+    },
+    [running]
+  );
 
   const handleAbort = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
   }, []);
 
+  const resetProgress = useCallback(() => {
+    setPhaseStates({
+      create: emptyPhase(),
+      localization: emptyPhase(),
+      submit: emptyPhase(),
+    });
+    setActivePhase(null);
+    setHasStarted(false);
+  }, []);
+
   const handleRun = useCallback(async () => {
+    if (!proxyConfigured) {
+      setInputError(
+        'The template import proxy URL is not configured for this site. Set TEMPLATE_IMPORT_PROXY_URL at build time.'
+      );
+      return;
+    }
     if (!templates?.length) {
-      setFileError('Load a valid JSON file with at least one template first.');
+      setInputError('Load a valid JSON with at least one template first.');
       return;
     }
     setRunning(true);
     setLogLines([]);
     setLastSummary(null);
+    resetProgress();
+    setHasStarted(true);
+    setActivePhase('create');
     const ac = new AbortController();
     abortRef.current = ac;
 
@@ -84,7 +278,23 @@ export default function TemplatesImportTool(): ReactNode {
       accountId: accountId.trim(),
       keepNames,
       nameSuffix,
-      delayMsBetweenCreates: Math.max(0, Math.floor(delayMs) || 0),
+      delayMsBetweenCalls: Math.max(0, Math.floor(delayMs) || 0),
+      proxyUrl,
+      submitMode,
+    };
+
+    const onProgress = (p: ImportProgress) => {
+      setActivePhase(p.phase);
+      setPhaseStates((prev) => ({
+        ...prev,
+        [p.phase]: {
+          step: p.step,
+          totalSteps: p.totalSteps,
+          ok: p.ok,
+          failed: p.failed,
+          skipped: p.skipped,
+        },
+      }));
     };
 
     try {
@@ -93,7 +303,8 @@ export default function TemplatesImportTool(): ReactNode {
         config,
         templates,
         appendLog,
-        ac.signal
+        ac.signal,
+        onProgress
       );
 
       const cOk = summary.createResults.filter((r) => r.status === 'success').length;
@@ -106,17 +317,34 @@ export default function TemplatesImportTool(): ReactNode {
       const sSkip = summary.submissionResults.filter((r) => r.status === 'skipped').length;
 
       appendLog('');
-      appendLog(`${'='.repeat(60)}`);
+      appendLog('');
+      appendLog(`${'='.repeat(40)}`);
       appendLog('SUMMARY');
-      appendLog(`${'='.repeat(60)}`);
+      appendLog(`${'='.repeat(40)}`);
       appendLog(`Create: ${cOk} ok, ${cFail} failed`);
       appendLog(`Localizations: ${lOk} ok, ${lFail} failed, ${lSkip} skipped`);
-      appendLog(`Submit: ${sOk} ok, ${sFail} failed, ${sSkip} skipped`);
+      if (submitMode === 'draft') {
+        appendLog('Submit: skipped (draft mode)');
+      } else {
+        appendLog(`Submit: ${sOk} ok, ${sFail} failed, ${sSkip} skipped`);
+      }
 
-      setLastSummary(
-        `Create ${cOk}/${summary.createResults.length} · ` +
-          `Localize ${lOk} ok · Submit ${sOk} ok`
-      );
+      const fmtPhase = (label: string, ok: number, fail: number, total: number) => {
+        if (ok === 0 && fail === 0) return `${label}: skipped`;
+        if (fail === 0) return `${label}: ${ok}/${total}`;
+        if (ok === 0) return `${label}: 0/${total} failed`;
+        return `${label}: ${ok} ok, ${fail} failed`;
+      };
+      const summaryParts = [
+        fmtPhase('Create', cOk, cFail, summary.createResults.length),
+        fmtPhase('Localize', lOk, lFail, lOk + lFail + lSkip),
+      ];
+      if (submitMode === 'draft') {
+        summaryParts.push('Submit: draft mode');
+      } else {
+        summaryParts.push(fmtPhase('Submit', sOk, sFail, sOk + sFail + sSkip));
+      }
+      setLastSummary(summaryParts.join(' · '));
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') {
         appendLog('Stopped by user.');
@@ -128,19 +356,22 @@ export default function TemplatesImportTool(): ReactNode {
         }
         if (
           msg.toLowerCase().includes('network') ||
-          msg.toLowerCase().includes('cors') ||
+          msg.toLowerCase().includes('proxy') ||
           msg.toLowerCase().includes('err_network')
         ) {
           appendLog(
-            'Tip: If you see no HTTP response, the browser may be blocking cross-origin calls (CORS). Run the flow from your own backend, or ask your platform team to allow this origin.'
+            'Tip: If you see no HTTP response, the import proxy may be down or misconfigured. Check that the n8n workflow is active.'
           );
         }
       }
     } finally {
       setRunning(false);
+      setActivePhase(null);
       abortRef.current = null;
     }
   }, [
+    proxyConfigured,
+    proxyUrl,
     templates,
     projectId,
     apiKey,
@@ -148,30 +379,63 @@ export default function TemplatesImportTool(): ReactNode {
     keepNames,
     nameSuffix,
     delayMs,
+    submitMode,
     appendLog,
+    resetProgress,
   ]);
+
+  /** Phases that actually run — used for overall progress & aggregate outcome.
+      The phase LIST always renders all three rows; the submit row is shown
+      disabled in draft mode so the right card's natural height stays consistent. */
+  const visiblePhases = useMemo(
+    () => (submitMode === 'draft' ? PHASES.slice(0, 2) : PHASES),
+    [submitMode]
+  );
+
+  const requiredOk = Boolean(
+    projectId.trim() && apiKey.trim() && accountId.trim() && templates?.length
+  );
+
+  const totalProgressPct = useMemo(() => {
+    const segments = visiblePhases.map((p) => {
+      const s = phaseStates[p];
+      if (s.totalSteps === 0) return 0;
+      return s.step / s.totalSteps;
+    });
+    return Math.round((segments.reduce((a, b) => a + b, 0) / visiblePhases.length) * 100);
+  }, [phaseStates]);
 
   return (
     <div className={styles.root}>
       <p className={styles.lead}>
-        Enter your project credentials, upload the same JSON shape you would feed the import
-        notebook, then run create → localizations → submit against the Texter API from your
-        browser.
+        Bulk-create WhatsApp message templates in a Texter project from a JSON file. Useful
+        when migrating templates between projects, seeding a fresh account, or restoring a
+        saved export. Each template runs through three Texter v2 API calls in order — create
+        the template, add its localizations, then submit each localization for WhatsApp
+        approval (skip the last step with draft mode).
       </p>
 
       <div className={styles.warn}>
-        Your API key is sent only from this browser directly to{' '}
-        <code>*.texterchat.com</code>. It is not stored by Texter Docs. Anyone with access to your
-        machine or this tab can intercept it, so use a dedicated key and revoke it when finished.
+        Your API key is sent from this browser to the Texter Docs proxy and forwarded to{' '}
+        <code>*.texterchat.com</code>. It is never stored, but anyone with access to this tab
+        can intercept it — use a dedicated key with the minimum scopes you need and revoke it
+        when finished.
       </div>
 
+      {!proxyConfigured ? (
+        <div className={styles.warn}>
+          <strong>Import proxy is not configured for this deploy.</strong> Set the
+          <code> TEMPLATE_IMPORT_PROXY_URL</code> environment variable at build time.
+        </div>
+      ) : null}
+
       <div className={styles.grid}>
-        <section className={styles.card}>
+        <section className={styles.card} ref={formCardRef}>
           <h2 className={styles.cardTitle}>Configuration</h2>
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-project">
-              Project ID
+              Project ID <span className={styles.req} aria-hidden="true">*</span>
             </label>
             <input
               id="ti-project"
@@ -181,6 +445,8 @@ export default function TemplatesImportTool(): ReactNode {
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               disabled={running}
+              required
+              aria-required="true"
             />
             <p className={styles.hint}>
               Host becomes <code>https://&lt;project&gt;.texterchat.com/server/api/v2</code>
@@ -189,7 +455,7 @@ export default function TemplatesImportTool(): ReactNode {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-key">
-              API key
+              API key <span className={styles.req} aria-hidden="true">*</span>
             </label>
             <input
               id="ti-key"
@@ -200,12 +466,14 @@ export default function TemplatesImportTool(): ReactNode {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               disabled={running}
+              required
+              aria-required="true"
             />
           </div>
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-account">
-              WhatsApp account ID
+              WhatsApp account ID <span className={styles.req} aria-hidden="true">*</span>
             </label>
             <input
               id="ti-account"
@@ -215,41 +483,109 @@ export default function TemplatesImportTool(): ReactNode {
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
               disabled={running}
+              required
+              aria-required="true"
             />
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="ti-file">
-              Templates JSON file
-            </label>
-            <input
-              id="ti-file"
-              type="file"
-              accept=".json,application/json"
-              className={styles.fileInput}
-              onChange={onFile}
-              disabled={running}
-            />
+            <span className={styles.label}>
+              Templates JSON <span className={styles.req} aria-hidden="true">*</span>
+            </span>
+            <div className={styles.modeTabs} role="tablist" aria-label="Input mode">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={inputMode === 'file'}
+                className={clsx(styles.modeTab, inputMode === 'file' && styles.modeTabActive)}
+                onClick={() => switchInputMode('file')}
+                disabled={running}>
+                Upload file
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={inputMode === 'paste'}
+                className={clsx(styles.modeTab, inputMode === 'paste' && styles.modeTabActive)}
+                onClick={() => switchInputMode('paste')}
+                disabled={running}>
+                Paste JSON
+              </button>
+            </div>
+
+            {inputMode === 'file' ? (
+              <>
+                <input
+                  id="ti-file"
+                  type="file"
+                  accept=".json,application/json"
+                  className={styles.fileInput}
+                  onChange={onFile}
+                  disabled={running}
+                />
+                {/* Parse status sits directly under the input so success vs error
+                    land in the same spot, BEFORE the format hint. */}
+                {inputError ? (
+                  <p className={styles.hint}>
+                    <span className={styles.metaBad}>{inputError}</span>
+                  </p>
+                ) : fileLabel ? (
+                  <p className={styles.hint}>
+                    Selected: <strong>{fileLabel}</strong>
+                    {templates && (
+                      <>
+                        {' '}
+                        — <span className={styles.metaOk}>{templates.length} template(s)</span>
+                      </>
+                    )}
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <textarea
+                  className={styles.pasteArea}
+                  placeholder='[{ "title": "...", "provider_template": { ... } }, ...]'
+                  value={pasteText}
+                  onChange={onPasteChange}
+                  disabled={running}
+                  spellCheck={false}
+                  rows={8}
+                />
+                {inputError ? (
+                  <p className={styles.hint}>
+                    <span className={styles.metaBad}>{inputError}</span>
+                  </p>
+                ) : templates ? (
+                  <p className={styles.hint}>
+                    <span className={styles.metaOk}>{templates.length} template(s)</span> parsed.
+                  </p>
+                ) : null}
+              </>
+            )}
             <p className={styles.hint}>
               Array of objects with <code>provider_template</code>, or{' '}
               <code>{'{"templates": [...] }'}</code>, or a single template object.
             </p>
-            {fileLabel && (
-              <p className={styles.hint}>
-                Selected: <strong>{fileLabel}</strong>
-                {templates && (
-                  <>
-                    {' '}
-                    — <span className={styles.metaOk}>{templates.length} template(s)</span>
-                  </>
-                )}
-              </p>
-            )}
-            {fileError && (
-              <p className={styles.hint}>
-                <span className={styles.metaBad}>{fileError}</span>
-              </p>
-            )}
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="ti-submit-mode">
+              Submit mode
+            </label>
+            <select
+              id="ti-submit-mode"
+              className={styles.input}
+              value={submitMode}
+              onChange={(e) => setSubmitMode(e.target.value as 'submit' | 'draft')}
+              disabled={running}>
+              <option value="submit">Auto-submit for WhatsApp approval</option>
+              <option value="draft">Draft - create + localize only (no submit)</option>
+            </select>
+            <p className={styles.hint}>
+              Draft mode skips the final submit-for-approval step, leaving localizations editable
+              in the Texter UI.
+            </p>
           </div>
 
           <div className={styles.field}>
@@ -270,7 +606,7 @@ export default function TemplatesImportTool(): ReactNode {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-suffix">
-              Name suffix (optional)
+              Name suffix <span className={styles.optional}>(optional)</span>
             </label>
             <input
               id="ti-suffix"
@@ -280,12 +616,15 @@ export default function TemplatesImportTool(): ReactNode {
               onChange={(e) => setNameSuffix(e.target.value)}
               disabled={running || !keepNames}
             />
-            <p className={styles.hint}>Only applied when &quot;Keep original names&quot; is on.</p>
+            <p className={styles.hint}>
+              Letters, digits and underscores only. Only applied when &quot;Keep original
+              names&quot; is on.
+            </p>
           </div>
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor="ti-delay">
-              Delay after each successful create (ms)
+              Delay between API calls (ms)
             </label>
             <input
               id="ti-delay"
@@ -297,38 +636,177 @@ export default function TemplatesImportTool(): ReactNode {
               onChange={(e) => setDelayMs(Number(e.target.value))}
               disabled={running}
             />
+            <p className={styles.hint}>
+              Wait this long between every create / localize / submit call to avoid rate limits.
+            </p>
           </div>
 
           <div className={styles.actions}>
             <button
               type="button"
               className="button button--primary"
-              disabled={running || !templates?.length}
-              onClick={() => void handleRun()}
-            >
+              disabled={running || !requiredOk || !proxyConfigured}
+              title={!requiredOk ? 'Fill in all required fields (marked *)' : undefined}
+              onClick={() => void handleRun()}>
               {running ? 'Running…' : 'Run import'}
             </button>
             <button
               type="button"
               className={clsx('button', 'button--outline')}
               disabled={!running}
-              onClick={handleAbort}
-            >
+              onClick={handleAbort}>
               Stop
             </button>
           </div>
         </section>
 
-        <section className={styles.card}>
-          <h2 className={styles.cardTitle}>Log</h2>
-          {lastSummary && (
-            <div className={styles.summary}>
-              <span className={styles.summaryItem}>Last run: {lastSummary}</span>
-            </div>
-          )}
-          <pre className={styles.log} aria-live="polite">
-            {logLines.length ? logLines.join('\n') : 'Output appears here when you run import.'}
-          </pre>
+        <section
+          className={styles.card}
+          style={
+            rightCardMaxHeight && showFullLog
+              ? {
+                  maxHeight: `${rightCardMaxHeight}px`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }
+              : undefined
+          }>
+          <div className={styles.logHeader}>
+            <h2 className={styles.cardTitle}>Progress</h2>
+            {lastSummary && (
+              <span className={clsx(styles.summaryPill, styles[`pill_${aggregateOutcome(visiblePhases.map((p) => phaseOutcome(phaseStates[p], false, hasStarted)))}`])}>
+                Last run: {lastSummary}
+              </span>
+            )}
+          </div>
+
+          {hasStarted ? (() => {
+            const outcomes = visiblePhases.map((p) =>
+              phaseOutcome(phaseStates[p], activePhase === p && running, hasStarted)
+            );
+            const overall = running ? 'running' : aggregateOutcome(outcomes);
+            const overallFillClass = OUTCOME_CLASS[overall];
+            return (
+              <div
+                className={styles.overallBar}
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={totalProgressPct}
+                aria-label="Overall import progress">
+                <div
+                  className={clsx(
+                    styles.overallFill,
+                    overallFillClass && styles[overallFillClass],
+                    running && styles.overallFillRunning
+                  )}
+                  style={{width: `${totalProgressPct}%`}}
+                />
+                <span className={styles.overallText}>
+                  {running ? `${totalProgressPct}%` : outcomeLabel(overall) || `${totalProgressPct}%`}
+                </span>
+              </div>
+            );
+          })() : null}
+
+          <ul className={styles.phaseList}>
+            {PHASES.map((phase, idx) => {
+              const isDraftDisabled = submitMode === 'draft' && phase === 'submit';
+              const s = phaseStates[phase];
+              const total = s.totalSteps || (templates?.length ?? 0);
+              const pct = total > 0 ? Math.round((s.step / total) * 100) : 0;
+              const isActive = activePhase === phase && running && !isDraftDisabled;
+              const outcome = isDraftDisabled
+                ? 'skipped'
+                : phaseOutcome(s, isActive, hasStarted);
+              const fillClass = OUTCOME_CLASS[outcome];
+              const showSkipped = s.skipped > 0;
+              return (
+                <li
+                  key={phase}
+                  className={clsx(
+                    styles.phaseRow,
+                    isDraftDisabled && styles.phaseRowDisabled
+                  )}
+                  aria-disabled={isDraftDisabled || undefined}>
+                  <div className={styles.phaseHead}>
+                    <span className={styles.phaseLabel}>
+                      <span className={styles.phaseIndex}>Phase {idx + 1}</span>
+                      <span className={styles.phaseName}>{PHASE_LABELS[phase]}</span>
+                      {isActive ? <span className={styles.spinner} aria-hidden="true" /> : null}
+                    </span>
+                    <span className={styles.phaseCounts}>
+                      {isDraftDisabled ? (
+                        <span className={styles.countSkip}>draft mode</span>
+                      ) : outcome === 'skipped' && !running ? (
+                        <span className={styles.countSkip}>skipped</span>
+                      ) : (
+                        <>
+                          <span className={styles.phaseStep}>
+                            {s.step}/{total || '—'}
+                          </span>
+                          {s.ok > 0 && (
+                            <span className={styles.countOk}>{s.ok} ok</span>
+                          )}
+                          {s.failed > 0 && (
+                            <span className={styles.countBad}>{s.failed} failed</span>
+                          )}
+                          {showSkipped && outcome !== 'skipped' && (
+                            <span className={styles.countSkip}>{s.skipped} skipped</span>
+                          )}
+                        </>
+                      )}
+                    </span>
+                  </div>
+                  <div
+                    className={clsx(
+                      styles.phaseBar,
+                      isActive && styles.phaseBarActive,
+                      outcome === 'success' && styles.phaseBarDone
+                    )}>
+                    <div
+                      className={clsx(
+                        styles.phaseFill,
+                        fillClass && styles[fillClass],
+                        isActive && styles.phaseFillRunning
+                      )}
+                      style={{
+                        width:
+                          isDraftDisabled || (outcome === 'skipped' && !running)
+                            ? '100%'
+                            : `${pct}%`,
+                      }}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className={styles.logToggleRow}>
+            <button
+              type="button"
+              className={styles.logToggle}
+              onClick={() => setShowFullLog((v) => !v)}
+              aria-expanded={showFullLog}>
+              {showFullLog ? '▾ Hide full log' : '▸ Show full log'}
+            </button>
+            {logLines.length > 0 && !showFullLog ? (
+              <span className={styles.hint}>
+                {logLines.length} line{logLines.length === 1 ? '' : 's'} recorded
+              </span>
+            ) : null}
+          </div>
+
+          {showFullLog ? (
+            <pre
+              className={styles.log}
+              aria-live="polite"
+              ref={logScrollRef}
+              style={{flex: '1 1 auto', minHeight: 0}}>
+              {logLines.length ? logLines.join('\n') : 'Output appears here when you run import.'}
+            </pre>
+          ) : null}
         </section>
       </div>
     </div>

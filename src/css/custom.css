@@ -336,3 +336,22 @@
   font-size: 0.85rem;
   line-height: 1.4;
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Wider layout for the Template JSON Import tool page.
+   Set via `wrapperClassName: tplImportWide` in the MDX frontmatter.
+   Docusaurus emits this on the article wrapper at the doc level.
+   The default doc content area is capped around 75ch; this tool has
+   a two-column form + log that needs more horizontal room so the
+   in-log === separators don't wrap.
+   ────────────────────────────────────────────────────────────────── */
+.tplImportWide .theme-doc-markdown,
+.tplImportWide .markdown {
+  max-width: none;
+}
+
+@media (min-width: 996px) {
+  .tplImportWide .container {
+    max-width: min(1500px, 95vw);
+  }
+}

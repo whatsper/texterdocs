@@ -22,6 +22,7 @@ const config: Config = {
 
   customFields: {
     aiChatWebhookUrl: process.env.AI_CHAT_WEBHOOK_URL ?? '',
+    templateImportProxyUrl: process.env.TEMPLATE_IMPORT_PROXY_URL ?? '',
     giscus: {
       repo: process.env.GISCUS_REPO?.trim() || 'whatsper/texterdocs',
       repoId: process.env.GISCUS_REPO_ID?.trim() ?? '',
