@@ -127,11 +127,12 @@ export default function TemplatesImportTool(): ReactNode {
           appendLog(`  ${line}`);
         }
         if (
-          msg.toLowerCase().includes('failed to fetch') ||
-          msg.toLowerCase().includes('networkerror')
+          msg.toLowerCase().includes('network') ||
+          msg.toLowerCase().includes('cors') ||
+          msg.toLowerCase().includes('err_network')
         ) {
           appendLog(
-            'Tip: Browsers block cross-origin requests unless the Texter API sends CORS headers for this site. Run the flow from your own backend, or ask your platform team to allow this origin.'
+            'Tip: If you see no HTTP response, the browser may be blocking cross-origin calls (CORS). Run the flow from your own backend, or ask your platform team to allow this origin.'
           );
         }
       }

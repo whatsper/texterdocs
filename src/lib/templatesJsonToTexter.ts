@@ -3,6 +3,10 @@
  * Mirrors the flow from templates_json_to_texter.ipynb (create → localizations → submit).
  */
 
+import axios, {isAxiosError} from 'axios';
+
+const MAX_ERROR_BODY_CHARS = 8000;
+
 export type TemplatesImportConfig = {
   projectId: string;
   apiKey: string;
@@ -112,6 +116,86 @@ function buildCreatePayload(
   return payload;
 }
 
+function stringifyResponseBody(data: unknown): string {
+  if (data === undefined || data === null || data === '') {
+    return '(empty)';
+  }
+  if (typeof data === 'string') {
+    return data.length > MAX_ERROR_BODY_CHARS
+      ? `${data.slice(0, MAX_ERROR_BODY_CHARS)}…`
+      : data;
+  }
+  try {
+    const s = JSON.stringify(data, null, 2);
+    return s.length > MAX_ERROR_BODY_CHARS
+      ? `${s.slice(0, MAX_ERROR_BODY_CHARS)}…`
+      : s;
+  } catch {
+    return String(data);
+  }
+}
+
+/**
+ * Turns axios / network failures into a multi-line message for the import log.
+ * HTTP errors always include response body when the server returned one.
+ */
+export function formatTemplatesImportRequestError(
+  requestUrl: string,
+  err: unknown
+): string {
+  const safeUrl = requestUrl.split('?')[0] ?? requestUrl;
+
+  if (err instanceof DOMException && err.name === 'AbortError') {
+    return 'Request aborted.';
+  }
+
+  if (isAxiosError(err)) {
+    const lines: string[] = [];
+
+    if (err.code === 'ERR_CANCELED') {
+      return 'Request aborted.';
+    }
+
+    if (err.response) {
+      const {status, statusText} = err.response;
+      lines.push(
+        `HTTP ${status}${statusText ? ` ${statusText}` : ''}`.trim()
+      );
+      const body = stringifyResponseBody(err.response.data);
+      lines.push(`Response body:\n${body}`);
+    } else if (err.request) {
+      lines.push('No HTTP response (network or CORS).');
+      if (err.message) {
+        lines.push(err.message);
+      }
+      if (err.code) {
+        lines.push(`Code: ${err.code}`);
+      }
+    } else {
+      lines.push(err.message || 'Request failed');
+    }
+
+    lines.push(`Request: POST ${safeUrl}`);
+    return lines.join('\n');
+  }
+
+  if (err instanceof Error) {
+    return `${err.name}: ${err.message}\nRequest: POST ${safeUrl}`;
+  }
+
+  return `${String(err)}\nRequest: POST ${safeUrl}`;
+}
+
+function logIndentedMessage(
+  log: (line: string) => void,
+  err: unknown
+): void {
+  const msg = err instanceof Error ? err.message : String(err);
+  for (const line of msg.split('\n')) {
+    log(`  ${line}`);
+  }
+}
+
 async function postJson(
   url: string,
   apiKey: string,
@@ -124,27 +208,19 @@ async function postJson(
   if (body !== undefined) {
     headers['Content-Type'] = 'application/json';
   }
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal,
-  });
-  const text = await res.text();
-  let parsed: unknown;
+
   try {
-    parsed = text ? JSON.parse(text) : null;
-  } catch {
-    parsed = text;
+    const {data} = await axios.request<unknown>({
+      method: 'POST',
+      url,
+      headers,
+      signal,
+      ...(body !== undefined ? {data: body} : {}),
+    });
+    return data ?? null;
+  } catch (e) {
+    throw new Error(formatTemplatesImportRequestError(url, e));
   }
-  if (!res.ok) {
-    const detail =
-      typeof parsed === 'string'
-        ? parsed
-        : JSON.stringify(parsed).slice(0, 500);
-    throw new Error(`HTTP ${res.status}: ${detail || res.statusText}`);
-  }
-  return parsed;
 }
 
 function sleep(ms: number, signal: AbortSignal | undefined): Promise<void> {
@@ -257,8 +333,9 @@ export async function runTemplatesImport(
         await sleep(config.delayMsBetweenCreates, signal);
       }
     } catch (e) {
+      log('Error:');
+      logIndentedMessage(log, e);
       const msg = e instanceof Error ? e.message : String(e);
-      log(`Error: ${msg}`);
       createResults.push({status: 'failed', name: displayName, error: msg});
     }
   }
@@ -329,8 +406,9 @@ export async function runTemplatesImport(
           response: res,
         });
       } catch (e) {
+        log('Localization failed:');
+        logIndentedMessage(log, e);
         const msg = e instanceof Error ? e.message : String(e);
-        log(`Localization failed: ${msg}`);
         localizationResults.push({
           name: apiName,
           status: 'failed',
@@ -411,8 +489,9 @@ export async function runTemplatesImport(
           response: res,
         });
       } catch (e) {
+        log('Submit failed:');
+        logIndentedMessage(log, e);
         const msg = e instanceof Error ? e.message : String(e);
-        log(`Submit failed: ${msg}`);
         submissionResults.push({
           name: apiName,
           language,
