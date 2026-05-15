@@ -20,12 +20,155 @@ import {
   type TemplatesExportConfig,
   type TemplatesImportConfig,
 } from '@site/src/lib/templatesJsonToTexter';
+import {
+  PARTNER_BUNDLES,
+  type PartnerSeedField,
+} from '@site/src/data/partnerBundles';
 
 import styles from './styles.module.css';
 
 type Mode = 'import' | 'export';
-type InputMode = 'file' | 'paste';
+type InputMode = 'file' | 'paste' | 'partner';
 type ExportOutput = 'file' | 'inline';
+
+/** Initial selection state: every partner empty. The user picks a partner
+    explicitly — opens the modal with nothing selected and the Save button
+    disabled until something is ticked. */
+function initialPartnerSelection(): Record<string, Set<string>> {
+  const init: Record<string, Set<string>> = {};
+  for (const partner of PARTNER_BUNDLES) {
+    init[partner.id] = new Set();
+  }
+  return init;
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+/** Read the template's display title (top-level `title` field). */
+function getTemplateTitle(tpl: TemplateInput): string {
+  return typeof tpl.title === 'string' ? tpl.title : '';
+}
+
+/** Read the API-side template name (provider_template.name). */
+function getTemplateApiName(tpl: TemplateInput): string {
+  if (isPlainObject(tpl.provider_template)) {
+    const n = tpl.provider_template.name;
+    if (typeof n === 'string') return n;
+  }
+  return '';
+}
+
+/** Read the first localization's BODY component text, if present. */
+function getTemplateBodyText(tpl: TemplateInput): string {
+  if (!isPlainObject(tpl.provider_template)) return '';
+  const locs = tpl.provider_template.localizations;
+  if (!Array.isArray(locs) || locs.length === 0) return '';
+  const first = locs[0];
+  if (!isPlainObject(first) || !Array.isArray(first.components)) return '';
+  for (const c of first.components) {
+    if (isPlainObject(c) && c.type === 'BODY' && typeof c.text === 'string') {
+      return c.text;
+    }
+  }
+  return '';
+}
+
+/**
+ * Recursively replace every occurrence of `find` with `replace` in every
+ * string field of an arbitrary JSON-like value. Used to swap partner-bundle
+ * placeholders (e.g. "שם הקליניקה") with the value the user typed in the
+ * seed input. Returns a new object — the input is not mutated.
+ */
+function deepStringReplace(
+  value: unknown,
+  replacements: {find: string; replace: string}[]
+): unknown {
+  if (replacements.length === 0) return value;
+  if (typeof value === 'string') {
+    let s = value;
+    for (const r of replacements) {
+      if (r.replace.length === 0) continue;
+      s = s.split(r.find).join(r.replace);
+    }
+    return s;
+  }
+  if (Array.isArray(value)) {
+    return value.map((v) => deepStringReplace(v, replacements));
+  }
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(value as Record<string, unknown>)) {
+      out[k] = deepStringReplace(
+        (value as Record<string, unknown>)[k],
+        replacements
+      );
+    }
+    return out;
+  }
+  return value;
+}
+
+/** Apply a partner's seed values across every string in a template payload. */
+function applyPartnerSeedsToTemplate(
+  tpl: TemplateInput,
+  seedFields: PartnerSeedField[] | undefined,
+  seedValues: Record<string, string> | undefined
+): TemplateInput {
+  if (!seedFields || seedFields.length === 0) return tpl;
+  const replacements: {find: string; replace: string}[] = [];
+  for (const f of seedFields) {
+    const v = seedValues?.[f.id];
+    if (v && v.length > 0) {
+      replacements.push({find: f.placeholder, replace: v});
+    }
+  }
+  if (replacements.length === 0) return tpl;
+  return deepStringReplace(tpl, replacements) as TemplateInput;
+}
+
+/** Apply inline edits to a partner template payload via deep clone, leaving
+    the source bundle entry untouched so the picker can be reopened safely. */
+function applyPartnerEditsToTemplate(
+  tpl: TemplateInput,
+  edit: {title?: string; name?: string; body?: string} | undefined
+): TemplateInput {
+  if (!edit || (edit.title === undefined && edit.name === undefined && edit.body === undefined)) {
+    return tpl;
+  }
+  // Structured clone keeps types correct vs JSON.parse(JSON.stringify())
+  // and is widely supported.
+  const cloned =
+    typeof structuredClone === 'function'
+      ? structuredClone(tpl)
+      : (JSON.parse(JSON.stringify(tpl)) as TemplateInput);
+  if (edit.title !== undefined) {
+    cloned.title = edit.title;
+  }
+  if (edit.name !== undefined && isPlainObject(cloned.provider_template)) {
+    cloned.provider_template.name = edit.name;
+    if (typeof cloned.name === 'string') {
+      cloned.name = edit.name;
+    }
+  }
+  if (edit.body !== undefined && isPlainObject(cloned.provider_template)) {
+    const locs = cloned.provider_template.localizations;
+    if (Array.isArray(locs) && locs.length > 0 && isPlainObject(locs[0])) {
+      const first = locs[0] as Record<string, unknown>;
+      const components = first.components;
+      if (Array.isArray(components)) {
+        for (const c of components) {
+          if (isPlainObject(c) && c.type === 'BODY') {
+            (c as Record<string, unknown>).text = edit.body;
+            break;
+          }
+        }
+      }
+    }
+  }
+  return cloned;
+}
 
 /**
  * Small hover/focus tooltip used in place of inline helper paragraphs. The form
@@ -156,6 +299,36 @@ export default function TemplatesImportTool(): ReactNode {
   const [templates, setTemplates] = useState<TemplateInput[] | null>(null);
   const [inputError, setInputError] = useState<string | null>(null);
 
+  // Partner Bundle picker state. `partnerSelection[partnerId]` is the set of
+  // currently-checked template ids for that partner. Initialized to all-on
+  // since users usually want the whole bundle.
+  const [partnerModalOpen, setPartnerModalOpen] = useState(false);
+  const [partnerSelection, setPartnerSelection] = useState<
+    Record<string, Set<string>>
+  >(initialPartnerSelection);
+  const [partnerExpanded, setPartnerExpanded] = useState<Record<string, boolean>>(
+    {}
+  );
+  /** Per-template expand state inside a partner — keyed by template id. */
+  const [partnerTplExpanded, setPartnerTplExpanded] = useState<
+    Record<string, boolean>
+  >({});
+  /** Edits the user has made inline before clicking Save. Each entry is
+      keyed by template id and stores optional overrides for title (top-level),
+      name (provider_template.name), and body (first localization's BODY text). */
+  type PartnerEdit = {title?: string; name?: string; body?: string};
+  const [partnerEdits, setPartnerEdits] = useState<Record<string, PartnerEdit>>(
+    {}
+  );
+  /** Partner-level seed values: `partnerSeed[partnerId][fieldId] = userValue`.
+      Replaced into template payloads at display & save time. */
+  const [partnerSeed, setPartnerSeed] = useState<
+    Record<string, Record<string, string>>
+  >({});
+  /** Names of partners whose templates are currently loaded — used for the
+      "loaded from Rapid + Optima" status line under the tab. */
+  const [partnerLoadedFrom, setPartnerLoadedFrom] = useState<string[]>([]);
+
   const [logLines, setLogLines] = useState<string[]>([]);
   const [running, setRunning] = useState(false);
   const [showFullLog, setShowFullLog] = useState(false);
@@ -263,14 +436,158 @@ export default function TemplatesImportTool(): ReactNode {
       setInputMode(mode);
       setInputError(null);
       setTemplates(null);
-      if (mode === 'file') {
+      setPartnerLoadedFrom([]);
+      if (mode !== 'paste') {
         setPasteText('');
-      } else {
+      }
+      if (mode !== 'file') {
         setFileLabel(null);
+      }
+      // Open the partner picker automatically when entering Partner mode —
+      // the modal IS the primary action for this tab.
+      if (mode === 'partner') {
+        setPartnerModalOpen(true);
       }
     },
     [running]
   );
+
+  /** Single-partner constraint helper: returns a fresh selection map with
+      every partner emptied except `keepId` (whose existing set is preserved). */
+  const clearOtherPartners = useCallback(
+    (
+      prev: Record<string, Set<string>>,
+      keepId: string
+    ): Record<string, Set<string>> => {
+      const next: Record<string, Set<string>> = {};
+      for (const p of PARTNER_BUNDLES) {
+        next[p.id] = p.id === keepId ? new Set(prev[p.id] ?? []) : new Set();
+      }
+      return next;
+    },
+    []
+  );
+
+  /** Toggle a single template's checked state within a partner.
+      Selecting in one partner clears the other partner's selection
+      (single-partner-at-a-time constraint). */
+  const togglePartnerTemplate = useCallback(
+    (partnerId: string, templateId: string) => {
+      setPartnerSelection((prev) => {
+        const next = clearOtherPartners(prev, partnerId);
+        const set = next[partnerId];
+        if (set.has(templateId)) {
+          set.delete(templateId);
+        } else {
+          set.add(templateId);
+        }
+        return next;
+      });
+    },
+    [clearOtherPartners]
+  );
+
+  /** Tick or untick every template under a partner. Other partners get cleared. */
+  const togglePartnerAll = useCallback(
+    (partnerId: string) => {
+      setPartnerSelection((prev) => {
+        const partner = PARTNER_BUNDLES.find((p) => p.id === partnerId);
+        if (!partner) return prev;
+        const current = prev[partnerId] ?? new Set<string>();
+        const allOn = current.size === partner.templates.length;
+        const next = clearOtherPartners(prev, partnerId);
+        next[partnerId] = allOn
+          ? new Set<string>()
+          : new Set(partner.templates.map((t) => t.id));
+        return next;
+      });
+    },
+    [clearOtherPartners]
+  );
+
+  const togglePartnerExpanded = useCallback((partnerId: string) => {
+    setPartnerExpanded((prev) => ({...prev, [partnerId]: !prev[partnerId]}));
+  }, []);
+
+  const togglePartnerTplExpanded = useCallback((templateId: string) => {
+    setPartnerTplExpanded((prev) => ({...prev, [templateId]: !prev[templateId]}));
+  }, []);
+
+  const setPartnerEditField = useCallback(
+    (templateId: string, field: keyof PartnerEdit, value: string) => {
+      setPartnerEdits((prev) => ({
+        ...prev,
+        [templateId]: {...(prev[templateId] ?? {}), [field]: value},
+      }));
+    },
+    []
+  );
+
+  const setPartnerSeedValue = useCallback(
+    (partnerId: string, fieldId: string, value: string) => {
+      setPartnerSeed((prev) => ({
+        ...prev,
+        [partnerId]: {...(prev[partnerId] ?? {}), [fieldId]: value},
+      }));
+    },
+    []
+  );
+
+  /** Pull the actual TemplateInput[] out of partner bundles for the currently
+      checked set, applying inline edits, push it into the importer state,
+      switch default submit mode to draft, and close the modal. */
+  const applyPartnerSelection = useCallback(() => {
+    const picked: TemplateInput[] = [];
+    const partnersUsed: string[] = [];
+    for (const partner of PARTNER_BUNDLES) {
+      const set = partnerSelection[partner.id];
+      if (!set || set.size === 0) continue;
+      const fromThis = partner.templates.filter((t) => set.has(t.id));
+      if (fromThis.length === 0) continue;
+      partnersUsed.push(partner.name);
+      const seedsForPartner = partnerSeed[partner.id];
+      for (const t of fromThis) {
+        // Seed-replace placeholders (e.g. "שם הקליניקה") across the whole
+        // template payload first, then layer the user's explicit per-template
+        // edits on top so those win for fields they touched.
+        const seeded = applyPartnerSeedsToTemplate(
+          t.template,
+          partner.seedFields,
+          seedsForPartner
+        );
+        picked.push(applyPartnerEditsToTemplate(seeded, partnerEdits[t.id]));
+      }
+    }
+    if (picked.length === 0) {
+      setInputError('Pick at least one template before saving.');
+      return;
+    }
+    setInputError(null);
+    setTemplates(picked);
+    setPartnerLoadedFrom(partnersUsed);
+    // Default to draft for partner bundles — users typically want to tweak
+    // template text in the Texter UI before submitting for approval.
+    setSubmitMode('draft');
+    // Partner bundles ship with deliberate template names (e.g.
+    // `rapid_welcome`); auto-enable keep-names so the API doesn't replace
+    // them with auto-assigned ones. User can untick after if they prefer.
+    setKeepNames(true);
+    setPartnerModalOpen(false);
+  }, [partnerSelection, partnerEdits]);
+
+  const cancelPartnerModal = useCallback(() => {
+    setPartnerModalOpen(false);
+  }, []);
+
+  // ESC closes the partner modal.
+  useEffect(() => {
+    if (!partnerModalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPartnerModalOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [partnerModalOpen]);
 
   const handleAbort = useCallback(() => {
     abortRef.current?.abort();
@@ -520,6 +837,14 @@ export default function TemplatesImportTool(): ReactNode {
     [submitMode]
   );
 
+  /** True when at least one template from any partner is currently ticked.
+      Used to disable the Save selection button so users can't save an empty
+      set. */
+  const hasAnyPartnerSelection = useMemo(
+    () => Object.values(partnerSelection).some((set) => set.size > 0),
+    [partnerSelection]
+  );
+
   const requiredOk = Boolean(
     projectId.trim() && apiKey.trim() && accountId.trim() && templates?.length
   );
@@ -697,9 +1022,18 @@ export default function TemplatesImportTool(): ReactNode {
                 disabled={running}>
                 Paste JSON
               </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={inputMode === 'partner'}
+                className={clsx(styles.modeTab, inputMode === 'partner' && styles.modeTabActive)}
+                onClick={() => switchInputMode('partner')}
+                disabled={running}>
+                Partner Bundle
+              </button>
             </div>
 
-            {inputMode === 'file' ? (
+            {inputMode === 'file' && (
               <>
                 <input
                   id="ti-file"
@@ -709,8 +1043,6 @@ export default function TemplatesImportTool(): ReactNode {
                   onChange={onFile}
                   disabled={running}
                 />
-                {/* Parse status sits directly under the input so success vs error
-                    land in the same spot, BEFORE the format hint. */}
                 {inputError ? (
                   <p className={styles.hint}>
                     <span className={styles.metaBad}>{inputError}</span>
@@ -727,7 +1059,9 @@ export default function TemplatesImportTool(): ReactNode {
                   </p>
                 ) : null}
               </>
-            ) : (
+            )}
+
+            {inputMode === 'paste' && (
               <>
                 <textarea
                   className={styles.pasteArea}
@@ -748,6 +1082,30 @@ export default function TemplatesImportTool(): ReactNode {
                   </p>
                 ) : null}
               </>
+            )}
+
+            {inputMode === 'partner' && (
+              <div className={styles.partnerPicker}>
+                <button
+                  type="button"
+                  className={styles.partnerOpenBtn}
+                  onClick={() => setPartnerModalOpen(true)}
+                  disabled={running}>
+                  {templates && partnerLoadedFrom.length > 0
+                    ? 'Change selection…'
+                    : 'Choose partner templates…'}
+                </button>
+                {inputError ? (
+                  <p className={styles.hint}>
+                    <span className={styles.metaBad}>{inputError}</span>
+                  </p>
+                ) : templates && partnerLoadedFrom.length > 0 ? (
+                  <p className={styles.hint}>
+                    <span className={styles.metaOk}>{templates.length} template(s)</span>{' '}
+                    loaded from {partnerLoadedFrom.join(' + ')}.
+                  </p>
+                ) : null}
+              </div>
             )}
           </div>
 
@@ -1171,6 +1529,252 @@ export default function TemplatesImportTool(): ReactNode {
               </div>
             ) : null}
           </section>
+        </div>
+      )}
+
+      {/* ─── Partner Bundle picker modal ─── */}
+      {partnerModalOpen && (
+        <div
+          className={styles.modalBackdrop}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="partner-modal-title"
+          onClick={cancelPartnerModal}>
+          <div
+            className={styles.modal}
+            onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 id="partner-modal-title" className={styles.modalTitle}>
+                Partner Bundles
+              </h3>
+              <button
+                type="button"
+                className={styles.modalClose}
+                aria-label="Close"
+                onClick={cancelPartnerModal}>
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <p className={styles.modalIntro}>
+                Tick a partner to include all of its starter templates, or
+                expand to pick individual templates. The Save button loads your
+                selection into the importer below.
+              </p>
+
+              {PARTNER_BUNDLES.map((partner) => {
+                const set = partnerSelection[partner.id] ?? new Set<string>();
+                const total = partner.templates.length;
+                const selected = set.size;
+                const allOn = selected === total;
+                const someOn = selected > 0 && selected < total;
+                const expanded = !!partnerExpanded[partner.id];
+                return (
+                  <div key={partner.id} className={styles.partnerSection}>
+                    <div className={styles.partnerHead}>
+                      <label className={styles.partnerHeadLabel}>
+                        <input
+                          type="checkbox"
+                          checked={allOn}
+                          ref={(el) => {
+                            if (el) el.indeterminate = someOn;
+                          }}
+                          onChange={() => togglePartnerAll(partner.id)}
+                        />
+                        <span className={styles.partnerName}>{partner.name}</span>
+                        <span className={styles.partnerCount}>
+                          {selected}/{total}
+                        </span>
+                      </label>
+                      <button
+                        type="button"
+                        className={styles.partnerExpandBtn}
+                        onClick={() => togglePartnerExpanded(partner.id)}
+                        aria-expanded={expanded}
+                        aria-controls={`partner-list-${partner.id}`}>
+                        {expanded ? '▾' : '▸'} {expanded ? 'Hide' : 'Show'} templates
+                      </button>
+                    </div>
+                    {partner.description && (
+                      <p className={styles.partnerDescription}>
+                        {partner.description}
+                      </p>
+                    )}
+                    {/* Seed inputs only matter once the partner is actually
+                        chosen (i.e., has at least one template ticked) — hide
+                        them until then so the modal stays compact when the
+                        partner isn't being used. */}
+                    {partner.seedFields &&
+                      partner.seedFields.length > 0 &&
+                      selected > 0 && (
+                      <div className={styles.partnerSeedFields}>
+                        {partner.seedFields.map((field) => (
+                          <label
+                            key={field.id}
+                            className={styles.partnerSeedLabel}>
+                            <span className={styles.partnerSeedLabelText}>
+                              {field.label}
+                            </span>
+                            <input
+                              type="text"
+                              className={styles.partnerSeedInput}
+                              value={
+                                partnerSeed[partner.id]?.[field.id] ?? ''
+                              }
+                              onChange={(e) =>
+                                setPartnerSeedValue(
+                                  partner.id,
+                                  field.id,
+                                  e.target.value
+                                )
+                              }
+                              placeholder={field.inputPlaceholder}
+                            />
+                            {field.hint && (
+                              <span className={styles.partnerSeedHint}>
+                                {field.hint}
+                              </span>
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                    {expanded && (
+                      <ul
+                        id={`partner-list-${partner.id}`}
+                        className={styles.partnerTemplateList}>
+                        {partner.templates.map((t) => {
+                          const checked = set.has(t.id);
+                          const tplExpanded = !!partnerTplExpanded[t.id];
+                          const edit = partnerEdits[t.id] ?? {};
+                          // Apply the partner's seed values for display, so
+                          // empty edits show the seeded version (e.g.
+                          // "תודה - Optima Dental Clinic") instead of the
+                          // raw placeholder.
+                          const seededTpl = applyPartnerSeedsToTemplate(
+                            t.template,
+                            partner.seedFields,
+                            partnerSeed[partner.id]
+                          );
+                          const currentTitle =
+                            edit.title ?? getTemplateTitle(seededTpl);
+                          const currentName =
+                            edit.name ?? getTemplateApiName(seededTpl);
+                          const currentBody =
+                            edit.body ?? getTemplateBodyText(seededTpl);
+                          return (
+                            <li key={t.id} className={styles.partnerTemplateItem}>
+                              <div className={styles.partnerTemplateRow}>
+                                <label className={styles.partnerTemplateLabel}>
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={() =>
+                                      togglePartnerTemplate(partner.id, t.id)
+                                    }
+                                  />
+                                  <span className={styles.partnerTemplateTitle}>
+                                    {currentTitle || t.name}
+                                  </span>
+                                </label>
+                                <button
+                                  type="button"
+                                  className={styles.partnerTemplateExpand}
+                                  onClick={() => togglePartnerTplExpanded(t.id)}
+                                  aria-expanded={tplExpanded}
+                                  aria-controls={`partner-tpl-${t.id}`}>
+                                  {tplExpanded ? '▾' : '▸'}
+                                </button>
+                              </div>
+                              {tplExpanded && (
+                                <div
+                                  id={`partner-tpl-${t.id}`}
+                                  className={styles.partnerTemplateEdit}>
+                                  <label className={styles.partnerEditLabel}>
+                                    Title
+                                    <input
+                                      type="text"
+                                      className={styles.partnerEditInput}
+                                      value={currentTitle}
+                                      onChange={(e) =>
+                                        setPartnerEditField(
+                                          t.id,
+                                          'title',
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </label>
+                                  <label className={styles.partnerEditLabel}>
+                                    Name
+                                    <input
+                                      type="text"
+                                      className={clsx(
+                                        styles.partnerEditInput,
+                                        styles.partnerEditInputMono
+                                      )}
+                                      value={currentName}
+                                      onChange={(e) =>
+                                        setPartnerEditField(
+                                          t.id,
+                                          'name',
+                                          e.target.value
+                                        )
+                                      }
+                                      pattern="[a-zA-Z0-9_]+"
+                                    />
+                                    <span className={styles.partnerEditSub}>
+                                      Letters, digits and underscores only.
+                                    </span>
+                                  </label>
+                                  <label className={styles.partnerEditLabel}>
+                                    Body
+                                    <textarea
+                                      className={clsx(
+                                        styles.partnerEditInput,
+                                        styles.partnerEditTextarea
+                                      )}
+                                      value={currentBody}
+                                      onChange={(e) =>
+                                        setPartnerEditField(
+                                          t.id,
+                                          'body',
+                                          e.target.value
+                                        )
+                                      }
+                                      rows={3}
+                                    />
+                                  </label>
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button
+                type="button"
+                className={styles.modalCancelBtn}
+                onClick={cancelPartnerModal}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="button button--primary"
+                onClick={applyPartnerSelection}
+                disabled={!hasAnyPartnerSelection}
+                title={!hasAnyPartnerSelection ? 'Pick a partner first' : undefined}>
+                Save selection
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
