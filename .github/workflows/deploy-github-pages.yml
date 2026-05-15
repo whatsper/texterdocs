@@ -50,6 +50,7 @@ jobs:
         env:
           AI_CHAT_WEBHOOK_URL: ${{ secrets.AI_CHAT_WEBHOOK_URL }}
           TEMPLATE_IMPORT_PROXY_URL: ${{ secrets.TEMPLATE_IMPORT_PROXY_URL }}
+          UNSUBSCRIBE_PHONES_WEBHOOK_URL: ${{ secrets.UNSUBSCRIBE_PHONES_WEBHOOK_URL }}
           GISCUS_REPO: ${{ secrets.GISCUS_REPO }}
           GISCUS_REPO_ID: ${{ secrets.GISCUS_REPO_ID }}
           GISCUS_CATEGORY: ${{ secrets.GISCUS_CATEGORY }}

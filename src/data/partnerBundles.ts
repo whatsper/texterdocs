@@ -836,6 +836,7 @@ export const PARTNER_BUNDLES: PartnerBundle[] = [
           chatStatus: 0,
           isDefault: false,
           departments: [],
+          setBotNode: "split_for_mini_bot_meeting",
           provider_template: {
             name: "a1",
             category: "UTILITY",

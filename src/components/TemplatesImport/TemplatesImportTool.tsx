@@ -897,13 +897,6 @@ export default function TemplatesImportTool(): ReactNode {
         </p>
       )}
 
-      <div className={styles.warn}>
-        Your API key is sent from this browser to the Texter Docs proxy and forwarded to{' '}
-        <code>*.texterchat.com</code>. It is never stored, but anyone with access to this tab
-        can intercept it — use a dedicated key with the minimum scopes you need and revoke it
-        when finished.
-      </div>
-
       {!proxyConfigured ? (
         <div className={styles.warn}>
           <strong>Proxy is not configured for this deploy.</strong> Set the

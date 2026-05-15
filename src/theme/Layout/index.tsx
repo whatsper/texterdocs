@@ -4,6 +4,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import clsx from 'clsx';
 import Layout from '@theme-original/Layout';
 import BrowserOnly from '@docusaurus/BrowserOnly';
+import {Toaster} from 'react-hot-toast';
 import AIChat from '@site/src/components/AIChat';
 import GiscusComments, {isSiteHomePage} from '@site/src/components/GiscusComments';
 import styles from './styles.module.css';
@@ -67,6 +68,7 @@ export default function LayoutWrapper(props: LayoutProps): ReactNode {
       <BrowserOnly fallback={null}>
         {() => <AIChat />}
       </BrowserOnly>
+      <Toaster position="top-center" />
     </>
   );
 }
