@@ -2,11 +2,55 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-05-14T00:00:00.000Z</updated>
+    <updated>2026-05-15T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Templates Export + Partner Bundles]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles"/>
+        <updated>2026-05-15T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[The Templates page picks up Export, three Partner Bundle starter sets, Draft mode, and inline editing of bundled templates — among a stack of UX fixes.]]></summary>
+        <content type="html"><![CDATA[<p>The Templates page picks up Export, three Partner Bundle starter sets, Draft mode, and inline editing of bundled templates — among a stack of UX fixes.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Export mode</strong> — new tab that downloads every WhatsApp template from a Texter account as JSON, either as a <code>&lt;projectId&gt;_templates.json</code> file or printed inline for copy-paste.</li>
+<li><strong>Partner Bundles</strong> — third input mode that opens a picker for pre-built starter sets: <strong>Rapid</strong> (15 templates for clinics on Rapid), <strong>Optima</strong> (5 templates for dental clinics on Optima), and <strong>CPA Assist</strong> (2 templates for accounting offices). Tick a bundle or individual templates, hit Save.</li>
+<li><strong>Inline template editing</strong> — each partner template can be expanded in the picker to edit title / name / body before importing.</li>
+<li><strong>Seed input for Optima</strong> — single field above the templates that string-replaces every <code>שם הקליניקה</code> placeholder across the selected templates on Save.</li>
+<li><strong>Draft mode</strong> — submit-mode toggle that creates + localizes templates without submitting for WhatsApp approval, so they stay editable in the Texter UI.</li>
+<li><strong>Paste JSON mode</strong> — alternative to file upload; parses on each keystroke.</li>
+<li><strong>Per-call progress + error summary</strong> — bars advance per API call (not per template), with a configurable delay between every call to dodge rate limits and an end-of-run errors list naming each failure.</li>
+<li><strong>Help tooltips</strong> — every config field shows a <code>?</code> button with field-specific guidance, including the required Texter API scope.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>URL</strong> — slug is now <code>/docs/templates-import-export</code>. Old <code>/templates-import</code> and <code>/docs/tools/template-json-import</code> redirect.</li>
+<li><strong>Progress UI</strong> — outcome-driven colors (green / orange / red / striped grey), and the Result/Progress card height tracks the form card so the bottoms stay aligned.</li>
+</ul>]]></content>
+        <category label="feature" term="feature"/>
+        <category label="docs" term="docs"/>
+        <category label="site" term="site"/>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Unsubscribe Phones + Bot Recipes]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/15/unsubscribe-phones-bot-recipes</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/unsubscribe-phones-bot-recipes"/>
+        <updated>2026-05-15T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A new in-browser tool to bulk-unsubscribe phone numbers from a Texter environment, plus a "Bot Recipes" section under Bot YAML with copy-paste-ready snippets for common starter bots.]]></summary>
+        <content type="html"><![CDATA[<p>A new in-browser tool to bulk-unsubscribe phone numbers from a Texter environment, plus a "Bot Recipes" section under Bot YAML with copy-paste-ready snippets for common starter bots.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/unsubscribe-phones-bot-recipes#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Unsubscribe Phones</strong> — new tool at <a href="https://whatsper.github.io/texterdocs/docs/tools/unsubscribe-phones">Tools → Unsubscribe Phones</a> for bulk-unsubscribing phone numbers from a Texter environment. Paste a comma-separated list or upload a CSV (<code>phone</code> column), capped at 5,000 per request. Pre-flight probe aborts on auth / config / unreachable-instance errors with one clear message; otherwise the result panel shows per-number outcomes with HTTP status and reason.</li>
+<li><strong>Bot Recipes</strong> — new section under Bot YAML with copy-paste-ready snippets for common starter bots: <strong>AI Bot</strong> (external-bot wiring + <code>AI_TEST</code> command), <strong>CPA Assist Bot</strong> (mandatory CPA Assist starter, includes the nodes routed by partner templates), <strong>Optima Bot</strong> (meeting-reminder webhook handler), and <strong>Handoff Only Bot</strong> (forward everything to a human).</li>
+</ul>]]></content>
+        <category label="feature" term="feature"/>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+        <category label="site" term="site"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Template JSON import in Tools]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/05/14/template-json-import</id>
@@ -407,50 +451,5 @@
         <category label="scenarios" term="scenarios"/>
         <category label="docs" term="docs"/>
         <category label="automation" term="automation"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Plando Adapter + Docs Fixes]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando"/>
-        <updated>2026-04-02T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[New Plando CRM adapter docs and a round of fixes and additions across existing pages.]]></summary>
-        <content type="html"><![CDATA[<p>New Plando CRM adapter docs and a round of fixes and additions across existing pages.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Plando adapter</strong> — full documentation for <code>getCustomerDetails</code>, <code>newOpportunity</code>, <code>openTicket</code>/<code>closeTicket</code>, and out-of-adapter endpoints (<code>log_activity</code>, <code>upload_contact_file</code>)</li>
-<li><strong><code>log_activity</code></strong> — expanded with all supported API fields including contact identification options, record fields, and response handling</li>
-<li><strong>Send Media</strong> — added dynamic URL tip (workaround for editor validation when using data injection in <code>doc:</code>/<code>media:</code>) and a line breaks in captions example</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/02/plando#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
-<ul>
-<li><strong>Prompt Text</strong> — corrected optional param name from <code>delay_on_complete</code> to <code>delay_complete_seconds</code></li>
-</ul>]]></content>
-        <category label="adapters" term="adapters"/>
-        <category label="docs" term="docs"/>
-        <category label="yaml" term="yaml"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Senzey & Lead.IM Adapters + Docs Improvements]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim"/>
-        <updated>2026-03-29T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Two new CRM adapter docs, new transformers, and a round of clarity improvements across the docs.]]></summary>
-        <content type="html"><![CDATA[<p>Two new CRM adapter docs, new transformers, and a round of clarity improvements across the docs.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Senzey adapter</strong> — full documentation</li>
-<li><strong>Lead.IM adapter</strong> — full documentation</li>
-<li><strong>New transformers</strong> - <code>get</code>, <code>omit</code>, <code>pick</code>, documented in the Data Injection / Transformers page</li>
-<li><strong><code>working_time</code> schedule table</strong> - allowed days &amp; hours formats documented in <code>Check Working Hours</code></li>
-<li><strong>Diagrams</strong> - added visual diagrams to more complex nodes and flows</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/03/29/senzey-leadim#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li><code>Share File</code> moved to the System functions category (was Utils)</li>
-<li>Powerlink, Rapid, Tazman, Zoho adapter pages cleaned up</li>
-</ul>]]></content>
-        <category label="adapters" term="adapters"/>
-        <category label="docs" term="docs"/>
-        <category label="yaml" term="yaml"/>
     </entry>
 </feed>
