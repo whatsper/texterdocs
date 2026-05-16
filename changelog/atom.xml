@@ -2,11 +2,43 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-05-15T00:00:00.000Z</updated>
+    <updated>2026-05-16T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Airtable Adapter + Adapter Doc Corrections]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections"/>
+        <updated>2026-05-16T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A new Airtable adapter page, plus an audit pass over the existing adapter docs to fix a handful of inaccuracies caught against the live server code.]]></summary>
+        <content type="html"><![CDATA[<p>A new Airtable adapter page, plus an audit pass over the existing adapter docs to fix a handful of inaccuracies caught against the live server code.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Airtable adapter</strong> — full documentation for <code>getCustomerDetails</code>, <code>newOpportunity</code> / <code>createRecord</code>, and <code>updateRecord</code>, including the required <code>crmConfig</code> (<code>baseId</code>, <code>tableId</code>, <code>viewId</code>, <code>authToken</code>, <code>phoneColumn</code>), per-call overrides for base/table/view, and notes on the auto-injected phone column.</li>
+<li><strong>Rapid <code>crmGetFields</code></strong> — undocumented op that returns the hardcoded Hebrew status list used by Texter's <code>changeStatus</code> dropdowns.</li>
+<li><strong>Senzey <code>crmConfig</code></strong> — config table (<code>server</code>, <code>username</code>, <code>password</code>) was missing from the page; now included.</li>
+<li><strong>Tazman <code>crmConfig</code></strong> — config table (<code>server</code>, <code>token</code>, plus the four <code>result*Field</code> overrides) was missing from the page; now included.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>Rapid <code>crmGetAppointments</code></strong> — <code>datesRangeTo</code> is a window <strong>length</strong> in days, not an end-day index (<code>0, 14</code> searches today through 14 days out).</li>
+<li><strong>Rapid <code>crmCreateAppointment</code></strong> — result is <code>crmData.appointmentId</code> (string), not an array.</li>
+<li><strong>Rapid <code>uploadFile</code></strong> — result now documents <code>crmData.uploadedFile</code> shape.</li>
+<li><strong>Rapid <code>closeTicket</code></strong> — returns <code>on_failure</code> when <code>crmData.cardCode</code> is missing (was vaguely worded).</li>
+<li><strong>Senzey <code>getCustomerDetails</code></strong> — <code>deepLink</code> is only set when <code>user_type</code> is <code>2</code> or <code>3</code>; the adapter always sends <code>incl_pclient=TRUE</code> so both clients and potential clients are searched.</li>
+<li><strong>GoogleSheet <code>getCustomerDetails</code></strong> — dashed phone variant assumes Israeli format; raw CSV columns spread onto <code>crmData</code> after mapped fields can overwrite <code>name</code> / <code>phone</code> / <code>id</code> / <code>status</code> if column headers collide.</li>
+<li><strong>Powerlink</strong> — <code>showDuplicates</code> fires on a single contact-fallback match too (not only on multi-account matches); <code>displayExistingData</code> writes <code>accountid</code> (lowercase) regardless of the config-key casing; <code>setOwner</code> failure conditions documented.</li>
+<li><strong>Provet</strong> — removed the <code>closeTicket</code> section; the op is effectively a no-op that doesn't call Provet at all.</li>
+<li><strong>Lead.IM</strong> — display-mode edge case where <code>crmData</code> exists without <code>aid</code>/<code>lid</code> (or <code>pp_aid</code>/<code>pp_lid</code>) still returns success but with no <code>id</code> and a bare-base <code>deepLink</code>.</li>
+<li><strong>Salesforce <code>getCustomerDetails</code></strong> — warned that <code>contactObjectCustomFields</code> is a <strong>total replacement</strong> of the default field list, so omitting <code>Id</code> / <code>AccountId</code> / <code>Name</code> / etc. silently drops the corresponding <code>crmData</code> keys; <code>crmData.Accounts</code> is a numeric-keyed object, not an array.</li>
+<li><strong>Zoho</strong> — <code>orgId</code> is optional (only used to build <code>deepLink</code>); documented <code>fieldsOverride</code> and its total-replacement caveat; clarified that an empty-row query returns <code>success: true</code> with <code>crmData.queryResult: {}</code>, not <code>on_failure</code>.</li>
+</ul>]]></content>
+        <category label="adapters" term="adapters"/>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Templates Export + Partner Bundles]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles</id>
@@ -420,36 +452,6 @@
 <li><strong>End-of-Day Closing Message</strong> — cron-triggered scenario that finds pending chats with activity in the last ~9 hours and sends a closing message letting customers know they'll get a response on the next business day. Configurable per customer via a <code>ScenariosCustomTriggerCronTask</code> entry in Nihul (e.g. Sun–Thu at 18:30), excludes chats already labeled <code>waiting_for_customer</code>, and sends up to 10 messages concurrently.</li>
 </ul>]]></content>
         <category label="scenarios" term="scenarios"/>
-        <category label="automation" term="automation"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Scenario Marketplace]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/07/scenario-marketplace</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/07/scenario-marketplace"/>
-        <updated>2026-04-07T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Browse, understand, and copy ready-made automation scenarios directly into Texter — no starting from scratch.]]></summary>
-        <content type="html"><![CDATA[<p>Browse, understand, and copy ready-made automation scenarios directly into Texter — no starting from scratch.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/07/scenario-marketplace#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Scenario Marketplace</strong> — new top-level section in the docs site at <code>/scenarios</code></li>
-<li><strong>18 scenarios</strong> across trigger types, action types, and integrations, including:<!-- -->
-<ul>
-<li>Subscribe-to-events templates (incoming messages, chat assigned/resolved, message status, external bot, scheduled, channel health)</li>
-<li>Q-AI suite — turn on/off AI sessions, forward messages to an AI webhook, end sessions and run a fallback bot</li>
-<li>Salesforce CRM — create and update service requests on chat events</li>
-<li>Utility — assign by echo message, label on message error, notify on assignment, forward delivery status</li>
-</ul>
-</li>
-<li><strong>Tag filtering</strong> — filter by trigger type, action type, or integration (e.g. <code>ai-bot</code>, <code>salesforce</code>, <code>webhook</code>)</li>
-<li><strong>Search</strong> — full-text search across scenario name, description, tags, and trigger events</li>
-<li><strong>Per-card flow strip</strong> — visual trigger → action icon flow at the top of each card; hover an icon to see its label</li>
-<li><strong>"What to configure" section</strong> — collapsible per-scenario guide showing exactly which fields to replace, where they live in the JSON, and whether they're required</li>
-<li><strong>Copy JSON</strong> — one click copies the full scenario JSON to clipboard, ready to paste into Texter</li>
-<li><strong>Randomized ordering</strong> — cards shuffle on each page load so no scenario is always buried at the bottom</li>
-</ul>]]></content>
-        <category label="feature" term="feature"/>
-        <category label="scenarios" term="scenarios"/>
-        <category label="docs" term="docs"/>
         <category label="automation" term="automation"/>
     </entry>
 </feed>
