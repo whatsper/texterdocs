@@ -12,6 +12,16 @@ sidebar_position: 1
 
 ---
 
+## CRM config (`crmConfig`)
+
+| Field | Required | Use |
+|-------|----------|-----|
+| `server` | **Yes** | Base URL of the customer's Tazman instance (e.g. `https://app.tazman.co.il`). Used as the prefix for every API call. |
+| `token` | **Yes** | Authentication token injected in the body of requests. |
+| `resultPhoneField` / `resultNameField` / `resultIdField` / `resultStatusField` | No | Lodash paths into the Tazman customer object that remap which raw field powers `crmData.phone`/`name`/`id`/`status`. Defaults: the raw `phone`/`name`/`id`/`state` fields. Can also be overridden per-call as YAML `params` of the same names. |
+
+---
+
 ## Adapter Functions
 
 ### `getCustomerDetails`
@@ -37,6 +47,10 @@ Looks up a **customer** by **phone**.
 | `minimalFields` | No | By default `false` - if set to `true` will **exclude** the `additional_fields` param. |
 
 **Result:** Merges mapped fields (`id`, `name`, `phone`, `status` mapped from `state`, `locationId` mapped from `location_id`, and `deepLink`) plus the raw Tazman customer object into `crmData`.
+
+:::tip[Phone retry behavior]
+If the first lookup returns nothing, the adapter automatically retries once with all dashes stripped from the phone number before reporting failure.
+:::
 
 **Advanced**
 
@@ -124,5 +138,6 @@ Message our [contact at Tazman](https://ninja.texterchat.com/contact/whatsapp/97
 
 | Field | Provided by Tazman? | Req / extra | Use |
 |-------|-------------|-------------|-----|
+| `server` | Yes | Required | Base URL of the customer's Tazman instance (e.g. `https://app.tazman.co.il`) |
 | `token` | Yes | Required | Authentication token injected in the body of requests |
 

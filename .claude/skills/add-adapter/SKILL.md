@@ -1,6 +1,6 @@
 ---
 name: add-adapter
-description: Scaffold a new CRM adapter documentation page under docs/YAML/Adapters/, sourced from the adapter implementation in _context/code/adapters/
+description: Scaffold a new CRM adapter documentation page under docs/YAML/Adapters/, sourced from the adapter implementation in the sibling `../server` repo (the official, up-to-date CRM code).
 ---
 
 # Add a CRM Adapter Doc
@@ -9,11 +9,15 @@ The user wants to add documentation for a new CRM adapter to the Texter docs sit
 
 They will provide one or more of:
 - The CRM name (e.g., "Plando", "Senzey", "Rapid")
-- A path or filename in `_context/code/adapters/` (e.g., `plando.ts`)
+- A path or filename inside `../server/src/crm/adapters/` (e.g., `plando.ts`)
 - A link to the official CRM API docs
 - Notes about which operations matter, special config, edge cases
 
-**If they only give a name**, locate the source file yourself in `_context/code/adapters/` (try `<name>.ts`, `<name lowercase>.ts`, fuzzy match if needed). If you cannot find it, ask the user where it lives — do not guess.
+## Source of truth: `../server`
+
+**Always read the adapter source from the sibling repo at `../server/src/crm/adapters/` — never from `_context/code/adapters/`.** The `../server` checkout is the official server codebase and is kept up to date; `_context/` may be stale. Helpers, types, and shared utilities the adapter imports also live under `../server/src/` — read them there too (e.g. `../server/src/phone/formatter.ts`, `../server/src/crm/csvParser/`, `../server/src/helpers/`).
+
+**If they only give a name**, locate the source file yourself in `../server/src/crm/adapters/` (try `<name>.ts`, `<name lowercase>.ts`, fuzzy match if needed). If you cannot find it, ask the user where it lives — do not guess.
 
 ---
 
@@ -28,7 +32,7 @@ Always read these first, in order:
 
 ### 2. Read the adapter source
 
-Read the full source file in `_context/code/adapters/<crm>.ts`. This is the **source of truth** for what to document. From it, extract:
+Read the full source file at `../server/src/crm/adapters/<crm>.ts`. This is the **source of truth** for what to document. From it, extract:
 
 - **Every `case '<op>':`** in the main `switch (op)` block — these are the operations to document. Common ones: `getCustomerDetails`, `newOpportunity`, `closeTicket`, `openTicket`, `updateLead`, `customQuery`, `updateRecord`, `newTicket`. Document **all** of them.
 - **For each operation:**
@@ -40,7 +44,7 @@ Read the full source file in `_context/code/adapters/<crm>.ts`. This is the **so
   - Any special flags like `usePclient`, `updateContact`, `is_org`.
 - **Top-level `crmConfig` reads** — every place `crmConfig.<field>` is read tells you a config field. List them all in the `crmConfig` table.
 - **Helpers used** — phone formatting (`formatPhoneNumberForCustomerCountry`), proxy (`getAgentFor`), file sharing (`createToken`), `getLastMessages`. These hint at behaviors worth mentioning ("uses formatted channel phone if omitted", "transcript includes today's messages", etc.).
-- **Imported helpers not in `_context/code/`** — if the adapter imports from a path outside `_context/code/adapters/helpers/` (e.g. `../csvParser/CSVParser`, `../../auth/...`), **find and read that file in https://github.com/whatsper/server.git before writing anything about its behavior**. Do not guess.
+- **Imported helpers** — when the adapter imports from another path inside `../server/src/` (e.g. `../csvParser/CSVParser`, `../../phone/formatter`, `../../auth/...`), **open and read that file in `../server/` before writing anything about its behavior**. Do not guess.
 
 If the source has comments pointing to vendor docs (`@see documentation here: ...`), capture those URLs for the "Official API docs" links section.
 
@@ -189,9 +193,9 @@ For `closeTicket`/`openTicket`, see Plando lines 192–224 (transcript push with
 | `docs/YAML/Adapters/<CrmName>/<CrmName>.md` | The new doc — what you create |
 | `docs/YAML/Adapters/<CrmName>/_category_.json` | Sidebar label + position — what you create |
 | `docs/YAML/Adapters/_category_.json` | Parent category config — read but do not edit |
-| `_context/code/adapters/<crm>.ts` | Source of truth for ops and params — read |
-| `_context/code/adapters/helpers/` | Shared helpers (phone formatting, COQL, etc.) — read if the adapter uses them |
-| https://github.com/whatsper/server.git | Full server codebase — clone or browse when the adapter imports helpers not present in `_context/code/` (e.g. `csvParser`, auth utilities, shared constants). Access requires repo permissions. |
+| `../server/src/crm/adapters/<crm>.ts` | **Source of truth** for ops and params — always read this, not `_context/` |
+| `../server/src/crm/adapters/helpers/` | Shared helpers (phone formatting, COQL, etc.) — read if the adapter uses them |
+| `../server/src/` | Full server codebase — read when the adapter imports helpers from outside `crm/adapters/` (e.g. `../../phone/formatter`, `../csvParser/`, `../../auth/...`). |
 | `docs/YAML/Adapters/Plando/Plando.md` | Reference: rich adapter doc |
 | `docs/YAML/Adapters/Senzey/Senzey.md` | Reference: minimal adapter doc |
 

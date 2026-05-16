@@ -50,6 +50,10 @@ No params. Phone is taken from the chat automatically.
 
 **Result (display mode):** Sets `crmData.id`, `crmData.name`, `crmData.phone`, `crmData.deepLink` from existing `aid`/`lid`. Returns `on_failure` if no `crmData` present on the chat.
 
+:::caution[Display-mode edge case]
+If `crmData` exists on the chat but has neither `pp_aid/pp_lid` nor `aid/lid`, the adapter still returns `success: true` but `deepLink` is the bare base URL (`https://sys.lead.im/a/`) and `id` is unset.
+:::
+
 :::tip
 Lead.IM field names are often in Hebrew. Use the [`get` transformer](/docs/YAML/Data%20Injection/Transformers#get) to access them safely:
 ```yaml

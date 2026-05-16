@@ -53,7 +53,7 @@ These values are set **once** per customer environment (not in public bot YAML).
 | `token` | **Yes** | — | `TokenID` header for `https://api.powerlink.co.il/...`. Obtained in-app: [Settings → Tools → API forms](https://api.powerlink.co.il/app/settings/tools/apiforms). |
 | `inboxUrl` | **Yes** | — | Base URL for Texter **Inbox** links inside `description` / task text (`newOpportunity`, `openTicket`, `openTask`, `closeTicket`). |
 | `idField` | No | — | Maps a custom Account field to what Texter shows as ID in the CRM panel. |
-| `showDuplicates` | No | `false` | If `true`, may append a duplicate marker to `crmData.phone` when multiple matches exist. |
+| `showDuplicates` | No | `false` | If `true`, appends a Hebrew duplicate marker (`\| כפול`) to `crmData.phone` when **either** the account query returns more than one record **or** the fallback contact query returns at least one record (i.e. fires on a single contact match too). |
 | `displayExistingData` | No | — | If `true` and `dataFields` is set, `getCustomerDetails` can still **succeed** when Powerlink finds **no** account/contact — see below. |
 | `dataFields` | No | — | Used **with** `displayExistingData`: maps `contact.crmData` paths → CRM panel fields — see below. |
 | `contactQueryFields` | No | `mobilephone1`, `mobilephone2`, `telephone1` | Array of phone fields used in **contact** query. |
@@ -67,7 +67,7 @@ These values are set **once** per customer environment (not in public bot YAML).
 
 Normally `getCustomerDetails` fails when no **Account** or **Contact** matches the chat phone. If `displayExistingData` is `true` and `dataFields` is an object, the adapter does not treat that as failure: it builds `crmData` from whatever is already on the chat’s `contact.crmData` (e.g. values saved earlier in the flow or from another integration).
 
-`dataFields` is not a list of Powerlink API names. It has **exactly four keys** — `name`, `phone`, `id`, `accountId` — and each value is a path into `contact.crmData` (lodash-style, so dotted paths work for nested keys). The adapter reads those paths and fills the CRM panel’s name, phone, id, and account id. If `accountId` resolves to a value, a `deepLink` to that Powerlink account is added.
+`dataFields` is not a list of Powerlink API names. It has **exactly four keys** — `name`, `phone`, `id`, `accountId` — and each value is a path into `contact.crmData` (lodash-style, so dotted paths work for nested keys). The adapter reads those paths and writes them onto `crmData` as `name`, `phone`, `id`, and `accountid` (note: the output key is lowercase `accountid` to match the normal-flow lookup, even though the config key is `accountId`). If `accountid` resolves to a value, a `deepLink` to that Powerlink account is added.
 
 **Fallbacks:** missing `name` → chat title; missing `phone` → chat E.164 phone; missing `id` / `accountId` → empty string.
 
@@ -537,7 +537,7 @@ Sets account **owner** by `PUT /api/record/1/{accountid}` with `ownerid` from th
 | *(prerequisite)* | — | `crmData.accountid` must be on the chat. |
 | `email` | **Yes** | Must match a user’s `emailaddress1`. |
 
-**Result:** `{ success: true }`.
+**Result:** `{ success: true }` when the assign goes through. Returns `{ success: false }` (routing to `on_failure`) when `params.email` does not match any Powerlink user or when the account lookup is empty.
 
 ---
 

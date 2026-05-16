@@ -83,29 +83,6 @@ Returns `on_failure` if: `crmConfig.server` missing, phone is missing/invalid, t
 
 ---
 
-### `closeTicket`
-
-Does not call Provet. Returns `success: true` with `lastMessageStoredInCRMTimestamp` set to the timestamp of the last chat message passed to the adapter.
-
-**When it runs:** When a chat is resolved (used as a generic “transcript stored” marker in some integrations).
-
-**Basic**
-
-```yaml
-  provet_close_ticket:
-    type: func
-    func_type: crm
-    func_id: closeTicket
-    on_complete: done
-    on_failure: done
-```
-
-No params.
-
-**Result:** `lastMessageStoredInCRMTimestamp` (number / unix seconds as provided by the message object).
-
----
-
 ### `getToranNumber(Legacy)`
 
 :::danger
@@ -181,7 +158,7 @@ Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/expo
 | `dateFormat`       | No       | `dd/MM/yy` | Used for `appointment.start_date` formatting.                                                                            |
 | `maxAmount`        | No       | `100`      | Page size for fetched appointments.                                                                                      |
 | `demoNumber`       | No       | —          | If provided, sends only once (first result) to this number and then stops. used for debugging purposes and demo send                                               |
-| `filters`          | No       | —          | Filter expressions evaluated against the appointment object (Filtrex-style). If set, at least one expression must match. |
+| `filters`          | No       | —          | Filter expressions evaluated via Texter's `matchObject(...)` engine — see the tip below for examples. If set, at least one expression must match. |
 | `distinct`         | No       | `true`     | If true, de-duplicates results by phone.                                                                                 |
 | `orderByField`     | No       | `start`    | Field used to order appointments.                                                                                        |
 | `orderByDirection` | No       | `asc`      | Order direction.                                                                                                         |
@@ -314,7 +291,7 @@ Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/expo
 | `dateFormat`                         | No       | `dd/MM/yy`             | Used for `expiry_date` formatting.                                                                                    |
 | `maxAmount`                          | No       | `100`                  | Page size for fetched reminders.                                                                                      |
 | `demoNumber`                         | No       | —                      | If provided, sends only once (first result) to this number and then stops. used for debugging purposes and demo send                                             |
-| `filters`                            | No       | —                      | Reminder filter expressions evaluated via Texter’s `matchObject(...)` engine.                                         |
+| `filters`                            | No       | —                      | Reminder filter expressions evaluated via Texter's `matchObject(...)` engine — see the tip below for examples.        |
 | `distinct`                           | No       | `true`                 | If true, de-duplicates results by phone.                                                                              |
 | `orderByField`                       | No       | `planned_sending_date` | Field used to order reminders.                                                                                        |
 | `orderByDirection`                   | No       | `asc`                  | Order direction.                                                                                                      |

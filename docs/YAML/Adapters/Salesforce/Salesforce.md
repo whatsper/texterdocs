@@ -22,7 +22,7 @@ API version used in code is `v42.0` (jsforce package version default), if we eve
 
 | Field | Required | Default | Use |
 |-------|----------|---------|-----|
-| `contactObjectCustomFields` | No | Uses default field set | Array of Contact field API names to select in `getCustomerDetails`. When provided, it **replaces** the built-in default Contact field list (`Id`, `AccountId`, `Name`, `Title`, `MobilePhone`, `Phone`, `MailingAddress`, `Email`). |
+| `contactObjectCustomFields` | No | Uses default field set | Array of Contact field API names to select in `getCustomerDetails`. When provided, it **replaces** the built-in default Contact field list (`Id`, `AccountId`, `Name`, `Title`, `MobilePhone`, `Phone`, `MailingAddress`, `Email`). ⚠️ Replacement is total — if your override list omits `Id`, `AccountId`, `Name`, `MobilePhone`, `Email`, or `MailingAddress`, the corresponding `crmData.id`/`accountId`/`name`/`phone`/`email`/`mailingAddress`/`deepLink` will be missing from the result. Always include those API names in the override unless you specifically don't need them. |
 | `customPhoneFieldName` | No | — | Additional contact phone field API name to include in lookup filter (for example a custom `Field__c`). |
 | `alternativeContactObjectName` | No | `Contact` | Object API name to query instead of `Contact` in `getCustomerDetails`. |
 
@@ -62,7 +62,7 @@ Looks up a contact by phone (and phone variants), then enriches with account dat
 | `email` | Contact `Email` (if present) |
 | `mailingAddress` | Concatenated from `MailingAddress.street`, `city`, and optional `postalCode` |
 | `accountId` | Account `Id` from account lookup by `AccountId` |
-| `Accounts` | Raw account records array returned from account query |
+| `Accounts` | Account records returned from the account lookup, indexed as a numeric-keyed object (e.g. `{ "0": {...} }`) — NOT a true array, due to how the adapter spreads them. Use `crmData.Accounts.0` to read the first record. |
 | `name` | Contact `Name` |
 | `phone` | Contact `MobilePhone` |
 | `deepLink` | `${instanceUrl}/${accountId}` |

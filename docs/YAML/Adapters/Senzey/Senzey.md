@@ -12,6 +12,16 @@ sidebar_position: 1
 
 ---
 
+## CRM config (`crmConfig`)
+
+| Field | Required | Use |
+|-------|----------|-----|
+| `server` | **Yes** | Base URL of the customer's Senzey instance (e.g., `https://client.senzey.com`). |
+| `username` | **Yes** | Received from Senzey during onboarding. |
+| `password` | **Yes** | Received from Senzey during onboarding. |
+
+---
+
 ## Adapter Functions
 
 ### `getCustomerDetails`
@@ -37,8 +47,9 @@ Looks up a contact by phone number.
 | `fields` | No | Extra fields to request beyond the default set (`name,id,user_type,phone,mobile`). Must include a leading comma (e.g., `,email1,address`). Field names match Senzey's internal contact field names. |
 | Any other param | No | Forwarded as-is to the Senzey API query. |
 
-**Result:** On success sets `crmData.name`, `crmData.id`, `crmData.phone` (falls back to `mobile`), `crmData.status` (Senzey `user_type`), and `crmData.deepLink`. <br/>
+**Result:** On success sets `crmData.name`, `crmData.id`, `crmData.phone` (falls back to `mobile`), `crmData.status` (Senzey `user_type`), and — depending on `user_type` — `crmData.deepLink`: only set when the contact's `user_type` is `2` (→ `{server}/clientsview.php?id={id}`) or `3` (→ `{server}/tmp_customersview.php?id={id}`). For any other `user_type`, `deepLink` is undefined. <br/>
 Any extra fields requested via `fields` are also returned in `crmData` under their Senzey field names (e.g., `crmData.email1`, `crmData.city`). <br/>
+The adapter always sends `incl_pclient=TRUE`, so lookups include both clients (`user_type=2`) and potential clients (`user_type=3`). <br/>
 Returns `on_failure` if no match found.
 
 **Advanced**

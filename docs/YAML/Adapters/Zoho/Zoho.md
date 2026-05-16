@@ -27,7 +27,8 @@ These values are set **once** per customer environment (not in public bot YAML).
 
 | Field | Required | Default (if unset) | Use |
 |--------|----------|---------------------|-----|
-| `orgId` | Yes | — | Can be found in customers Zoho URL, with an `org` prefix (e.g., `org1429453822`) - `getCustomerDetails` builds a **deep link** to the open record in the Zoho CRM UI. |
+| `orgId` | No (recommended) | — | Used only to build the `crmData.deepLink` URL to the open record in Zoho's UI. If omitted, the adapter still works but `crmData.deepLink` will be `undefined`. Can be found in the customer's Zoho URL, with an `org` prefix (e.g., `org1429453822`). |
+| `fieldsOverride` | No | — | Array of Zoho field API names that **replaces** the default `getCustomerDetails` field list (`id`, `Full_Name`, `Owner`). Phone fields (`phoneField` / `secondaryPhoneField`) are always appended automatically. ⚠️ If your override omits `id`, `Full_Name`, or `Owner`, the corresponding `crmData.recordId`/`contactId`/`name`/`ownerId` will be missing — include them unless you specifically don't need them. |
 | `contactModule` | No | `Contacts` | Module used for `getCustomerDetails` (COQL `FROM` clause). |
 | `phoneField` | No | `Phone` | Primary phone field API name on that module. |
 | `secondaryPhoneField` | No | `Mobile` | Secondary phone field API name (also searched). |
@@ -140,7 +141,7 @@ Runs a **COQL** `SELECT` you provide. Use this when `getCustomerDetails` is not 
     on_complete: done
 ```
 
-If the query returns **no rows**, the adapter fails — use `on_failure` or ensure the COQL always matches a row.
+If the COQL response itself is missing (`!res.data`) the adapter fails. But if the query simply returned **zero rows**, the adapter still returns `success: true` with `crmData.queryResult: {}` (empty object). To branch on emptiness, check the size of `queryResult` keys in a `switchNode` after the query — e.g. `%chat:crmData.queryResult|length%`.
 
 ---
 

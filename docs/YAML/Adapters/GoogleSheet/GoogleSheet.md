@@ -47,13 +47,15 @@ Looks up the first matching row in the cached CSV by phone number (default) or b
 
 | Param | Required | Notes |
 |-------|----------|-------|
-| `id_node` | No | Name of a bot state node whose `.text` value is used as the lookup value (matched against `crmConfig.customers_csv_id_field`). When provided, phone lookup is skipped entirely. |
+| `id_node` | No | Name of a bot state node whose `.text` value is used as the lookup value (matched against `crmConfig.customers_csv_id_field`). When provided, phone lookup is skipped entirely. If `id_node` is set but the referenced bot state node has no value yet, the adapter silently falls back to phone lookup — it does not fail. |
 | `customers_csv_id_field` | No | Overrides `crmConfig.customers_csv_id_field` for this specific `id_node` lookup only. |
 | `filterField` | No | CSV column header for an additional filter applied after the phone/ID match. |
 | `filterValue` | No | Required value for `filterField`. Only rows where `row[filterField] == filterValue` survive the filter. |
 
 :::tip[Phone format matching]
 When looking up by phone, the adapter tries several variations of the contact's number simultaneously (with and without dashes, with and without the country-code prefix, E.164 with and without the leading `+`). This covers most CSV phone formats without any special config — the column value just has to contain one of the variations as a substring.
+
+The dashed-format variation assumes Israeli phone shape (`XXX-XXXXXXX`). Other countries' formats are still matched via E.164 and digits-only variants, but the dashed variant won't help if the country uses a different break point.
 
 If phone numbers are split across multiple columns (e.g. `phone_home` and `phone_mobile`), set `customers_csv_phone_fields_list` in `crmConfig` to an array of those column names.
 :::
@@ -63,11 +65,15 @@ If phone numbers are split across multiple columns (e.g. `phone_home` and `phone
 | `crmData` field | Source |
 |-----------------|--------|
 | `name` | Value of the `crmConfig.customers_csv_name_field` column |
-| `phone` | Value of the `crmConfig.customers_csv_phone_field` column (falls back to formatted phone if the column is not mapped) |
+| `phone` | Value of the `crmConfig.customers_csv_phone_field` column on the matched row. Falls back to the Israeli-dashed-format phone (`XXX-XXXXXXX`) when the column is not mapped OR the matched row has no value in that column. |
 | `id` | Value of the `crmConfig.customers_csv_id_field` column |
 | `status` | Value of the `crmConfig.customers_csv_status_field` column |
 | `amount` | Number of rows that matched (post-`filterField` count — equals the raw match count when no filter is used) |
 | *(all other columns)* | Spread directly from the CSV row under their original column header names |
+
+:::caution[Raw CSV columns can overwrite mapped fields]
+Raw CSV columns are spread onto `crmData` AFTER the mapped fields. If your CSV has a column literally named `name`, `phone`, `id`, or `status`, that raw value will overwrite the mapped field with the same name. Use distinct column headers (e.g. `customer_name`) to avoid this.
+:::
 
 Returns `on_failure` if: no matching row is found (`reason: no_customer`), or the CSV download or parse fails (`reason: invalidCSV`).
 

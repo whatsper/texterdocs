@@ -360,9 +360,31 @@ Sends the **chat transcript** to Rapid when `crmData.cardCode` exists (used by p
 
 | Param | Required | Notes |
 |--------|----------|--------|
-| *(omit `params`)* | — | Uses messages passed into the adapter by the runtime. **Requires `crmData.cardCode` on the chat or the op does nothing useful. |
+| *(omit `params`)* | — | Uses messages passed into the adapter by the runtime. Requires `crmData.cardCode` on the chat — the op returns `on_failure` if it's missing. |
 
 **Result:** Success with `lastMessageStoredInCRMTimestamp` when Rapid accepts the transcript.
+
+---
+
+### `crmGetFields`
+
+Returns a hardcoded list of Hebrew Rapid statuses (פעיל, מתעניין, מטפל, לא פעיל, גופי מימון, נטישות, חסום לשירות, לא מעוניין) used by Texter's configuration UI for `changeStatus` dropdowns. Not typically called from bot YAML.
+
+**Basic**
+
+```yaml
+  rapid_get_fields:
+    type: func
+    func_type: crm
+    func_id: crmGetFields
+    on_complete: done
+```
+
+| Param | Required | Notes |
+|--------|----------|--------|
+| *(none)* | — | No params. |
+
+**Result:** `{ success: true, data: { statuses: [{name, value}, ...] } }`.
 
 ---
 
@@ -855,7 +877,7 @@ Returns **free slots** for doctor + department + service. `datesRangeFrom` / `da
 | Param | Required | Notes |
 |--------|----------|--------|
 | `doctorId`, `departmentId`, `serviceId` | Yes | |
-| `datesRangeFrom`, `datesRangeTo` | Yes | Days from **today** (integers). |
+| `datesRangeFrom`, `datesRangeTo` | Yes | `datesRangeFrom` is days from today (start of window). `datesRangeTo` is the **window length in days** added to the start — so `datesRangeFrom: 0, datesRangeTo: 14` searches today through 14 days out, NOT today through "day 14". |
 | `limit` | No* | *If omitted, `crmConfig.defaultSlotsLimit` or `5`. |
 | `offset` | No | If omitted, `0`. |
 | `onlyGoodSlots` | No | If omitted, `false`; if `true`, one slot per part of day. |
@@ -932,7 +954,7 @@ Returns **free slots** for doctor + department + service. `datesRangeFrom` / `da
     on_failure: booking_error
 ```
 
-**Result:** `crmData.appointmentId[]`.
+**Result:** `crmData.appointmentId`.
 
 ---
 
@@ -1055,7 +1077,7 @@ Uploads a file from a **public URL** into the patient’s **documents** in Rapid
 | `customerId` | No* | *If omitted, uses `crmData.cardCode`. |
 | `chunkNumber`, `totalChunks` | No | If omitted, `1` / `1` (single upload). |
 
-**Result:** Success when Rapid accepts the upload.
+**Result:** Success when Rapid accepts the upload. Sets `crmData.uploadedFile` to `{ fileName, customerId, fileSize, response }` where `response` is Rapid's raw response body.
 
 **Advanced** — explicit patient and chunked upload:
 
