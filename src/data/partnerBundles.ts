@@ -247,6 +247,55 @@ export const PARTNER_BUNDLES: PartnerBundle[] = [
           },
         },
       },
+      {
+        id: "bulk_utility_financial_form_with_document",
+        name: "bulk_utility_financial_form_with_document",
+        template: {
+          name: "bulk_utility_financial_form_with_document",
+          title: "מסמך פיננסי עם קובץ",
+          category: "UTILITY",
+          usage: "bulk",
+          chatStatus: 0,
+          isDefault: false,
+          departments: [],
+          provider_template: {
+            name: "bulk_utility_financial_form_with_document",
+            category: "UTILITY",
+            localizations: [
+              {
+                name: "bulk_utility_financial_form_with_document",
+                language: "he",
+                parameter_format: "POSITIONAL",
+                components: [
+                  {
+                    type: "HEADER",
+                    format: "DOCUMENT",
+                    example: {
+                      // Placeholder URL — clinic replaces with real PDF before submitting.
+                      header_handle: [
+                        "https://www.example.com/sample-document.pdf",
+                      ],
+                    },
+                  },
+                  {
+                    type: "BODY",
+                    text:
+                      "שלום רב,\n" +
+                      "מצורף בזאת {{1}} מספר {{2}} של {{3}}:\n" +
+                      "תודה",
+                    example: {
+                      body_text: [["חשבונית",
+                          "12345",
+                          "סניף תל אביב"]],
+                    },
+                  },
+                ],
+              },
+            ],
+            metadata: {},
+          },
+        },
+      },
       // bulk_utility_general_form — שליחת טופס
       {
         id: "bulk_utility_general_form",
