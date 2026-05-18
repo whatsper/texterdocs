@@ -210,6 +210,8 @@ Opens a **ticket** in Rapid with the **recent conversation** as the message body
 
 Creates or updates a **patient** in Rapid. Set `updateCustomer: true` only when `crmData.cardCode` is already on the chat (after `getCustomerDetails`); otherwise omit `updateCustomer` or use `false` — `cellPhone` defaults from the chat if omitted.
 
+**On create**, Rapid requires `firstName`, `lastName`, and `statusName` — the adapter does not default them, so the call will fail at Rapid if any are missing.
+
 **When it runs:** When you need to create or update a patient record — typically after conversion from a lead or for new patient intake.
 
 **Basic**
@@ -239,14 +241,15 @@ Creates or updates a **patient** in Rapid. Set `updateCustomer: true` only when 
 | `emergencyPhone` | No | |
 | `fax` | No | |
 | `eMail` | No | |
-| `firstName` | No | |
-| `lastName` | No | |
+| `firstName` | Yes* on create | *Required by Rapid when creating. Not required on update. |
+| `lastName` | Yes* on create | *Required by Rapid when creating. Not required on update. |
 | `foreignFirstName` | No | |
 | `foreignLastName` | No | |
 | `title` | No | `int`: Mr = 1, Mrs = 2, Dr = 3, Miss = 4, Prof = 5 |
 | `sex` | No | `int`: 1 male, 2 female |
 | `birthDate` | No | e.g. `DD/MM/YYYY` per Rapid |
-| `statusName` / `status` | No | |
+| `statusName` | Yes* on create | *Required by Rapid when creating. Not required on update. |
+| `status` | No | |
 | `fatherCell` / `motherCell` | No | |
 | `cellPhoneComment`, `cellPhone2Comment`, `homePhoneComment`, `workPhoneComment`, `emergencyPhoneComment`, `fatherCellComment`, `motherCellComment`, `faxComment` | No | |
 | `referrerGroup`, `referrer` | No | |
