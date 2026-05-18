@@ -522,6 +522,44 @@
     0 0 5px rgba(0, 0, 0, 0.4);
 }
 
+/* "Template N/M · adding localizations" strip shown above the phase list while
+   a run is in progress. Lets the user see which template the lib is on without
+   reading the log. */
+.currentTemplate {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+[data-theme='dark'] .currentTemplate {
+  background: rgba(167, 139, 250, 0.14);
+  border-color: rgba(167, 139, 250, 0.32);
+}
+
+.currentTemplateLabel {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ifm-color-emphasis-700);
+  font-weight: 600;
+}
+
+.currentTemplateValue {
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-900);
+}
+
+.currentTemplatePhase {
+  color: var(--ifm-color-emphasis-700);
+}
+
 .phaseList {
   list-style: none;
   padding: 0;

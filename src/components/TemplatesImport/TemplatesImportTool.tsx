@@ -215,12 +215,20 @@ function emptyPhase(): PhaseState {
 function phaseOutcome(
   s: PhaseState,
   isActive: boolean,
-  hasStarted: boolean
+  hasStarted: boolean,
+  aborted = false
 ): Outcome {
   if (isActive) return 'running';
   if (!hasStarted || s.totalSteps === 0) return 'idle';
   const completed = s.step >= s.totalSteps;
-  if (!completed) return 'running';
+  if (!completed) {
+    // If the run was aborted (user-cancel or unrecoverable HTTP error) and
+    // this phase never finished, color it red. Without this, aggregateOutcome
+    // sees 'running' for incomplete phases and the overall bar stays in its
+    // "running" appearance even after the run has stopped.
+    if (aborted) return 'failed';
+    return 'running';
+  }
   // Phase loop completed. Classify by produced outcomes.
   const realWork = s.ok + s.failed;
   if (realWork === 0) return 'skipped';
@@ -343,6 +351,14 @@ export default function TemplatesImportTool(): ReactNode {
     }
   );
   const [activePhase, setActivePhase] = useState<ImportPhase | null>(null);
+  /** 1-based index of the template the lib is currently working on. Null
+      between runs and during the seed events emitted at run start. */
+  const [currentTemplate, setCurrentTemplate] = useState<number | null>(null);
+  const [totalTemplates, setTotalTemplates] = useState<number | null>(null);
+  /** True if the previous run was aborted by the user (or by an unrecoverable
+      HTTP error). Used to mark incomplete phases as failed instead of leaving
+      their bars stuck in "running" once `running` flips back to false. */
+  const [aborted, setAborted] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
   const logScrollRef = useRef<HTMLPreElement | null>(null);
@@ -604,6 +620,9 @@ export default function TemplatesImportTool(): ReactNode {
     });
     setActivePhase(null);
     setHasStarted(false);
+    setCurrentTemplate(null);
+    setTotalTemplates(null);
+    setAborted(false);
   }, []);
 
   /** Trigger a browser download of arbitrary text content as a file. */
@@ -724,11 +743,18 @@ export default function TemplatesImportTool(): ReactNode {
       // the UI can render full-width bars at 0/total. Those events all have
       // step=0 and zero counters — we must NOT shift activePhase on them, or
       // the last seed (submit) would briefly flash the spinner on Phase 3
-      // before Phase 1's first real event corrects it.
+      // before Phase 1's first real event corrects it. The lib also omits
+      // `currentTemplate` on seed events so we know not to display "0/N".
       const isSeed =
         p.step === 0 && p.ok === 0 && p.failed === 0 && p.skipped === 0;
       if (!isSeed) {
         setActivePhase(p.phase);
+      }
+      if (p.totalTemplates !== undefined) {
+        setTotalTemplates(p.totalTemplates);
+      }
+      if (p.currentTemplate !== undefined) {
+        setCurrentTemplate(p.currentTemplate);
       }
       setPhaseStates((prev) => ({
         ...prev,
@@ -791,6 +817,12 @@ export default function TemplatesImportTool(): ReactNode {
       }
       setLastSummary(summaryParts.join(' · '));
     } catch (e) {
+      // Mark the run as aborted so the progress UI can render incomplete
+      // phases in red instead of leaving them stuck in "running" state.
+      // Both user-cancel (AbortError) and unrecoverable HTTP errors (401/400
+      // surfaced by logAndThrowAbort) land here, and both mean "stopped
+      // mid-run" from the bar's perspective.
+      setAborted(true);
       if (e instanceof DOMException && e.name === 'AbortError') {
         appendLog('Stopped by user.');
       } else {
@@ -1217,7 +1249,7 @@ export default function TemplatesImportTool(): ReactNode {
 
           {lastSummary && (
             <div className={styles.summaryRow}>
-              <span className={clsx(styles.summaryPill, styles[`pill_${aggregateOutcome(visiblePhases.map((p) => phaseOutcome(phaseStates[p], false, hasStarted)))}`])}>
+              <span className={clsx(styles.summaryPill, styles[`pill_${aggregateOutcome(visiblePhases.map((p) => phaseOutcome(phaseStates[p], false, hasStarted, aborted)))}`])}>
                 Last run: {lastSummary}
               </span>
             </div>
@@ -1225,7 +1257,7 @@ export default function TemplatesImportTool(): ReactNode {
 
           {hasStarted ? (() => {
             const outcomes = visiblePhases.map((p) =>
-              phaseOutcome(phaseStates[p], activePhase === p && running, hasStarted)
+              phaseOutcome(phaseStates[p], activePhase === p && running, hasStarted, aborted)
             );
             const overall = running ? 'running' : aggregateOutcome(outcomes);
             const overallFillClass = OUTCOME_CLASS[overall];
@@ -1246,11 +1278,29 @@ export default function TemplatesImportTool(): ReactNode {
                   style={{width: `${totalProgressPct}%`}}
                 />
                 <span className={styles.overallText}>
-                  {running ? `${totalProgressPct}%` : outcomeLabel(overall) || `${totalProgressPct}%`}
+                  {running
+                    ? `${totalProgressPct}%`
+                    : aborted
+                      ? 'Aborted'
+                      : outcomeLabel(overall) || `${totalProgressPct}%`}
                 </span>
               </div>
             );
           })() : null}
+
+          {running && currentTemplate !== null && totalTemplates !== null && totalTemplates > 0 ? (
+            <div className={styles.currentTemplate}>
+              <span className={styles.currentTemplateLabel}>Processing</span>
+              <span className={styles.currentTemplateValue}>
+                Template {currentTemplate}/{totalTemplates}
+              </span>
+              {activePhase ? (
+                <span className={styles.currentTemplatePhase}>
+                  · {PHASE_LABELS[activePhase].toLowerCase()}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
 
           <ul className={styles.phaseList}>
             {PHASES.map((phase, idx) => {
@@ -1261,7 +1311,7 @@ export default function TemplatesImportTool(): ReactNode {
               const isActive = activePhase === phase && running && !isDraftDisabled;
               const outcome = isDraftDisabled
                 ? 'skipped'
-                : phaseOutcome(s, isActive, hasStarted);
+                : phaseOutcome(s, isActive, hasStarted, aborted);
               const fillClass = OUTCOME_CLASS[outcome];
               const showSkipped = s.skipped > 0;
               return (

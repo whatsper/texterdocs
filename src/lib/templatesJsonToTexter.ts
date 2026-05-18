@@ -1,11 +1,19 @@
 /**
  * Client-side WhatsApp template import against Texter HTTP API v2.
- * Mirrors the flow from templates_json_to_texter.ipynb (create → localizations → submit).
  *
- * All HTTP calls are tunneled through an n8n CORS proxy because the Texter API's
- * CORS allow-list doesn't include Content-Type, so a direct browser→API JSON POST
- * fails preflight. The proxy validates URLs against a texterchat.com whitelist
- * and passes upstream status + body through unchanged.
+ * Calls are issued per-template in tight create → localize → submit order
+ * (not phase-by-phase). This protects in-flight templates from a separate
+ * race: the Texter admin UI's /sync endpoint runs `saveTemplateMessages`,
+ * which hard-deletes any DB template that has empty `localizationDrafts`
+ * AND isn't in Meta's list. A phase-by-phase loop leaves N templates
+ * draftless for the duration of phase 1, so an inbox refresh mid-import
+ * silently nukes them. Per-template ordering closes that window to ~1
+ * inter-call delay per template.
+ *
+ * All HTTP calls are tunneled through an n8n CORS proxy because the Texter
+ * API's CORS allow-list doesn't include Content-Type, so a direct
+ * browser→API JSON POST fails preflight. The proxy validates URLs against a
+ * texterchat.com whitelist and passes upstream status + body through unchanged.
  */
 
 const MAX_ERROR_BODY_CHARS = 8000;
@@ -48,6 +56,11 @@ export type ImportProgress = {
   ok: number;
   failed: number;
   skipped: number;
+  /** 1-based index of the template currently being processed (across all phases).
+      Undefined for the per-phase seed events emitted at the very start of a run. */
+  currentTemplate?: number;
+  /** Total number of templates in this run. Same value across every event. */
+  totalTemplates?: number;
 };
 
 export type TemplateInput = Record<string, unknown>;
@@ -351,6 +364,37 @@ export type ImportRunSummary = {
 
 const SEP = '='.repeat(40);
 
+/**
+ * HTTP status codes that should abort the whole run instead of just marking
+ * one template as failed. Only 401 (bad/missing auth) qualifies — every
+ * subsequent call would fail for the same credential reason, so letting the
+ * loop continue just wastes time and clutters the log.
+ *
+ * 400s are NOT abortable: a 400 from one template (e.g. malformed body,
+ * disallowed character, oversized header) doesn't predict the next template's
+ * fate. Record the failure on that template, keep going.
+ */
+function isAbortableHttpError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false;
+  return /^HTTP 401\b/.test(e.message);
+}
+
+function abortReason(e: unknown): string {
+  if (e instanceof Error && /^HTTP 401\b/.test(e.message)) {
+    return 'authentication failed (HTTP 401)';
+  }
+  return 'unrecoverable error';
+}
+
+function logAndThrowAbort(error: Error, log: (line: string) => void): never {
+  log('');
+  log(SEP);
+  log('Aborting import — ' + abortReason(error));
+  log('Fix the error above and retry. No further templates were processed.');
+  log(SEP);
+  throw error;
+}
+
 function getDisplayName(template: TemplateInput): string {
   if (typeof template.name === 'string' && template.name) return template.name;
   if (
@@ -425,17 +469,7 @@ export async function runTemplatesImport(
   }
 
   const totals = computePhaseTotals(templates, submitMode);
-
-  /**
-   * Tracks which (template name, language) pairs successfully completed the
-   * localization phase, so the submit phase can skip ones that failed
-   * (rather than blindly iterating over the original JSON's localizations
-   * and attempting to submit something that was never localized).
-   * Key format: `${apiName} ${language}`. NULL is invalid in template
-   * names and language codes so collisions can't happen.
-   */
-  const successfulLocalizations = new Set<string>();
-  const locKey = (name: string, language: string) => `${name} ${language}`;
+  const totalTemplates = templates.length;
 
   // Counters tracked per phase. `step` is total events emitted (calls + skips).
   let createOk = 0,
@@ -451,35 +485,43 @@ export async function runTemplatesImport(
     submitStep = 0;
 
   // Seed bars at 0/total so the UI can show empty bars at the correct width.
-  onProgress?.({phase: 'create', step: 0, totalSteps: totals.create, ok: 0, failed: 0, skipped: 0});
-  onProgress?.({phase: 'localization', step: 0, totalSteps: totals.localization, ok: 0, failed: 0, skipped: 0});
+  // Seed events deliberately omit `currentTemplate` so the UI keeps its
+  // template-N/M indicator hidden until the first real per-template event.
+  onProgress?.({phase: 'create', step: 0, totalSteps: totals.create, ok: 0, failed: 0, skipped: 0, totalTemplates});
+  onProgress?.({phase: 'localization', step: 0, totalSteps: totals.localization, ok: 0, failed: 0, skipped: 0, totalTemplates});
   if (submitMode !== 'draft') {
-    onProgress?.({phase: 'submit', step: 0, totalSteps: totals.submit, ok: 0, failed: 0, skipped: 0});
+    onProgress?.({phase: 'submit', step: 0, totalSteps: totals.submit, ok: 0, failed: 0, skipped: 0, totalTemplates});
   }
 
-  const emitCreate = () => onProgress?.({
+  const emitCreate = (templateIdx: number) => onProgress?.({
     phase: 'create',
     step: createStep,
     totalSteps: totals.create,
     ok: createOk,
     failed: createFailed,
     skipped: 0,
+    currentTemplate: templateIdx,
+    totalTemplates,
   });
-  const emitLoc = () => onProgress?.({
+  const emitLoc = (templateIdx: number) => onProgress?.({
     phase: 'localization',
     step: locStep,
     totalSteps: totals.localization,
     ok: locOk,
     failed: locFailed,
     skipped: locSkipped,
+    currentTemplate: templateIdx,
+    totalTemplates,
   });
-  const emitSubmit = () => onProgress?.({
+  const emitSubmit = (templateIdx: number) => onProgress?.({
     phase: 'submit',
     step: submitStep,
     totalSteps: totals.submit,
     ok: submitOk,
     failed: submitFailed,
     skipped: submitSkipped,
+    currentTemplate: templateIdx,
+    totalTemplates,
   });
 
   /**
@@ -494,19 +536,35 @@ export async function runTemplatesImport(
     lastWasCall = false;
   }
 
-  // ───── Phase 1: Create ─────
   const createResults: CreateResult[] = [];
+  const localizationResults: LocalizationOpResult[] = [];
+  const submissionResults: SubmitOpResult[] = [];
 
+  // ───── Per-template loop: create → localize → submit (if not draft) ─────
+  // Critical for race-safety: once a template has at least one localization
+  // draft, the admin /sync endpoint will only strip its provider_template
+  // localizations (a no-op for unsubmitted templates) instead of deleting
+  // the whole DB doc. Sequencing per-template keeps each template's
+  // create→localize window tight (~1 inter-call delay) instead of leaving
+  // every template in the run draftless until phase 2 begins.
   for (let idx = 0; idx < templates.length; idx++) {
     const template = templates[idx]!;
     const displayName = getDisplayName(template);
+    const templateNum = idx + 1;
+    const tplLocs = countLocalizations(template);
+    const locStepsForThisTemplate = Math.max(tplLocs, 1);
+    const submitStepsForThisTemplate = Math.max(tplLocs, 1);
 
     log('');
     log(SEP);
-    log(`Processing template ${idx + 1}/${templates.length}`);
+    log(`Template ${templateNum}/${totalTemplates}`);
     log(SEP);
 
+    // ── Step 1: Create ──
     await maybeDelay();
+    let createAbortErr: Error | null = null;
+    let apiName: string | undefined;
+    let createSucceeded = false;
 
     try {
       const payload = buildCreatePayload(template, config);
@@ -523,95 +581,110 @@ export async function runTemplatesImport(
       const url = `${base}/whatsapp/templates/${encodeURIComponent(accountId)}`;
       const response = await postJson(proxyUrl, url, key, payload, signal);
       lastWasCall = true;
-      log('Template created successfully.');
+      apiName = getTemplateNameFromCreateResponse(response);
+      log(`Template created successfully${apiName ? ` as ${apiName}` : ''}.`);
       createResults.push({status: 'success', name: displayName, response});
       createOk++;
+      createSucceeded = true;
     } catch (e) {
-      log('Error:');
+      log('Create failed:');
       logIndentedMessage(log, e);
       const msg = e instanceof Error ? e.message : String(e);
       createResults.push({status: 'failed', name: displayName, error: msg});
       createFailed++;
-      // A request was attempted and produced a response (even if 4xx/5xx) — keep
-      // the inter-call delay so we don't hammer the API. If the error was thrown
-      // before any network call (e.g. validation), it won't have set lastWasCall.
       if (e instanceof Error && /HTTP \d{3}/.test(e.message)) {
         lastWasCall = true;
       }
+      if (isAbortableHttpError(e)) createAbortErr = e as Error;
     }
-
     createStep++;
-    emitCreate();
-  }
+    emitCreate(templateNum);
 
-  // ───── Phase 2: Localizations ─────
-  const localizationResults: LocalizationOpResult[] = [];
+    if (createAbortErr) logAndThrowAbort(createAbortErr, log);
 
-  for (let idx = 0; idx < createResults.length; idx++) {
-    const resultItem = createResults[idx]!;
-    const original = templates[idx]!;
-    const tplLocs = countLocalizations(original);
-    // Number of progress steps this template will consume (matches computePhaseTotals).
-    const stepsForThisTemplate = Math.max(tplLocs, 1);
+    // If create failed or we have no API name, mark this template's loc + submit
+    // steps as skipped and advance their bars so totals stay aligned.
+    if (!createSucceeded || !apiName) {
+      const skipMsg = !createSucceeded
+        ? 'Template creation failed'
+        : 'Missing name in API response';
+      log(
+        !createSucceeded
+          ? 'Skipping localization + submit for this template (create failed).'
+          : 'Skipping localization + submit for this template (no name in create response).'
+      );
 
-    log('');
-    log(SEP);
-    log(`Localization ${idx + 1}/${createResults.length}`);
-    log(SEP);
-
-    if (resultItem.status !== 'success') {
-      log('Skipped (template creation failed).');
       localizationResults.push({
-        name: resultItem.name,
+        name: displayName,
         status: 'skipped',
-        message: 'Template creation failed',
+        message: skipMsg,
       });
       locSkipped++;
-      locStep += stepsForThisTemplate;
-      emitLoc();
+      locStep += locStepsForThisTemplate;
+      emitLoc(templateNum);
+
+      if (submitMode !== 'draft') {
+        submissionResults.push({
+          name: displayName,
+          language: 'N/A',
+          status: 'skipped',
+          message: skipMsg,
+        });
+        submitSkipped++;
+        submitStep += submitStepsForThisTemplate;
+        emitSubmit(templateNum);
+      }
       continue;
     }
 
-    const apiName = getTemplateNameFromCreateResponse(resultItem.response);
-    if (!apiName) {
-      log('Skipped: could not read template name from create response.');
-      localizationResults.push({
-        name: resultItem.name,
-        status: 'skipped',
-        message: 'Missing name in API response',
-      });
-      locSkipped++;
-      locStep += stepsForThisTemplate;
-      emitLoc();
-      continue;
-    }
-
-    const provider = getProvider(original);
+    const provider = getProvider(template);
     const localizations = provider.localizations;
+
     if (!Array.isArray(localizations) || localizations.length === 0) {
-      log(`No localizations for ${apiName} — skipped.`);
+      log(`No localizations for ${apiName} — nothing to add or submit.`);
       localizationResults.push({
         name: apiName,
         status: 'skipped',
         message: 'No localization data',
       });
       locSkipped++;
-      locStep += 1; // matches Math.max(0, 1) reserved for this template
-      emitLoc();
+      locStep += 1;
+      emitLoc(templateNum);
+
+      if (submitMode !== 'draft') {
+        submissionResults.push({
+          name: apiName,
+          status: 'skipped',
+          message: 'No localization data',
+        });
+        submitSkipped++;
+        submitStep += 1;
+        emitSubmit(templateNum);
+      }
       continue;
     }
 
+    // ── Steps 2 + 3: For each language, localize then submit (if not draft) ──
     for (const loc of localizations) {
       if (!isRecord(loc)) {
-        // Still consume a step so totals stay aligned with computePhaseTotals.
+        // Malformed entry — consume a step on both bars so totals stay aligned.
         locSkipped++;
         locStep++;
-        emitLoc();
+        emitLoc(templateNum);
+        if (submitMode !== 'draft') {
+          submitSkipped++;
+          submitStep++;
+          emitSubmit(templateNum);
+        }
         continue;
       }
       const language = loc.language;
       const components = loc.components;
+
       await maybeDelay();
+      let locAbortErr: Error | null = null;
+      let locSucceeded = false;
+
       try {
         log(`Adding localization ${apiName} (${String(language)})`);
         const url = `${base}/whatsapp/templates/${encodeURIComponent(accountId)}/${encodeURIComponent(apiName)}/localizations`;
@@ -620,9 +693,7 @@ export async function runTemplatesImport(
         log('Localization added.');
         localizationResults.push({name: apiName, status: 'success', response: res});
         locOk++;
-        if (typeof language === 'string' && language) {
-          successfulLocalizations.add(locKey(apiName, language));
-        }
+        locSucceeded = true;
       } catch (e) {
         log('Localization failed:');
         logIndentedMessage(log, e);
@@ -632,144 +703,91 @@ export async function runTemplatesImport(
         if (e instanceof Error && /HTTP \d{3}/.test(e.message)) {
           lastWasCall = true;
         }
+        if (isAbortableHttpError(e)) locAbortErr = e as Error;
       }
       locStep++;
-      emitLoc();
+      emitLoc(templateNum);
+
+      if (locAbortErr) logAndThrowAbort(locAbortErr, log);
+
+      // Skip submit phase entirely in draft mode — submit total is 0, no events to emit.
+      if (submitMode === 'draft') {
+        continue;
+      }
+
+      // Language missing → submit can't be issued; record a skipped event so
+      // the submit bar advances in lockstep with the loc bar.
+      if (typeof language !== 'string' || !language) {
+        submissionResults.push({
+          name: apiName,
+          language: 'N/A',
+          status: 'skipped',
+          message: 'Language missing in localization',
+        });
+        submitSkipped++;
+        submitStep++;
+        emitSubmit(templateNum);
+        continue;
+      }
+
+      if (!locSucceeded) {
+        log(`Skipped submit ${apiName} / ${language} — localization did not succeed.`);
+        submissionResults.push({
+          name: apiName,
+          language,
+          status: 'skipped',
+          message: 'Localization step did not succeed',
+        });
+        submitSkipped++;
+        submitStep++;
+        emitSubmit(templateNum);
+        continue;
+      }
+
+      await maybeDelay();
+      let submitAbortErr: Error | null = null;
+
+      try {
+        log(`Submitting ${apiName} / ${language}`);
+        const url = `${base}/whatsapp/templates/${encodeURIComponent(accountId)}/${encodeURIComponent(apiName)}/localizations/${encodeURIComponent(language)}/submit`;
+        const res = await postJson(proxyUrl, url, key, undefined, signal);
+        lastWasCall = true;
+        log('Submitted.');
+        submissionResults.push({
+          name: apiName,
+          language,
+          status: 'success',
+          response: res,
+        });
+        submitOk++;
+      } catch (e) {
+        log('Submit failed:');
+        logIndentedMessage(log, e);
+        const msg = e instanceof Error ? e.message : String(e);
+        submissionResults.push({
+          name: apiName,
+          language,
+          status: 'failed',
+          error: msg,
+        });
+        submitFailed++;
+        if (e instanceof Error && /HTTP \d{3}/.test(e.message)) {
+          lastWasCall = true;
+        }
+        if (isAbortableHttpError(e)) submitAbortErr = e as Error;
+      }
+      submitStep++;
+      emitSubmit(templateNum);
+
+      if (submitAbortErr) logAndThrowAbort(submitAbortErr, log);
     }
   }
-
-  // ───── Phase 3: Submit (skipped entirely in draft mode) ─────
-  const submissionResults: SubmitOpResult[] = [];
 
   if (submitMode === 'draft') {
     log('');
     log(SEP);
     log('Submit phase skipped — draft mode');
     log(SEP);
-  } else {
-    for (let idx = 0; idx < createResults.length; idx++) {
-      const resultItem = createResults[idx]!;
-      const original = templates[idx]!;
-      const tplLocs = countLocalizations(original);
-      const stepsForThisTemplate = Math.max(tplLocs, 1);
-
-      log('');
-      log(SEP);
-      log(`Submit localization ${idx + 1}/${createResults.length}`);
-      log(SEP);
-
-      if (resultItem.status !== 'success') {
-        log('Skipped (template creation failed).');
-        submissionResults.push({
-          name: resultItem.name,
-          language: 'N/A',
-          status: 'skipped',
-          message: 'Template creation failed',
-        });
-        submitSkipped++;
-        submitStep += stepsForThisTemplate;
-        emitSubmit();
-        continue;
-      }
-
-      const apiName = getTemplateNameFromCreateResponse(resultItem.response);
-      if (!apiName) {
-        submissionResults.push({
-          name: resultItem.name,
-          language: 'N/A',
-          status: 'skipped',
-          message: 'Missing name in API response',
-        });
-        submitSkipped++;
-        submitStep += stepsForThisTemplate;
-        emitSubmit();
-        continue;
-      }
-
-      const provider = getProvider(original);
-      const localizations = provider.localizations;
-      if (!Array.isArray(localizations) || localizations.length === 0) {
-        submissionResults.push({
-          name: apiName,
-          status: 'skipped',
-          message: 'No localization data',
-        });
-        log(`No localizations to submit for ${apiName}.`);
-        submitSkipped++;
-        submitStep += 1;
-        emitSubmit();
-        continue;
-      }
-
-      for (const loc of localizations) {
-        if (!isRecord(loc)) {
-          submitSkipped++;
-          submitStep++;
-          emitSubmit();
-          continue;
-        }
-        const language = loc.language;
-        if (typeof language !== 'string' || !language) {
-          submissionResults.push({
-            name: apiName,
-            language: 'N/A',
-            status: 'skipped',
-            message: 'Language missing in localization',
-          });
-          submitSkipped++;
-          submitStep++;
-          emitSubmit();
-          continue;
-        }
-        // Skip submit if Phase 2 didn't successfully localize this language.
-        // The Texter API will reject the submit (no localization to submit),
-        // and emitting the call wastes time + rate limit.
-        if (!successfulLocalizations.has(locKey(apiName, language))) {
-          log(`Skipped submit ${apiName} / ${language} — localization did not succeed.`);
-          submissionResults.push({
-            name: apiName,
-            language,
-            status: 'skipped',
-            message: 'Localization step did not succeed',
-          });
-          submitSkipped++;
-          submitStep++;
-          emitSubmit();
-          continue;
-        }
-        await maybeDelay();
-        try {
-          log(`Submitting ${apiName} / ${language}`);
-          const url = `${base}/whatsapp/templates/${encodeURIComponent(accountId)}/${encodeURIComponent(apiName)}/localizations/${encodeURIComponent(language)}/submit`;
-          const res = await postJson(proxyUrl, url, key, undefined, signal);
-          lastWasCall = true;
-          log('Submitted.');
-          submissionResults.push({
-            name: apiName,
-            language,
-            status: 'success',
-            response: res,
-          });
-          submitOk++;
-        } catch (e) {
-          log('Submit failed:');
-          logIndentedMessage(log, e);
-          const msg = e instanceof Error ? e.message : String(e);
-          submissionResults.push({
-            name: apiName,
-            language,
-            status: 'failed',
-            error: msg,
-          });
-          submitFailed++;
-          if (e instanceof Error && /HTTP \d{3}/.test(e.message)) {
-            lastWasCall = true;
-          }
-        }
-        submitStep++;
-        emitSubmit();
-      }
-    }
   }
 
   appendErrorSummary(log, templates, createResults, localizationResults, submissionResults);
