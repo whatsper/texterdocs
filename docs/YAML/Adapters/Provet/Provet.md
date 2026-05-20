@@ -29,14 +29,6 @@ sidebar_position: 1
 
 ## Adapter functions
 
-:::tip[Editing scheduled reminder tasks]
-If you’re maintaining scheduled `CrmMethodTask` configs for Provet reminders, you can use the in-docs editor here: **[Provet Task Editor](/docs/tools/provet-task-editor)**.
-:::
-
-:::warning[`appointmentReminders` / `sendReminders` — scheduled tasks only]
-Do **not** enable these CRM methods from normal **bot YAML** (states, triggers, or per-chat `func` nodes). They are meant to run only as **scheduled / batch jobs** (for example `CrmMethodTask` with a cron `expr` in customer task config). Calling them from live bot flows can cause unintended bulk sends and is not supported as a per-message pattern.
-:::
-
 ### `getCustomerDetails`
 
 Looks up a Provet **client** by phone number, and enriches `crmData` with the client’s non-archived patients and (if present) the patient health plan validity.
@@ -116,37 +108,17 @@ Returns `on_failure` if: Provet API errors, OAuth credentials are missing, or `c
 
 ### `appointmentReminders`
 
-:::warning[Schedule-only]
-configure **`appointmentReminders` only on scheduled tasks** (e.g. `CrmMethodTask`), not from bot YAML flows.
+:::tip[Editing scheduled reminder tasks]
+If you’re maintaining scheduled `CrmMethodTask` configs for Provet reminders, you can use the in-docs editor here: **[Provet Task Editor](/docs/tools/provet-task-editor)**.
+:::
+
+:::warning[`appointmentReminders` / `sendReminders` — scheduled tasks only]
+Do **not** enable these CRM methods from normal **bot YAML** (states, triggers, or per-chat `func` nodes). They are meant to run only as **scheduled / batch jobs** (for example `CrmMethodTask` with a cron `expr` in customer task config). Calling them from live bot flows can cause unintended bulk sends and is not supported as a per-message pattern.
 :::
 
 Fetches upcoming appointments for a given day range and sends a WhatsApp **template message** to each appointment’s client (optionally filtered, ordered, and de-duplicated).
 
-**When it runs:** Scheduled/batch reminder sending (not a typical per-chat bot flow).
-
-:::tip[Editing scheduled tasks]
-Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/export `CrmMethodTask` JSON for this method.
-:::
-
-**Basic**
-
-```yaml
-  provet_appointment_reminders:
-    type: func
-    func_type: crm
-    func_id: appointmentReminders
-    params:
-      accountId: "YOUR_WHATSAPP_ACCOUNT_ID"
-      templateName: "your_template_name"
-      daysBefore: 1
-      body:
-        - "client.name"
-        - "patientName"
-        - "appointment.start_date"
-        - "appointment.start_time"
-    on_complete: done
-    on_failure: failed
-```
+**When it runs:** Scheduled/batch reminder sending only — configured as a `CrmMethodTask` in customer task config (Nihul), not from bot YAML. Edit via **[Provet Task Editor](/docs/tools/provet-task-editor)**.
 
 
 | Param              | Required | Default    | Notes                                                                                                                    |
@@ -248,38 +220,9 @@ Returns `on_failure` if: adapter/template cannot be resolved, Provet API errors,
 
 ### `sendReminders`
 
-:::warning[Schedule-only]
-configure **`sendReminders` only on scheduled tasks** (e.g. `CrmMethodTask`), not from bot YAML flows.
-:::
-
 Fetches Provet reminders for a planned sending date and sends template messages based on a mapping from Provet reminder template title → Texter template name.
 
-**When it runs:** Scheduled/batch reminder sending (not a typical per-chat bot flow).
-
-:::tip[Editing scheduled tasks]
-Use **[Provet Task Editor](/docs/tools/provet-task-editor)** to import/edit/export `CrmMethodTask` JSON for this method.
-:::
-
-**Basic**
-
-```yaml
-  provet_send_reminders:
-    type: func
-    func_type: crm
-    func_id: sendReminders
-    params:
-      accountId: "YOUR_WHATSAPP_ACCOUNT_ID"
-      templatesDict:
-        defaultTemplate: "your_default_template"
-        "Reminder template title from Provet": "your_specific_template"
-      daysBefore: 0
-      body:
-        - "client.name"
-        - "patient.name"
-        - "expiry_date"
-    on_complete: done
-    on_failure: failed
-```
+**When it runs:** Scheduled/batch reminder sending only — configured as a `CrmMethodTask` in customer task config (Nihul), not from bot YAML. Edit via **[Provet Task Editor](/docs/tools/provet-task-editor)**.
 
 
 | Param                                | Required | Default                | Notes                                                                                                                 |

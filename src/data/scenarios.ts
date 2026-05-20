@@ -1357,7 +1357,7 @@ export const SCENARIOS: Scenario[] = [
     tags: ['on-assign', 'data-storage'],
     triggerEvents: ['domain.chat.assigned'],
     description:
-      "When an agent takes a chat, stores the agent's **UID** and **display name** into the **`ChatsLastAgent`** data storage collection, keyed by chat ID. Use this as a building block: a bot can later read who the last agent was via a `dataStorage` func node and act on it — e.g. auto-assign the chat back to that agent the next time the customer messages, or include the agent in a webhook payload. Records expire after **1 day** by default (max **7 days**, server-enforced).",
+      "When an agent takes a chat, stores the agent's **UID**, **display name**, and **email** into the **`ChatsLastAgent`** data storage collection, keyed by chat ID. Use this as a building block: a bot can later read who the last agent was via a `dataStorage` func node and act on it — e.g. auto-assign the chat back to that agent the next time the customer messages, or include the agent in a webhook payload. Records expire after **1 day** by default (max **7 days**, server-enforced).",
     configuration: [
       {
         field: 'Data Collection Name',
@@ -1377,14 +1377,14 @@ export const SCENARIOS: Scenario[] = [
         field: 'Stored Data Shape',
         location: 'actions[0].params.data',
         description:
-          'The object written into storage. Defaults capture `latestAgentUid`, `latestAgentName`, and the assignment date. Add or remove fields per your use case — any [data injection](/docs/YAML/Data%20Injection/Overview) expression is supported.',
+          'The object written into storage. Defaults capture `latestAgentUid`, `latestAgentName`, `latestAgentEmail`, and the assignment date. Add or remove fields per your use case — any [data injection](/docs/YAML/Data%20Injection/Overview) expression is supported.',
         required: false,
       },
     ],
     json: {
       version: 'v1',
-      name: 'Set agent details when chat is taken',
-      description: 'When agent takes a chat, set ChatsLastAgent collection with the agents display name and uid',
+      name: 'Set last agent on assign chat',
+      description: 'when agent takes a chat, set ChatsLastAgent collection with the lastAgentUid',
       triggerEvents: ['domain.chat.assigned'],
       loaders: {
         afterConditions: [
@@ -1420,6 +1420,7 @@ export const SCENARIOS: Scenario[] = [
             data: {
               latestAgentUid: '%chat:agent.uid%',
               latestAgentName: '%user:displayName%',
+              latestAgentEmail: '%user:email%',
               date: '%time:now("dd/MM/yyyy")%',
             },
             tags: [],
