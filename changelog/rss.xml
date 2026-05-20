@@ -4,10 +4,36 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Sat, 16 May 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 21 May 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Onboard AI Bot Tool + Adapter Fixes]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot</guid>
+            <pubDate>Thu, 21 May 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[A new in-docs tool for onboarding AI customers, plus a Provet cleanup and a few adapter fixes.]]></description>
+            <content:encoded><![CDATA[<p>A new in-docs tool for onboarding AI customers, plus a Provet cleanup and a few adapter fixes.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Onboard AI Bot tool</strong> — new tool at <code>/tools/onboard-ai-bot</code> that runs the AI customer onboarding workflow end-to-end (vector store, Drive folders, default prompt, scenarios import) and surfaces success/error with a link to the n8n executions log on failure.</li>
+<li><strong>Rapid partner bundle</strong> — new financial-document template with a document header.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Provet adapter</strong> — removed misleading YAML examples for <code>appointmentReminders</code> and <code>sendReminders</code> (scheduled-task-only); points at the Provet Task Editor and a JSON <code>CrmMethodTask</code> example instead.</li>
+<li><strong>Remember Last Agent scenario</strong> — now also stores <code>latestAgentEmail</code> alongside UID and name.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>Rapid <code>createUpdateCustomer</code></strong> — documented the required params that were missing.</li>
+</ul>]]></content:encoded>
+            <category>feature</category>
+            <category>site</category>
+            <category>adapters</category>
+            <category>scenarios</category>
+        </item>
         <item>
             <title><![CDATA[Airtable Adapter + Adapter Doc Corrections]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections</link>
@@ -441,21 +467,6 @@
             <category>scenarios</category>
             <category>automation</category>
             <category>site</category>
-        </item>
-        <item>
-            <title><![CDATA[Google Sheet Adapter]]></title>
-            <link>https://whatsper.github.io/texterdocs/changelog/2026/04/10/google-sheet</link>
-            <guid>https://whatsper.github.io/texterdocs/changelog/2026/04/10/google-sheet</guid>
-            <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[New Google Sheet adapter docs — look up customers from a CSV file hosted in Google Drive.]]></description>
-            <content:encoded><![CDATA[<p>New Google Sheet adapter docs — look up customers from a CSV file hosted in Google Drive.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/10/google-sheet#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Google Sheet adapter</strong> — full documentation for <code>getCustomerDetails</code> (and its <code>getCustomerDetailsCSV</code> alias), including phone-based and ID-based lookups, <code>filterField</code>/<code>filterValue</code> narrowing, the <code>crmConfig</code> field mapping (<code>customers_csv_*</code>), how the 10-minute refresh works, how to update the customer list (upload a new CSV — don't edit in place), and supported phone formats</li>
-</ul>]]></content:encoded>
-            <category>adapters</category>
-            <category>docs</category>
-            <category>yaml</category>
         </item>
     </channel>
 </rss>
