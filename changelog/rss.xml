@@ -4,10 +4,25 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Thu, 21 May 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 22 May 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Shopify Adapter]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/05/22/shopify</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/05/22/shopify</guid>
+            <pubDate>Fri, 22 May 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Documentation for the Shopify CRM adapter — read-only access to customers and orders via Shopify's Admin REST API.]]></description>
+            <content:encoded><![CDATA[<p>Documentation for the Shopify CRM adapter — read-only access to customers and orders via Shopify's Admin REST API.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/22/shopify#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Shopify adapter</strong> — documentation for <code>getCustomerDetails</code>, <code>getActiveOrders</code>, and <code>getOrderDetails</code>, plus the per-store <code>crmConfig</code> (<code>server</code>, <code>accessToken</code>, <code>storeName</code>) and the Admin API token onboarding flow.</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
         <item>
             <title><![CDATA[Onboard AI Bot Tool + Adapter Fixes]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot</link>
@@ -436,36 +451,6 @@
 <li><strong>Resizable panel</strong> — drag the left edge to widen or narrow the panel; your preferred width is remembered across sessions.</li>
 </ul>]]></content:encoded>
             <category>feature</category>
-            <category>site</category>
-        </item>
-        <item>
-            <title><![CDATA[Giscus Comments, Template Webhooks, and Passive Marketing Chats]]></title>
-            <link>https://whatsper.github.io/texterdocs/changelog/2026/04/14/passive-chats-comments</link>
-            <guid>https://whatsper.github.io/texterdocs/changelog/2026/04/14/passive-chats-comments</guid>
-            <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[New this week: comments on every docs page, three subscribe-to-events templates for template messaging and assignment webhooks, and a scheduled scenario for recovering passive bulk chats.]]></description>
-            <content:encoded><![CDATA[<p>New this week: comments on every docs page, three subscribe-to-events templates for template messaging and assignment webhooks, and a scheduled scenario for recovering passive bulk chats.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/14/passive-chats-comments#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li>
-<p><strong>Comments on every page</strong> — each docs page and scenario card now has a comment section powered by <a href="https://giscus.app/" target="_blank" rel="noopener noreferrer">Giscus</a>, backed by GitHub Discussions. Use it to ask questions, share your own scenario variations, post real-world examples, or discuss edge cases with the community.</p>
-</li>
-<li>
-<p><strong>(SUB) Chat Unsubscribed</strong> — sends a webhook when a chat opts out of template messages (for example when the customer replies with an opt-out keyword such as "הסר"). Use it to sync suppression lists or update consent in external systems.</p>
-</li>
-<li>
-<p><strong>(SUB) Chat Subscribed</strong> — sends a webhook when a chat subscribes or opts back in to receiving template messages, so you can refresh consent or resume outreach elsewhere.</p>
-</li>
-<li>
-<p><strong>(SUB) Chat Assigned</strong> — sends a webhook when a chat is taken by an agent, including the full chat and a narrowed agent profile (id, crmId, email, displayName, roles) for CRMs, routing tools, or custom backends.</p>
-</li>
-<li>
-<p><strong>Handle Passive Marketing Chats</strong> — cron-triggered scenario that runs once a day, finds BULK chats from the previous day whose last message matched one of your marketing templates, and automatically reassigns them to the sales department (Pending status) while updating the lead's status in Rapid CRM. Built for Tyntec provider customers — see the "What to configure" section for the expression to use with other WhatsApp providers.</p>
-</li>
-</ul>]]></content:encoded>
-            <category>feature</category>
-            <category>scenarios</category>
-            <category>automation</category>
             <category>site</category>
         </item>
     </channel>
