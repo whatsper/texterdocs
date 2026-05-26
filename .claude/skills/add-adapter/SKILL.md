@@ -158,6 +158,7 @@ Returns `on_failure` if: <conditions, copied from the source's failure branches>
 - **Internal links**: relative `/docs/...` paths, e.g. `[request](/docs/YAML/Types/Func/System/Request)`. Do not link to files that don't exist — verify with `Glob` if unsure.
 - **External links**: official vendor docs, real URLs only. If the source comment has a Google Docs link, keep it.
 - **Do not invent** params, behaviors, or `crmData` fields. If the source doesn't show it, leave it out — better to omit than to guess.
+- **Vendor-UI onboarding paths require verification.** When writing the Onboarding section's "where to get the credential" rows (menu paths like "Settings → Apps → ...", scope names, button labels), do **not** rely on training-data memory — vendor admin UIs are reshuffled often. Either fetch the vendor's current docs with `WebFetch` (`help.shopify.com`, `developers.hubspot.com`, etc.) **before** writing the path, or write it generically ("create a custom app in the vendor's admin and grant the X scopes") and link out. If you do quote a menu path, link to the vendor doc you sourced it from so a future reader can re-verify.
 
 ### 6. Example operation entries to draw from
 
