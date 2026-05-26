@@ -2,11 +2,27 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-05-22T00:00:00.000Z</updated>
+    <updated>2026-05-26T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Tazman V2 newOpportunity]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/26/tazman-v2</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/26/tazman-v2"/>
+        <updated>2026-05-26T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[The Tazman adapter docs now cover the new V2 API for newOpportunity, gated by a new crmConfig.apiVersion flag. Existing customers stay on the legacy V1 path; new onboardings should default to V2.]]></summary>
+        <content type="html"><![CDATA[<p>The Tazman adapter docs now cover the new V2 API for <code>newOpportunity</code>, gated by a new <code>crmConfig.apiVersion</code> flag. Existing customers stay on the legacy V1 path; new onboardings should default to V2.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/26/tazman-v2#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Tazman <code>newOpportunity</code> V2</strong> — new section covering the V2 endpoint with an expanded param list (<code>name_f</code>, <code>name_s</code>, <code>birthday</code>, <code>sex</code>, <code>add_sms_phone1/2</code>, <code>ext_acc_id</code>, invoice fields, plus reshaped <code>tags</code> and <code>additional_fields</code> arrays).</li>
+<li><strong><code>apiVersion</code> config</strong> — new <code>crmConfig</code> field; set to <code>'v2'</code> for every new Tazman customer. Legacy V1 path is retained for back-compat only.</li>
+</ul>]]></content>
+        <category label="adapters" term="adapters"/>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Shopify Adapter]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/05/22/shopify</id>
@@ -431,25 +447,5 @@
         <category label="adapters" term="adapters"/>
         <category label="docs" term="docs"/>
         <category label="yaml" term="yaml"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Ask AI — Docs Chat]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/18/ask-ai</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/18/ask-ai"/>
-        <updated>2026-04-18T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Ask natural-language questions about Texter right inside the docs. A new right-docked chat panel, grounded in the full documentation, is now live on every page.]]></summary>
-        <content type="html"><![CDATA[<p>Ask natural-language questions about Texter right inside the docs. A new right-docked chat panel, grounded in the full documentation, is now live on every page.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/18/ask-ai#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Ask AI panel</strong> — click the "Ask AI" button in the bottom-right to open a chat that answers questions about YAML, adapters, scenarios, bot flows, and anything else covered in the docs. Works in both English and Hebrew.</li>
-<li><strong>Source citations</strong> — every answer lists the docs pages it drew from, as clickable links that take you straight to the relevant reference.</li>
-<li><strong>Multi-turn follow-ups</strong> — the panel remembers your conversation within the session so you can ask follow-ups like "and for Zoho?" without restating context.</li>
-<li><strong>"Ask about this page"</strong> — one-click prompt in the empty state that asks the AI to summarize the page you're currently on, the key YAML points to follow, and common mistakes to avoid.</li>
-<li><strong>Prompt suggestions</strong> — the empty state surfaces three rotating starter questions drawn from a pool of 30, covering data injection, Flows, adapters, prompts, notifies, working hours, and more.</li>
-<li><strong>YAML answers ready to paste</strong> — YAML code blocks in answers are auto-indented by two spaces so you can paste them directly under an existing key in the bot editor.</li>
-<li><strong>Resizable panel</strong> — drag the left edge to widen or narrow the panel; your preferred width is remembered across sessions.</li>
-</ul>]]></content>
-        <category label="feature" term="feature"/>
-        <category label="site" term="site"/>
     </entry>
 </feed>
