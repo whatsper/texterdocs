@@ -114,15 +114,9 @@ Filename: `blog/YYYY-MM-DD-<kebab-slug>.md`
 - If multiple posts exist on the same day, append `-2`, `-3`, etc. — but check existing files first; this hasn't happened yet in the repo.
 - Always `.md`, not `.mdx`, unless the post needs JSX components.
 
-### 8. Show the draft before saving
+### 8. Write the post directly
 
-**Always show the user the full draft first.** They will often want to:
-- Adjust the title
-- Drop or rephrase bullets
-- Change a tag
-- Move an item between `Added`/`Fixed`/`Improved`
-
-After they approve, write the file with the Write tool. Then run `npm run build` to confirm the post renders without errors (Docusaurus is strict about MDX/frontmatter).
+Write the file with the Write tool — **do not** wait for explicit approval before saving. Show the draft inline in your response so Niv can read it as it lands, but don't gate the write behind "approve?". After writing, run `npm run build` to confirm the post renders without errors (Docusaurus is strict about MDX/frontmatter). If Niv wants tweaks (title, bullets, tags, section moves) he'll ask after seeing the file.
 
 ### 9. What NOT to do
 
