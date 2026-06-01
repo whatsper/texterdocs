@@ -51,6 +51,22 @@ ___
     on_failure: start_parseCrmData
 ```
 
+### Check if the chat passed through any of several nodes
+Useful for branching based on which path the chat took earlier in the scenario.
+```yaml
+  abandoned_bot_sequence_2:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: '((exists(node1)) or (exists(node2)) or (exists(node3)))'
+      node1: '%state:node.update_tazman_additional_field_23105%'
+      node2: '%state:node.update_tazman_additional_field_23117%'
+      node3: '%state:node.update_tazman_additional_field_23104%'
+    on_complete: abandoned_bot_sequence_3
+    on_failure: update_tazman_abandoned_lead
+```
+
 ### Check if message was sent within last 5 days
 ```yaml
   check_if_sent_within_5_days:
