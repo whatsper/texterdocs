@@ -4,10 +4,37 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Tue, 26 May 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 01 Jun 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Unsubscribe Func + Rapid Recipe + OAuth Webhooks]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth</guid>
+            <pubDate>Mon, 01 Jun 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[A new unsubscribe chat func with a "legally binding" handling pattern, a Rapid Basic Bot starter recipe, accurate injectOAuth docs on sendWebhook with a Salesforce example, plus a small persistence fix in the partner-bundle import tool.]]></description>
+            <content:encoded><![CDATA[<p>A new <code>unsubscribe</code> chat func with a "legally binding" handling pattern, a Rapid Basic Bot starter recipe, accurate <code>injectOAuth</code> docs on <code>sendWebhook</code> with a Salesforce example, plus a small persistence fix in the partner-bundle import tool.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong><code>unsubscribe</code> chat func</strong> — new doc covering the func that sends the unsubscribe confirmation and resolves the chat in one step, with the <code>on_failure</code> → label flow recommended for legal-binding visibility.</li>
+<li><strong>Rapid Basic Bot recipe</strong> — new copy-paste starter under Bot Recipes: greet, <code>getCustomerDetails</code>, branch to a service menu for existing customers or <code>newOpportunity</code> + name collection for unknown senders, then working-hours-aware handoff.</li>
+<li><strong>Rapid <code>disableSystemEvents</code></strong> — new <code>newOpportunity</code> param, defaults to <code>true</code> so Rapid's new-lead system event doesn't escape the bot mid-conversation with a template send. Pass <code>false</code> to re-enable.</li>
+<li><strong><code>matchExpression</code> node-traversal example</strong> — new example for branching on which earlier node(s) the chat passed through, using <code>exists(%state:node.X%)</code>.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong><code>sendWebhook</code> <code>injectOAuth</code></strong> — documented the real object shape (<code>service</code>, <code>header</code>, <code>tokenPrefix</code>) instead of treating it as a flag, listed the supported services, and added a Salesforce example with <code>Authorization: Bearer …</code>.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>Partner-bundle seed inputs</strong> — values like "שם הקליניקה" on the Optima bundle in the Templates Import tool now persist to <code>localStorage</code> so they survive reloads.</li>
+</ul>]]></content:encoded>
+            <category>docs</category>
+            <category>yaml</category>
+            <category>adapters</category>
+            <category>site</category>
+        </item>
         <item>
             <title><![CDATA[Tazman V2 newOpportunity]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/05/26/tazman-v2</link>
@@ -429,25 +456,6 @@
             <category>marketplace</category>
             <category>sla</category>
             <category>automation</category>
-        </item>
-        <item>
-            <title><![CDATA[Monday adapter & Zoho `closeTicket` Updates]]></title>
-            <link>https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho</link>
-            <guid>https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho</guid>
-            <pubDate>Sun, 19 Apr 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[New Monday.com adapter docs, and an updated Zoho closeTicket that now writes the chat transcript as a Note on the contact.]]></description>
-            <content:encoded><![CDATA[<p>New Monday.com adapter docs, and an updated Zoho <code>closeTicket</code> that now writes the chat transcript as a Note on the contact.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Monday.com adapter</strong> — full documentation for the new Monday adapter: <code>getCustomerDetails</code>, <code>createItem</code>, <code>updateItem</code>, <code>changeStatus</code>, and <code>crmGetFields</code>. Covers the required <code>crmConfig</code> (<code>authToken</code>, <code>boardId</code>, <code>groupId</code>, <code>phoneColumnId</code>, <code>statusColumnId</code>, <code>workspaceUrl</code>), column-ID vs. column-title gotchas, per-column-type value formats (status, dropdown, date, phone, email, text), phone-format flags (<code>useNationalDigits</code> / <code>useFullPhoneNumber</code>), and the <code>additionalFieldsQuery</code> / <code>additionalFieldsVariables</code> hooks for pulling extra item columns onto <code>crmData</code>.</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/19/monday-zoho#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li><strong>Zoho <code>closeTicket</code></strong> — now writes the chat transcript as a <strong>Note on the contact</strong> by default (Zoho Create Notes API), using a new stable <code>crmData.contactId</code> so the note always lands on the original contact even after later <code>createRecord</code> / <code>updateRecord</code> calls move <code>recordId</code> to another module. The record <code>PUT</code> only runs when there's something to update (<code>crmConfig.closeTicketDateField</code> set, or YAML <code>params</code> passed) — no more spurious updates on agent-resolved chats. New <code>crmConfig</code> options: <code>disableCloseTicketNote</code> to opt out of the note, and <code>closeTicketNoteTitle</code> to override the note-title prefix (default <code>שיחת ווצאפ</code>).</li>
-</ul>]]></content:encoded>
-            <category>adapters</category>
-            <category>docs</category>
-            <category>yaml</category>
         </item>
     </channel>
 </rss>
