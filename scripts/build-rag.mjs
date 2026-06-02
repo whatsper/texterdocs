@@ -40,7 +40,7 @@ if (existsSync(dotEnvLocalPath)) loadEnv({path: dotEnvLocalPath, override: true}
 
 const DOCS_DIR = join(ROOT, 'docs');
 const CACHE_PATH = join(ROOT, '.rag-cache.json');
-const SITE_URL = 'https://whatsper.github.io/texterdocs';
+const SITE_URL = 'https://docs.texterchat.com';
 
 const CHUNKER_VERSION = 4;
 const EMBEDDING_MODEL = 'text-embedding-3-small';

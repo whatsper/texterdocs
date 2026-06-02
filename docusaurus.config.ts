@@ -39,8 +39,8 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://whatsper.github.io',
-  baseUrl: '/texterdocs/',
+  url: 'https://docs.texterchat.com',
+  baseUrl: '/',
 
   organizationName: 'whatsper',
   projectName: 'texterdocs',

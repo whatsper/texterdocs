@@ -2,7 +2,7 @@
 
 Public documentation site for **Texter** bot YAML (Docusaurus 3, GitHub Pages).
 
-Live: [whatsper.github.io/texterdocs](https://whatsper.github.io/texterdocs/)
+Live: [docs.texterchat.com](https://docs.texterchat.com/)
 
 ## Commands
 
