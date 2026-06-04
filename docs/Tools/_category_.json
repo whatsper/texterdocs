@@ -1,5 +1,10 @@
 {
   "label": "Tools",
-  "position": 99
+  "position": 99,
+  "link": {
+    "title": "🛠️ Tools",
+    "type": "generated-index",
+    "slug": "/tools",
+    "description": "Interactive tools to set up and manage Texter, right from your browser."
+  }
 }
-

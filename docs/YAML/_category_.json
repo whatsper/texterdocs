@@ -1,4 +1,10 @@
 {
   "label": "Bot YAML",
-  "position": 2
+  "position": 2,
+  "link": {
+    "title": "📝 Bot YAML",
+    "type": "generated-index",
+    "slug": "/bot-yaml",
+    "description": "Build and configure a Texter bot in YAML — node types, CRM adapters, data injection, and ready-made recipes."
+  }
 }

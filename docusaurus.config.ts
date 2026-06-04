@@ -159,12 +159,6 @@ const config: Config = {
           href: 'https://apidocs.texterchat.com',
           label: 'API Docs',
           position: 'right',
-        }
-        ,
-        {
-          href: 'https://www.texterchat.com',
-          label: 'Texter Home',
-          position: 'right',
         },
         {
           type: 'search',

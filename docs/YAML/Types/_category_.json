@@ -1,4 +1,10 @@
 {
   "label": "Node Types",
-  "position": 3
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "title": "🧩 Node Types",
+    "slug": "/node-types",
+    "description": "The building blocks of a bot flow — Prompt, Notify, Func, and WhatsApp Flow nodes, and how to use each."
+  }
 }
