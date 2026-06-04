@@ -2,11 +2,30 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-06-01T00:00:00.000Z</updated>
+    <updated>2026-06-05T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Q-AI Bot Docs + Category Landing Pages]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs"/>
+        <updated>2026-06-05T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A new documentation section for the Q-AI Bot — Texter's AI assistant — covering how it works end to end, plus card-style landing pages for the main categories and a refreshed introduction.]]></summary>
+        <content type="html"><![CDATA[<p>A new documentation section for the <strong>Q-AI Bot</strong> — Texter's AI assistant — covering how it works end to end, plus card-style landing pages for the main categories and a refreshed introduction.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Q-AI Bot documentation</strong> — a new section on Texter's AI assistant: how it works, its knowledge base (RAG) with file and website sync, the response schema, the Abandoned Bot re-engagement system, per-project settings, onboarding, and troubleshooting.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong>Category landing pages</strong> — Bot YAML, Node Types, Q-AI Bot, and Tools now open to a card-style index of their pages instead of just expanding the sidebar.</li>
+<li><strong>Introduction</strong> — refreshed to cover the Q-AI Bot, Tools, and the Scenario Marketplace alongside the existing YAML reference.</li>
+</ul>]]></content>
+        <category label="docs" term="docs"/>
+        <category label="site" term="site"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Unsubscribe Func + Rapid Recipe + OAuth Webhooks]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth</id>
@@ -434,26 +453,5 @@
         <category label="docs" term="docs"/>
         <category label="scenarios" term="scenarios"/>
         <category label="yaml" term="yaml"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[SLA Scenario Suite (Marketplace)]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/28/sla-scenarios</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/28/sla-scenarios"/>
-        <updated>2026-04-28T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[Added an SLA scenario suite to the Scenario Marketplace to help track response-time SLAs using a simple per-chat data store record and a default sla label.]]></summary>
-        <content type="html"><![CDATA[<p>Added an SLA scenario suite to the Scenario Marketplace to help track response-time SLAs using a simple per-chat data store record and a default <code>sla</code> label.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/28/sla-scenarios#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>SLA scenario group (tag: <code>sla</code>)</strong> — a dedicated section in the Scenario Marketplace.</li>
-<li><strong>(SLA) Set Item On Incoming Message</strong> — starts SLA tracking on incoming customer messages (stores timestamp + chat id).</li>
-<li><strong>(SLA) Set Item On Set to pending</strong> — starts SLA tracking when a chat becomes pending.</li>
-<li><strong>(SLA) Set SLA Label For all Records</strong> — cron-driven enforcement that applies the <code>sla</code> label when the configured threshold is exceeded (default example: 20 minutes, configurable per customer).</li>
-<li><strong>(SLA) Remove Item On Resolve Chat</strong> — clears tracking + removes the <code>sla</code> label when a chat is resolved.</li>
-<li><strong>(SLA) Remove Item On outgoing Message</strong> — clears tracking + removes the <code>sla</code> label when an agent replies.</li>
-</ul>]]></content>
-        <category label="scenarios" term="scenarios"/>
-        <category label="marketplace" term="marketplace"/>
-        <category label="sla" term="sla"/>
-        <category label="automation" term="automation"/>
     </entry>
 </feed>
