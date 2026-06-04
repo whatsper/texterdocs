@@ -77,7 +77,12 @@ By default, POST requests include these fields. Set to `false` to exclude:
 - `params.dontRejectUnauthorizedHttps` if `true`, skips TLS certificate verification
 
 #### OAuth
-- `params.injectOAuth` injects an OAuth token into the request headers
+- `params.injectOAuth` injects an OAuth access token from a connected service into a request header. Object with:
+  - `service` (required) — which connected OAuth service to pull credentials for. One of `salesforce`, `google`, `bafi`, `zoho`, `provet`, `instagram`.
+  - `header` (required) — request header name to set the token into (e.g. `Authorization`).
+  - `tokenPrefix` (optional) — string prepended to the token in the header value (e.g. `"Bearer "`).
+
+  Token refresh is handled automatically: if the access token is expired, the server refreshes it and retries the request once. If no credentials are stored for the service, the node routes to `on_failure`.
 
 #### Routing
 - `on_failure` fallback node
@@ -175,6 +180,28 @@ ___
       headers:
         - "Authorization": "Bearer token123"
     on_complete: select_branch
+```
+
+### Call a Salesforce API with auto-refreshing OAuth token
+```yaml
+  push_contact_to_salesforce:
+    type: func
+    func_type: system
+    func_id: sendWebhook
+    params:
+      name: false
+      messages: false
+      lastMessage: false
+      url: "https://example.my.salesforce.com/services/data/v59.0/sobjects/Contact"
+      firstName: "%state:store.customer.firstName%"
+      lastName: "%state:store.customer.lastName%"
+      phone: "%chat:phone%"
+      injectOAuth:
+        service: salesforce
+        header: Authorization
+        tokenPrefix: "Bearer "
+    on_complete: confirm_pushed
+    on_failure: salesforce_push_failed
 ```
 
 ### Attach files from a previous node

@@ -103,6 +103,7 @@ Creates a new lead. Most commonly used when the sender is not identified.
 | `created` | No | ISO datetime. |
 | `source` | No | **Lead_SourceID**; token must allow *Accept multiple sources* (Rapid Admin → CRM → lead source management). |
 | `sourceName` | No | |
+| `disableSystemEvents` | No | Defaults to `true`. Rapid's "new lead created" system event usually triggers template sends that would escape the bot flow mid-conversation, so Texter disables it on leads created from a bot. Pass `false` to let those system events fire (e.g. automatic action in Rapid on "lead created"). |
 | *custom fields* | No | Keys configured in Rapid (e.g. `Ads_group`). |
 
 **Result:** `crmData.leadName`, `crmData.leadExternalId`.

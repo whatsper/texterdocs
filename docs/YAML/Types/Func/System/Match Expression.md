@@ -51,6 +51,22 @@ ___
     on_failure: start_parseCrmData
 ```
 
+### Check if the chat passed through any of several nodes
+Useful for branching based on which path the chat took earlier in the scenario.
+```yaml
+  abandoned_bot_sequence_2:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: '((exists(node1)) or (exists(node2)) or (exists(node3)))'
+      node1: '%state:node.update_tazman_additional_field_23105%'
+      node2: '%state:node.update_tazman_additional_field_23117%'
+      node3: '%state:node.update_tazman_additional_field_23104%'
+    on_complete: abandoned_bot_sequence_3
+    on_failure: update_tazman_abandoned_lead
+```
+
 ### Check if message was sent within last 5 days
 ```yaml
   check_if_sent_within_5_days:
@@ -172,6 +188,20 @@ ___
     on_failure: invalid_phone
 ```
 
+### Check if text contains at least one English letter
+Uses the `~=` regex-match operator. Returns true if the input contains at least one `a–z` or `A–Z` character anywhere in the string. Handy for separating mixed-language input from purely numeric or Hebrew text (e.g. detecting a chassis number that mixes letters and digits vs a pure ID number).
+```yaml
+  existing_readings_check_if_chassis:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: 'identification ~= "[a-zA-Z]"'
+      identification: "%state:node.node_name.text%"
+    on_complete: next_node_yay
+    on_failure: next_node_sad
+```
+
 ___
 ## Available Filtrex functions
 
@@ -193,4 +223,5 @@ ___
 | `>`, `<`, `>=`, `<=` | Comparison |
 | `and`, `or`, `not` | Logical |
 | `in` | Check if value is in array |
+| `~=` | Regex match (left value contains a match for the regex on the right) |
 | `+`, `-`, `*`, `/` | Arithmetic |

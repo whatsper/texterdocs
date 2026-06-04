@@ -27,6 +27,8 @@ import {
 
 import styles from './styles.module.css';
 
+const PARTNER_SEED_STORAGE_KEY = 'texterdocs:partnerSeed';
+
 type Mode = 'import' | 'export';
 type InputMode = 'file' | 'paste' | 'partner';
 type ExportOutput = 'file' | 'inline';
@@ -329,10 +331,31 @@ export default function TemplatesImportTool(): ReactNode {
     {}
   );
   /** Partner-level seed values: `partnerSeed[partnerId][fieldId] = userValue`.
-      Replaced into template payloads at display & save time. */
+      Replaced into template payloads at display & save time. Persisted to
+      localStorage so values like "שם הקליניקה" survive reloads. */
   const [partnerSeed, setPartnerSeed] = useState<
     Record<string, Record<string, string>>
-  >({});
+  >(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const raw = window.localStorage.getItem(PARTNER_SEED_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(
+        PARTNER_SEED_STORAGE_KEY,
+        JSON.stringify(partnerSeed)
+      );
+    } catch {
+      /* quota / private-mode — ignore */
+    }
+  }, [partnerSeed]);
   /** Names of partners whose templates are currently loaded — used for the
       "loaded from Rapid + Optima" status line under the tab. */
   const [partnerLoadedFrom, setPartnerLoadedFrom] = useState<string[]>([]);
