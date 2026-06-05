@@ -7,9 +7,7 @@ description: One Q-AI Bot conversation walked through end to end — the on/off 
 
 # How It Works
 
-This page follows **one conversation from start to finish**. By the end you will know exactly what happens between a contact sending a message and the assistant's reply appearing in the chat — and what decides whether the conversation continues or ends.
-
-If you haven't read the **[Overview](/docs/q-ai-bot/overview)** yet, do that first; it names the moving parts referenced below.
+This page follows **one conversation from start to finish** — what happens between a contact sending a message and the assistant's reply appearing, and what decides whether the conversation continues or ends. If you haven't read the **[Overview](/docs/q-ai-bot/overview)** yet, do that first.
 
 ---
 
@@ -17,11 +15,7 @@ If you haven't read the **[Overview](/docs/q-ai-bot/overview)** yet, do that fir
 
 Every chat carries a master switch called **AI mode** (internally, *external-bot mode*). While it is **off**, the Q-AI Bot ignores the chat entirely and your normal Texter bot is in control. While it is **on**, every incoming message is sent to the assistant.
 
-The Texter bot flips this switch on at the point in a flow where you want the AI to take over — for example, after a lead is captured, or when a test keyword is matched. The switch is also flipped **off** automatically by several events (an agent takes the chat, the chat is resolved, the assistant decides it is done). You don't toggle it by hand in normal operation; the bot and a set of scenarios do.
-
-:::tip
-The switch is the single most important thing to understand. "Is AI mode on for this chat?" answers most "why didn't the AI respond?" questions. The full set of things that turn it on and off lives on the **[Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)** page.
-:::
+The Texter bot flips this switch on at the point in a flow where you want the AI to take over — for example, after a lead is captured or when a test keyword is matched — and a set of scenarios flip it back off automatically (an agent takes the chat, the chat is resolved, the assistant decides it is done). The full set of things that turn it on and off lives on the **[Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)** page.
 
 ---
 
@@ -29,7 +23,7 @@ The switch is the single most important thing to understand. "Is AI mode on for 
 
 The moment AI mode is switched on, a **new AI session** begins for that chat. A session is the assistant's memory of *this* conversation: it starts clean, with no carryover from any previous AI session on the same chat.
 
-At session start the assistant also receives the recent chat history and the project's **system prompt** — the standing instructions and persona that tell it who it is, how to behave, and what it should and shouldn't do. The system prompt is configured per project, so the same platform can host a friendly clinic receptionist for one business and a terse support agent for another.
+At session start the assistant also receives the recent chat history and the project's **system prompt** — the per-project standing instructions and persona (so the same platform can host a friendly clinic receptionist for one business and a terse support agent for another). The prompt itself lives in a synced document; see **[Knowledge Files](/docs/q-ai-bot/knowledge-files)**.
 
 ---
 
@@ -55,7 +49,7 @@ The assistant does not just return a blob of text. Every turn produces a **struc
 Only the visible message is sent to the contact. The other fields are used by Texter to decide what to do next, and to populate reports. The exact shape — and how the bot YAML reads it — is documented on the **[Response Schema](/docs/q-ai-bot/response-schema)** page.
 
 :::info[Why structured?]
-Because the reply is structured, Texter can act on the assistant's decisions automatically: send this text, then end the session for *this* reason, then route the bot down the right path. A plain-text answer couldn't carry those instructions.
+Because the reply is structured, Texter can act on the assistant's decisions automatically — send this text, end the session for *this* reason, route the bot down the right path — which a plain-text answer couldn't carry.
 :::
 
 ---
@@ -67,7 +61,7 @@ Once the visible reply is sent, Texter decides what happens next based on the st
 | Outcome | What happens |
 | --- | --- |
 | **Continue** | The session stays open and waits for the contact's next message — which becomes the next AI turn. |
-| **Message limit reached** | Each project sets a maximum number of AI turns per session (set per project; see **[Per-Project Settings](/docs/q-ai-bot/per-project-settings)**). Once that cap is hit, the session ends so a conversation can't loop forever. |
+| **Message limit reached** | The session hits the project's per-session turn cap and ends so it can't loop forever (set in **[Per-Project Settings](/docs/q-ai-bot/per-project-settings)**). |
 | **End** | The assistant signalled it is finished — either it resolved the chat, or it asked for a human. The session ends and the chat is handed off. |
 
 If anything goes wrong during a turn (for example the assistant call fails), the session also ends safely so the contact is never left talking to a stalled bot.
@@ -76,9 +70,7 @@ If anything goes wrong during a turn (for example the assistant call fails), the
 
 ## Step 6 — Handing back to a human
 
-When a session ends — whether the assistant resolved it, asked for a human, hit the message limit, or errored — AI mode is switched **off** for the chat and control returns to Texter. A **termination reason** is recorded on the chat so your bot (and your reports) know *why* the AI stepped away.
-
-From there your Texter bot picks up: it can route a human handoff to an agent, label the chat, update your CRM, or send a closing message — all driven by the recorded reason. The mechanics of handoff, and the full list of end reasons, are on the **[Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)** page.
+When a session ends, AI mode switches **off** and a **termination reason** is recorded on the chat so your bot (and your reports) know *why* the AI stepped away. Your Texter bot then branches on that reason — route a human handoff to an agent, label the chat, update your CRM, or send a closing message. The handoff mechanics and the full list of end reasons are on the **[Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)** page.
 
 ---
 
@@ -89,15 +81,5 @@ A contact experiences one smooth conversation, even though each turn is a separa
 Under the hood the reasoning is done by a **GPT-5.2-class model via the OpenAI Responses API**, which holds the thread of the conversation for the life of the session. When the session ends, that memory is released — the next time AI mode is switched on, Step 2 starts a brand-new session.
 
 :::note[One session, one memory]
-Continuity is per session. End a session and start a new one on the same chat, and the assistant begins fresh. This is intentional — it keeps a re-engaged or re-opened conversation from being polluted by stale context.
+Continuity is per session — end one and start a new one on the same chat, and the assistant begins fresh. This is intentional: it keeps a re-engaged or re-opened conversation from being polluted by stale context.
 :::
-
----
-
-## Recap
-
-- A master **on/off switch** decides whether the Q-AI Bot is in control of a chat.
-- Turning it **on** starts a **fresh session** with the project's system prompt and recent history.
-- **One incoming message = one AI turn**: retrieve from the **[knowledge base](/docs/q-ai-bot/knowledge-base)**, reason, and return a **[structured reply](/docs/q-ai-bot/response-schema)**.
-- After each turn, Texter routes: **continue**, **hit the message limit**, or **end**.
-- On end, AI mode switches **off**, a reason is recorded, and the chat is **handed back** — see the **[Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)**.

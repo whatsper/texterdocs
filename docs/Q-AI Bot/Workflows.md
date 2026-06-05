@@ -7,13 +7,7 @@ description: The named background automations behind the Q-AI Bot — what each 
 
 # Workflows & Automations
 
-The Q-AI Bot is not a single program. It is a set of **background automation workflows** that run on an internal automation platform, each with one job. Together they take a chat from "AI turned on" all the way through to "handed back to a human," and they keep each project's knowledge base fresh in the background.
-
-This page introduces every workflow **by name**, explains conceptually what it does, and links to the page where that behavior is documented in full. You rarely need these names day to day — skim this page once to see how the pieces fit, then refer back when a teammate mentions a workflow by name.
-
-:::info[What is a "workflow" here?]
-A **workflow** is a named background automation: a sequence of steps that an internal automation platform runs automatically when something happens (a chat event arrives, a timer fires, a file changes). You do not run these by hand — Texter operates them. You only need to understand *what* each one does and *when* it runs.
-:::
+The Q-AI Bot is a set of **named background automation workflows**, each with one job — together they carry a chat from "AI turned on" to "handed back to a human" and keep each project's knowledge base fresh. This page is the roster: what each workflow does and where its behavior is documented in full. Refer back when a teammate mentions one by name.
 
 ---
 
@@ -51,31 +45,21 @@ These react to live chat events. They are the part of the system a support hire 
 
 ### AI Assistant - Main
 
-The **core reply loop** and the workflow that does the actual answering. Every time a chat has the AI turned on, sends a new message, or is handed back to a human, Texter notifies this workflow. It calls the AI model (with knowledge-base search), reads the structured answer, sends the reply back into the chat, and decides what to do next: keep going, hit the message limit, or hand the chat back to a person.
+The **core reply loop** — the workflow that does the actual answering. It calls the model (with knowledge-base search), reads the structured answer, replies into the chat, and decides what happens next (continue, limit, or hand back). It also keeps each conversation's context so the AI "remembers" earlier turns without resending the whole history.
 
-It is also the workflow that keeps each conversation's context, so the AI "remembers" what was said earlier in the same chat without resending the whole history.
-
-See **[How It Works](/docs/q-ai-bot/how-it-works)** for a turn-by-turn walkthrough, and **[Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)** for how a chat starts, continues, and ends.
+See **[How It Works](/docs/q-ai-bot/how-it-works)** for a turn-by-turn walkthrough and **[Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)** for how a chat starts, continues, and ends.
 
 ### AI Assistant - Dev Sandbox
 
-The **safe twin** of *AI Assistant - Main*. It does the same job but is used for **trialing changes** before they go live, so a new idea can be tested without touching real conversations on the production loop.
-
-The sandbox also writes each test turn into an **evaluation report**, which makes it a natural place to check answer quality while experimenting.
-
-:::tip[Why a twin exists]
-New behavior is always tried on the sandbox first, never directly on the live loop. This keeps real conversations stable while changes are validated.
-:::
+The **safe twin** of *AI Assistant - Main*: the same job, used to trial changes before they go live so new behavior is validated without touching real conversations. It also writes each test turn into an **evaluation report**, making it a natural place to check answer quality.
 
 See **[Reporting & Evaluation](/docs/q-ai-bot/reporting)** for what gets logged during these test runs.
 
 ### AI Abandoned Bot
 
-Handles **idle conversations**. When someone stops replying mid-conversation, this workflow walks a per-project **re-engagement ladder**: a series of timed steps that can send a gentle reminder, send an AI-written nudge, or eventually close the session and hand the chat back to the normal Texter bot.
+Handles **idle conversations**. When someone stops replying mid-conversation, this workflow walks a per-project **re-engagement ladder** of timed steps that can send a reminder, an AI-written nudge, or eventually close the session and hand back to the normal Texter bot.
 
-The ladder is configured per project, so each business can decide how patient and how persistent the follow-up should be.
-
-See **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)** for the full ladder behavior.
+See **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)** for the full ladder mechanics.
 
 ---
 
@@ -91,19 +75,9 @@ See **[Knowledge Files](/docs/q-ai-bot/knowledge-files)** for how files flow int
 
 ### Scraping Websites for AI - Main Loop
 
-Keeps the knowledge base in sync with a project's **website content**. It works from a **curated list of page URLs** (not by crawling the whole site). On a schedule, it compares that list against what is already stored and decides, for each page, whether it needs to be added, refreshed, or removed. It then hands each page off to one of three small helper workflows.
+Keeps the knowledge base in sync with a project's **website content**. It works from a **curated list of page URLs** (not by crawling the whole site): on a schedule it compares that list against what is stored and decides, per page, whether to add, refresh, or remove it — then hands each page to one of three small helpers (**Create One Page**, **Update One Page**, **Delete One Page**).
 
-See **[Website Scraping](/docs/q-ai-bot/website-scraping)** for the full mechanism.
-
-The three helpers it calls are:
-
-| Workflow | What it does |
-| --- | --- |
-| **Create One Page** | Fetches a brand-new page, converts it to text, and adds it to the knowledge base. |
-| **Update One Page** | Re-fetches an existing page and refreshes it **only if the content actually changed** (detected by comparing a content fingerprint). |
-| **Delete One Page** | Removes a page from the knowledge base when it has dropped off the curated URL list. |
-
-These three helpers are documented in full on **[Website Scraping](/docs/q-ai-bot/website-scraping)**, which owns the page-by-page mechanism.
+See **[Website Scraping](/docs/q-ai-bot/website-scraping)** for the full mechanism and the per-page helpers.
 
 ---
 
@@ -113,9 +87,9 @@ These run around the edges of a conversation rather than inside it.
 
 ### AI New Customer Onboarding
 
-Provisions a **brand-new AI project** end to end: it creates the empty knowledge base, sets up the project's configuration and document folders, seeds a default system prompt and evaluation report, and imports the Texter scenarios that drive the AI lifecycle. This is the high-level flow behind the [Onboard AI Bot](/docs/tools/onboard-ai-bot) tool.
+Provisions a **brand-new AI project** end to end — the empty knowledge base, configuration, document folders, default prompt and evaluation report, and the lifecycle scenarios — behind the [Onboard AI Bot](/docs/tools/onboard-ai-bot) tool.
 
-See **[Onboarding a New Project](/docs/q-ai-bot/onboarding)** for the step-by-step flow.
+See **[Onboarding a New Project](/docs/q-ai-bot/onboarding)** for what gets provisioned.
 
 ### Update AI Report Sheets
 

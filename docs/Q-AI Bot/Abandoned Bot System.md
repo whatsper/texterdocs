@@ -15,17 +15,13 @@ This behavior is driven by a background automation workflow called **AI Abandone
 
 ## The problem it solves
 
-A person starts chatting with the AI assistant, gets part way through, and then stops replying. Maybe they got distracted, maybe they are comparing options, maybe they meant to come back later. Whatever the reason, the conversation is now stuck: the AI is waiting, and nothing happens.
-
-Without re-engagement, that lead simply goes cold. The Abandoned Bot System gives the project a structured, automatic way to bring the person back, or to cleanly close the conversation if they truly aren't coming back.
+When a lead stops replying mid-conversation, the chat stalls and goes cold. The Abandoned Bot System gives the project a structured, automatic way to nudge the person back, or to cleanly close the conversation if they aren't coming back.
 
 ---
 
 ## The ladder concept
 
 Each project has an **escalation ladder**: an ordered list of timed **rungs**. The AI Abandoned Bot walks this ladder one rung at a time. The first rung is the gentlest follow-up; later rungs escalate; the final rung ends the conversation.
-
-Think of it as a staircase the conversation descends only when the lead stays silent. Every reply sends them back to the top.
 
 ```mermaid
 flowchart TD

@@ -17,7 +17,7 @@ The Q-AI Bot is billed by the number of **conversations** the assistant handles 
 *Prices are in Israeli shekels (₪).*
 
 :::info What counts as a conversation
-A **conversation** is a single chat the assistant handles during the month. The **message limit** caps how many back-and-forth turns the AI takes within that conversation before it hands the chat to a human — see [Per-Project Settings](/docs/q-ai-bot/per-project-settings).
+A **conversation** is a single chat the assistant handles during the month; the [message limit](/docs/q-ai-bot/per-project-settings) caps the turns within it.
 :::
 
 ## How billing works

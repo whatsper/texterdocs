@@ -7,9 +7,7 @@ description: How to provision a brand-new Q-AI Bot project — knowledge store, 
 
 # Onboarding a New Project
 
-Onboarding sets up everything a new project needs to run the Q-AI Bot, in a single guided step. Instead of creating each piece by hand, you fill in a short form and a background automation workflow called **AI New Customer Onboarding** provisions the whole project for you.
-
-This page explains what gets created, what you need to provide, how to run it, and how to confirm it worked.
+Onboarding provisions everything a new project needs to run the Q-AI Bot in one guided step: you fill in a short form and the **AI New Customer Onboarding** workflow sets up the whole project.
 
 ---
 
@@ -43,35 +41,9 @@ Onboarding gives the project sensible defaults. Fine-tuning — the prompt wordi
 
 ---
 
-## Run it
+## Run it and test
 
-Use the **Onboard AI Bot** tool to run onboarding from your browser. It walks you through the form fields above, lets you attach the initial knowledge files, and triggers the provisioning for you.
-
-➡️ **[Open the Onboard AI Bot tool](/docs/tools/onboard-ai-bot)**
-
-:::tip[Run onboarding once per project]
-Onboarding creates fresh resources every time it runs. Run it **once** for a new project. If you need to add knowledge or change settings later, use the knowledge-base and settings flows instead of re-running onboarding.
-:::
-
----
-
-## Test your setup
-
-Once onboarding finishes, confirm the project is wired up correctly.
-
-### 1. Check the scenarios were imported
-
-The Q-AI scenarios that drive the conversation lifecycle are imported automatically. You can review them in the **Scenario Marketplace** — open the [Scenario Marketplace](/scenarios) and search for **`q-ai`** (or filter by the **`ai-bot`** tag) to see the full set. These are the scenarios that turn the AI on, forward messages to it, and hand the chat back when the session ends.
-
-### 2. Run the AI Bot recipe
-
-To prove the integration end-to-end, drop the **AI Bot** test recipe into the project's bot YAML. It gives you a minimal flow that switches the AI on via a keyword and routes the chat back when the AI session ends — perfect for a smoke test before going live.
-
-➡️ See the [AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot) for the copy-pasteable snippet and integration steps.
-
-:::tip[Send a real test message]
-After wiring the recipe, message the project's number with the recipe's test keyword. You should see the AI take over the chat, reply using the project's knowledge base, and then hand the chat back when you trigger a termination. If it does, the project is ready.
-:::
+Run onboarding **once** per project from the **[Onboard AI Bot](/docs/tools/onboard-ai-bot)** tool — each run creates fresh resources, so use the knowledge-base and settings flows for later changes. To verify, confirm the Q-AI scenarios imported (search `q-ai` in the **[Scenario Marketplace](/scenarios)**) and run an end-to-end check with the **[AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot)**.
 
 ---
 

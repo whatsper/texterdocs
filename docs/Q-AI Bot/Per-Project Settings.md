@@ -7,25 +7,13 @@ description: The settings that shape each project's AI assistant — system prom
 
 # Per-Project Settings
 
-Every project gets its own AI assistant, and each one is tuned independently. Two projects can share the exact same machinery yet behave completely differently because their **settings** differ: a different personality, a different knowledge base, a different patience level for following up.
-
-This page explains **what is configurable per project**, **where those settings live**, and **who changes each one**.
-
-:::caution[These settings are operated by Texter support]
-Per-project settings are managed by **Texter support**, not by the project's own users. The business does not log into a settings screen to change the model or the message limit. If you run a project and want something changed, the route is to ask Texter — this keeps every assistant safe, consistent, and within platform limits.
-:::
+Every project gets its own AI assistant, tuned independently — same machinery, different **settings** (personality, knowledge base, follow-up patience). This page covers what is configurable per project, where those settings live, and who changes each one. Per-project settings are operated by Texter support, not by the project's own users.
 
 ---
 
 ## Where settings live
 
-A project's AI settings are stored centrally in **a managed configuration database** that Texter operates. Each project has its own configuration entry, and the [background automation workflows](/docs/q-ai-bot/workflows) read from it on every turn.
-
-Storing settings centrally (rather than in the bot YAML) means:
-
-- The same setting is read consistently by every workflow — the live reply loop, the re-engagement ladder, and the knowledge pipelines all see the same values.
-- A change takes effect for the **next** turn without redeploying anything.
-- Secrets and connection details never appear in public bot YAML.
+A project's AI settings are stored centrally in **a managed configuration database** that Texter operates, read by every [background automation workflow](/docs/q-ai-bot/workflows) on each turn — so a change takes effect on the next turn, with no redeploy.
 
 ---
 
@@ -46,13 +34,7 @@ The sections below explain each one.
 
 ### System prompt
 
-The **system prompt** is the assistant's standing instructions: who it is, what it helps with, the tone it uses, and the rules it must follow. It is the single biggest lever on how the AI behaves.
-
-The prompt is **not** edited directly in the configuration database. Instead, each project has a **system-prompt document** — a starting template that is personalized per project. When that document is edited and saved, the file-sync workflow picks up the change and updates the project's stored prompt automatically. The full mechanism (where the document lives and how the change flows in) is documented in [Knowledge Files](/docs/q-ai-bot/knowledge-files).
-
-:::tip[Why a document, not a database field]
-Keeping the prompt in an editable document means it can be written, reviewed, and revised like any other piece of writing — no database access required — and the change still flows safely into the live assistant.
-:::
+The **system prompt** is the assistant's standing instructions — who it is, what it helps with, its tone and rules — and the single biggest lever on how the AI behaves. It is not edited in the database directly: each project has an editable system-prompt document, and the file-sync workflow flows saved changes into the stored prompt. See [Knowledge Files](/docs/q-ai-bot/knowledge-files) for that mechanism.
 
 ### Model + creativity
 
@@ -65,17 +47,7 @@ Most projects keep the default creativity. It is occasionally lowered for projec
 
 ### Per-conversation message limit
 
-The **message limit** caps how many turns the AI will handle in a single conversation before it hands the chat back to a human. It is a safety valve: if a conversation runs long without resolving, a person steps in rather than letting the AI loop indefinitely.
-
-When the limit is reached, the chat is handed back to a human (the same handoff path described in [Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)).
-
-:::info Pricing tier
-The message limit also sets the project's **pricing tier** (10 messages vs 25) — see **[Pricing](/docs/q-ai-bot/pricing)**.
-:::
-
-:::note[Hypothetical example]
-A project might set its message limit so the AI handles, say, the first **8** back-and-forth turns of a chat. If the person is still chatting after that, the conversation moves to a human. The exact number is chosen per project by Texter support.
-:::
+The **message limit** caps how many turns the AI handles in a single conversation before it hands the chat back to a human — a safety valve so a long, unresolved conversation reaches a person rather than looping (one of the end reasons in [Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle)). It also sets the project's **pricing tier** (10 messages vs 25) — see **[Pricing](/docs/q-ai-bot/pricing)**.
 
 ### Response schema
 
@@ -85,31 +57,11 @@ You usually do not need to touch this; the default schema works for most project
 
 ### Knowledge base
 
-The **knowledge base** is the material the AI searches when it answers — so its answers reflect the project's own information instead of generic web knowledge. It is built from two sources that stay in sync automatically:
-
-- **Files** the project provides — see [Knowledge Files](/docs/q-ai-bot/knowledge-files).
-- **Website pages** from a curated URL list — see [Website Scraping](/docs/q-ai-bot/website-scraping).
-
-The knowledge base content is managed by adding, updating, or removing files and URLs; the pipelines do the syncing. For the full picture, see the **[Knowledge Base](/docs/q-ai-bot/knowledge-base)** overview.
+The **knowledge base** is the material the AI searches when it answers, so its answers reflect the project's own information rather than generic web knowledge. It is built from two auto-syncing pipelines — project [files](/docs/q-ai-bot/knowledge-files) and scraped [website pages](/docs/q-ai-bot/website-scraping) from a curated URL list — and managed by adding, updating, or removing those files and URLs. See the **[Knowledge Base](/docs/q-ai-bot/knowledge-base)** overview for the full picture.
 
 ### Re-engagement ladder
 
-The **re-engagement ladder** controls what happens when someone stops replying mid-conversation. It is an ordered list of timed steps — for example, a gentle reminder after a while, then an AI-written follow-up, then closing the session and handing the chat back to the normal bot.
-
-The ladder is configured per project so each business can decide how patient and how persistent the follow-up should be. The full behavior is documented in **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)**.
-
-:::caution[There is a platform cap]
-A project's ladder cannot stretch follow-ups out indefinitely — the delays across all steps must add up to **at most 12 hours**. This keeps re-engagement within a sensible, bounded period. See [Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system) for how the cap is enforced.
-:::
-
----
-
-## Who changes what — at a glance
-
-The **Changed by** column in the settings table above is the full picture. In short:
-
-- **Driven by the business's own content:** the **system prompt** (through its prompt document) and the **knowledge base** (through its files and URL list).
-- **Operated by Texter support:** the **model + creativity**, the **message limit**, the **response schema**, and the **re-engagement ladder**.
+The **re-engagement ladder** is a per-project, ordered list of timed follow-up steps for when someone stops replying mid-conversation. Its full mechanics — rung modes, timing, reset-on-reply, and the **12-hour** cap on total follow-up delay — are documented in **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)**.
 
 ---
 

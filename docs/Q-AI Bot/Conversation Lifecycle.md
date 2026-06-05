@@ -7,9 +7,7 @@ description: The full life of a Q-AI Bot session — start, ongoing turns, the f
 
 # Conversation Lifecycle
 
-A Q-AI Bot **session** has a clear beginning, middle, and end. This page traces that life cycle: how a session starts, what happens on each turn, the ways it can end, what handoff means, and how idle conversations are re-engaged. A final section, **[Scenarios](#scenarios)**, switches sides and covers the **Texter** wiring that connects the Texter platform to the assistant — read it as a distinct topic once the lifecycle itself makes sense.
-
-For the step-by-step of a single turn, see **[How It Works](/docs/q-ai-bot/how-it-works)**. This page is about the session as a whole.
+This page traces the full life of a Q-AI Bot **session** — how it starts, what happens on each turn, the five ways it ends, what handoff means, and how idle conversations are re-engaged — then a final **[Scenarios](#scenarios)** section covers the **Texter** wiring that connects the platform to the assistant. For the step-by-step of a single turn, see **[How It Works](/docs/q-ai-bot/how-it-works)**.
 
 ---
 
@@ -75,11 +73,7 @@ Treat the reasons above as named outcomes. Your Texter bot can branch on the rec
 - On **`resolved_convo`**, the chat can simply be closed or labelled.
 - On **`Reached message limit`**, **`Inactivity`**, or **`Error`**, your bot can send an appropriate closing message and decide whether to involve a person.
 
-In other words, the assistant never silently disappears — it always switches off cleanly and leaves a reason behind for the bot to act on.
-
-:::caution[Handoff is one-directional per session]
-Handoff ends the current session. It does not "pause" the assistant. If the conversation later needs the AI again, AI mode is switched on once more, which starts a **brand-new session** — see [Session start](#session-start).
-:::
+In other words, the assistant never silently disappears — it always switches off cleanly and leaves a reason behind for the bot to act on. Handoff ends the session rather than pausing it; if the conversation later needs the AI again, switching AI mode on starts a **brand-new session** (see [Session start](#session-start)).
 
 ---
 
@@ -107,9 +101,7 @@ These three scenarios cover the core loop. Each one listens for a Texter event a
 | **Q-AI: Forward Incoming Message to AI** | A contact sends a message while AI mode is on | Forwards that message to the assistant as the next AI turn. |
 | **Q-AI: End AI Session & Run Bot** | AI mode is switched off (with the chat still under the bot) | Ends the AI session and resumes the Texter bot from a designated node so your flow can act on the termination reason. |
 
-These three close the loop: **Turn On AI Bot** starts the session, **Forward Incoming Message to AI** feeds each turn while the session runs, and when AI mode switches off, **End AI Session & Run Bot** tears the session down and hands the chat back to your bot.
-
-In addition to these three, the suite includes scenarios that **switch AI mode off the moment a human takes over** — when an agent is assigned the chat, when it is resolved manually, when it moves to pending, or when a template message is sent. These guarantee the assistant steps aside instantly whenever a person steps in.
+In addition to these three, the suite includes scenarios that **switch AI mode off the moment a human takes over** — when an agent is assigned the chat, when it is resolved manually, when it moves to pending, or when a template message is sent — so the assistant steps aside instantly whenever a person steps in.
 
 ### Browsing and importing them
 
@@ -120,15 +112,5 @@ Open the **[Scenario Marketplace](/scenarios)** and type **`q-ai`** in the searc
 :::
 
 :::note
-The scenarios are the *Texter* half of the integration; the assistant is the other half. Importing the scenarios and turning AI mode on (via your bot) is what connects the two. To provision a brand-new project's assistant end to end, use the **[Onboard AI Bot tool](/docs/tools/onboard-ai-bot)**.
+To provision a brand-new project's assistant end to end, use the **[Onboard AI Bot tool](/docs/tools/onboard-ai-bot)**.
 :::
-
----
-
-## Recap
-
-- A session **starts** when AI mode switches on, with a fresh memory and the project's system prompt.
-- **Ongoing turns** answer each incoming message until the session ends.
-- A session **ends** five ways — the model resolves it, the model requests a human, the message limit is reached, an error occurs, or the chat goes idle — and a **termination reason** is recorded (`resolved_convo`, `human_handoff`, `Reached message limit`, `Error`, or `Inactivity`).
-- **Handoff** always switches AI mode off cleanly and leaves a reason for the bot to act on.
-- **Scenarios** from the **[Scenario Marketplace](/scenarios)** (search `q-ai`) wire the Texter side to the assistant.
