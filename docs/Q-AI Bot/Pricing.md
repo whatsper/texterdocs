@@ -1,8 +1,8 @@
 ---
-sidebar_position: 8
+sidebar_position: 10
 slug: /q-ai-bot/pricing
 title: Pricing
-description: How the Q-AI Bot is billed — per-conversation tiers set by the message limit, charged automatically by usage.
+description: "How the Q-AI Bot is billed: per-conversation tiers set by the message limit, charged automatically by usage."
 ---
 
 # Pricing
@@ -11,7 +11,7 @@ The Q-AI Bot is billed by the number of **conversations** the assistant handles 
 
 | Message limit (turns per conversation) | Price |
 | --- | --- |
-| up to **10** messages — *default* | **₪200** per 400 conversations / month |
+| up to **10** messages, *default* | **₪200** per 400 conversations / month |
 | up to **25** messages | **₪300** per 400 conversations / month |
 
 *Prices are in Israeli shekels (₪).*
@@ -22,9 +22,8 @@ A **conversation** is a single chat the assistant handles during the month; the 
 
 ## How billing works
 
-- Every project starts on the **10-message tier** (the default). It can be moved to the **25-message tier** — ask Texter support to raise the limit for your project.
+- Every project starts on the **10-message tier** (the default). To move to the **25-message tier** (the higher per-block rate), ask Texter support to raise the limit for your project.
 - Charges are **automatic**, based on your tier and how many conversations the assistant handled that month, counted in blocks of **400 conversations**.
-- The **25-message tier** lets the assistant resolve longer, multi-step conversations on its own before escalating — at the higher per-block rate.
 
 :::tip Which tier should a project use?
 If chats usually wrap up in a few turns, the **10-message tier** is plenty. Choose **25** when the assistant needs more room to finish longer conversations before involving a person.

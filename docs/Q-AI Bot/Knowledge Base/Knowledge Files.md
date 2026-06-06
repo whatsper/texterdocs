@@ -7,7 +7,7 @@ description: How uploaded documents flow from a project's Google Drive folders i
 
 # Knowledge Files (Drive Sync)
 
-Uploaded **knowledge files** are documents you control directly — price lists, policies, FAQs, brochures. They live in the project's **Google Drive folder**; a watcher notices your changes and keeps the project's [vector store](/docs/q-ai-bot/knowledge-base) in step automatically. This is one of the [two ways content enters the knowledge base](/docs/q-ai-bot/knowledge-base); the other is [Website Scraping](/docs/q-ai-bot/website-scraping).
+Uploaded **knowledge files** are documents you control directly: price lists, policies, FAQs, brochures. They live in the project's **Google Drive folder**; a watcher notices your changes and keeps the project's [vector store](/docs/q-ai-bot/knowledge-base) in step automatically. This is one of the [two ways content enters the knowledge base](/docs/q-ai-bot/knowledge-base); the other is [Website Scraping](/docs/q-ai-bot/website-scraping).
 
 ---
 
@@ -25,19 +25,21 @@ Every project gets its own **root folder** in Google Drive, created during onboa
 
 ## The Drive-watcher
 
-You never touch the vector store directly. Instead, a small **Apps Script** — a script that runs on the Google side, attached to the project's Drive folder — acts as a watcher. Its only job is to notice a change and raise a signal:
+You never touch the vector store directly. Instead, a small **Apps Script** (a script that runs on the Google side, attached to the project's Drive folder) acts as a watcher. Its only job is to notice a change and raise a signal:
 
 - A file was **created** in the knowledge-base subfolder.
 - A file was **updated** (replaced or edited).
 - A file was **deleted**.
 
-When the watcher sees one of these events, it triggers the **AI File Management** workflow — one of the Q-AI Bot's background automation workflows — and hands off the rest of the work. The watcher only detects the change; it does not touch the vector store itself.
+When the watcher sees one of these events, it triggers the **AI File Management** workflow (one of the Q-AI Bot's background automation workflows) and hands off the rest of the work.
+
+The watcher runs on a schedule: about **every 10 minutes during the day** (roughly 7 AM to 10 PM), pausing overnight. So a file you add or edit is usually synced within a few minutes, while a change made late at night is picked up the next morning.
 
 ---
 
 ## What AI File Management does
 
-The **AI File Management** workflow keeps the vector store matched to the Drive folder. It reacts to the watcher's signal and maps each kind of change to one action:
+The **AI File Management** workflow reacts to the watcher's signal and maps each kind of change to one action:
 
 | Drive event | What the workflow does |
 | --- | --- |
@@ -51,14 +53,14 @@ The result: the project's knowledge base always reflects what is currently in th
 
 ## The system prompt lives in Drive too
 
-The assistant's **system prompt** — the instructions that set its persona, rules, and tone — is *not* hand-edited in the managed configuration database. Instead, it is maintained as a document in the **instructions** subfolder (the project's own copy of the **Generic System Prompt** doc, cloned and filled in during onboarding).
+The assistant's **system prompt** (the instructions that set its persona, rules, and tone) is *not* hand-edited in the managed configuration database. Instead, it lives in the **instructions** subfolder document described above.
 
-When you edit that document, AI File Management picks up the change and writes the new instructions into the project's configuration — keeping prompt edits in one friendly place (a Google Doc) instead of the database. The system prompt is the *only* assistant setting changed this way; for which settings are edited where, see [Per-Project Settings](/docs/q-ai-bot/per-project-settings).
+When you edit that document, AI File Management picks up the change and writes the new instructions into the project's configuration, keeping prompt edits in one friendly place (a Google Doc) instead of the database. The system prompt is the *only* assistant setting changed this way; for which settings are edited where, see [Per-Project Settings](/docs/q-ai-bot/per-project-settings).
 
 ---
 
 ## Where to go next
 
-- **[Website Scraping](/docs/q-ai-bot/website-scraping)** — the other way to fill the knowledge base, for content that lives on the web.
-- **[Knowledge Base & Retrieval](/docs/q-ai-bot/knowledge-base)** — how the bot searches everything at answer time.
-- **[Onboard AI Bot](/docs/tools/onboard-ai-bot)** — provisions the Drive folder tree and the vector store for a new project.
+- **[Website Scraping](/docs/q-ai-bot/website-scraping)**: the other way to fill the knowledge base, for content that lives on the web.
+- **[Knowledge Base & Retrieval](/docs/q-ai-bot/knowledge-base)**: how the bot searches everything at answer time.
+- **[Onboard AI Bot](/docs/tools/onboard-ai-bot)**: provisions the Drive folder tree and the vector store for a new project.

@@ -1,19 +1,19 @@
 ---
 title: Onboarding a New Project
-sidebar_position: 9
+sidebar_position: 11
 slug: /q-ai-bot/onboarding
-description: How to provision a brand-new Q-AI Bot project — knowledge store, configuration, Drive folders, default prompt and report, and scenario import — in one step.
+description: How to provision a brand-new Q-AI Bot project (knowledge store, configuration, Drive folders, default prompt and report, and scenario import) in one step.
 ---
 
 # Onboarding a New Project
 
-Onboarding provisions everything a new project needs to run the Q-AI Bot in one guided step: you fill in a short form and the **AI New Customer Onboarding** workflow sets up the whole project.
+Onboarding provisions everything a new project needs to run the Q-AI Bot in one guided step: you fill in a short form and the **AI New Customer Onboarding** workflow does the rest.
 
 ---
 
 ## What onboarding sets up
 
-When you onboard a project, **AI New Customer Onboarding** provisions the full starting state:
+A single run creates:
 
 | Created | What it is |
 | --- | --- |
@@ -30,27 +30,26 @@ When you onboard a project, **AI New Customer Onboarding** provisions the full s
 
 You supply a small set of details. Have these ready before you start:
 
-- **Project id** — the project's identifier in Texter.
-- **Business name and phone** — used to personalize the cloned system prompt and the evaluation report.
-- **An admin email** — the project owner is given access to the new Drive folder so they can manage their own knowledge files.
-- **Initial knowledge files** — the first documents that describe the business (FAQs, price lists, service descriptions, and so on). These seed the project's knowledge base.
+- **Project id**: the project's identifier in Texter.
+- **Business name and phone**: used to personalize the cloned system prompt and the evaluation report.
+- **An admin email**: the project owner is given access to the new Drive folder so they can manage their own knowledge files.
+- **Initial knowledge files**: the first documents that describe the business (FAQs, price lists, service descriptions, and so on). These seed the project's knowledge base.
 
 :::info[The configuration is a starting point]
-Onboarding gives the project sensible defaults. Fine-tuning — the prompt wording, the response behavior, and per-project options — happens afterward. See [Per-Project Settings](/docs/q-ai-bot/per-project-settings) to adjust the configuration, and the [Knowledge Base](/docs/q-ai-bot/knowledge-base) pages to add more material later.
+Onboarding gives the project sensible defaults. Fine-tuning (the prompt wording, the response behavior, and per-project options) happens afterward. See [Per-Project Settings](/docs/q-ai-bot/per-project-settings) to adjust the configuration, and the [Knowledge Base](/docs/q-ai-bot/knowledge-base) pages to add more material later.
 :::
 
 ---
 
 ## Run it and test
 
-Run onboarding **once** per project from the **[Onboard AI Bot](/docs/tools/onboard-ai-bot)** tool — each run creates fresh resources, so use the knowledge-base and settings flows for later changes. To verify, confirm the Q-AI scenarios imported (search `q-ai` in the **[Scenario Marketplace](/scenarios)**) and run an end-to-end check with the **[AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot)**.
+Run onboarding **once** per project from the **[Onboard AI Bot](/docs/tools/onboard-ai-bot)** tool. Each run creates fresh resources, so use the knowledge-base and settings flows for later changes. To verify, confirm the Q-AI scenarios imported (search `q-ai` in the **[Scenario Marketplace](/scenarios)**) and run an end-to-end check with the **[AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot)**.
 
 ---
 
 ## Related pages
 
-- [Q-AI Bot Overview](/docs/q-ai-bot/overview) — how the system fits together.
-- [Per-Project Settings](/docs/q-ai-bot/per-project-settings) — tune the configuration after onboarding.
-- [Knowledge Base](/docs/q-ai-bot/knowledge-base) — add and maintain the project's knowledge.
-- [Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle) — what the imported scenarios actually do.
-- [FAQ & Troubleshooting](/docs/q-ai-bot/faq) — common questions after going live.
+- [Q-AI Bot Overview](/docs/q-ai-bot/overview): how the system fits together.
+- [Per-Project Settings](/docs/q-ai-bot/per-project-settings): tune the configuration after onboarding.
+- [Knowledge Base](/docs/q-ai-bot/knowledge-base): add and maintain the project's knowledge.
+- [Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle): what the imported scenarios actually do.

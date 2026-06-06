@@ -29,33 +29,25 @@ A good rule of thumb: if updating a fact means editing the website anyway, scrap
 
 ## How it works
 
-The mechanism is driven entirely by a **curated URL list** — there is no crawling.
-
-1. **Curated URL list.** The list of pages is maintained by hand in a **Google Sheet** — up to **50 URLs** per project — and is the single source of truth for what's in the knowledge base from the web.
-2. **Fetch as markdown.** Each page on the list is fetched and converted into clean **markdown** — readable text without the site's navigation and styling — which is what the vector store indexes.
-3. **Content-hash change detection.** The system computes a content hash (a short fingerprint) of each page's markdown and compares it to the fingerprint stored from last time. If they match, the page is unchanged and **skipped**. If they differ, the page is updated.
+1. **Curated URL list.** The list of pages is maintained by hand in a **Google Sheet** (up to **50 URLs** per project) and is the single source of truth for what's in the knowledge base from the web.
+2. **Fetch as markdown.** Each page on the list is fetched and converted into clean **markdown** (readable text without the site's navigation and styling), which is what the vector store indexes.
+3. **Content-hash change detection.** The system computes a content hash (a short fingerprint) of each page's markdown and compares it to the fingerprint stored from last time. If they match, the page is unchanged and **skipped**; if they differ, it is updated. Because only changed pages do real work, re-running over a large site stays fast and inexpensive.
 4. **Create / update / delete in the vector store.** Based on the comparison between the curated list and what's already indexed, each page is created, updated, or removed.
+
+:::caution[The list defines the knowledge base]
+The system never crawls, follows links, or discovers pages on its own: what's on the curated list is what's in the knowledge base. If a page is missing from the bot's answers, first check whether its URL is on the list. A page that exists on the website but isn't listed will never be scraped.
+:::
 
 ---
 
 ## The workflows behind it
 
-Website scraping is run by a small family of **background automation workflows**, on a recurring schedule per project:
+Website scraping is run by a small family of **background automation workflows**, on a recurring schedule per project, typically **once a week**, during a quiet overnight window:
 
-- **Scraping Websites for AI - Main Loop** — the coordinator. It compares the curated URL list against what's already indexed and routes each page to one of three sub-workflows: new to the list goes to **Create**, on both list and index goes to **Update**, dropped off the list goes to **Delete**.
-- **Create One Page** — fetches a brand-new URL, indexes it, and records its fingerprint.
-- **Update One Page** — re-fetches an already-indexed page and only re-indexes it **if** the content hash changed. (The hash check lives inside this sub-workflow, not in the Main Loop.)
-- **Delete One Page** — removes a page that has dropped off the curated list.
-
----
-
-## Change detection keeps it efficient
-
-Because each page carries a content-hash fingerprint, a scheduled run only does real work on pages that actually changed since last time — so re-running over a large site is fast and inexpensive.
-
-:::caution[The list defines the knowledge base]
-The system never crawls, follows links, or discovers pages on its own: what's on the curated list is what's in the knowledge base. If a page is missing from the bot's answers, first check whether its URL is on the list — a page that exists on the website but isn't listed will never be scraped.
-:::
+- **Scraping Websites for AI - Main Loop**: the coordinator. It compares the curated URL list against what's already indexed and routes each page to one of three sub-workflows: new to the list goes to **Create**, on both list and index goes to **Update**, dropped off the list goes to **Delete**.
+- **Create One Page**: fetches a brand-new URL, indexes it, and records its fingerprint.
+- **Update One Page**: re-fetches an already-indexed page and only re-indexes it **if** the content hash changed. (The hash check lives inside this sub-workflow, not in the Main Loop.)
+- **Delete One Page**: removes a page that has dropped off the curated list.
 
 ---
 
@@ -67,6 +59,6 @@ When a page changes, **Update One Page** adds the new version to the vector stor
 
 ## Where to go next
 
-- **[Knowledge Files (Drive Sync)](/docs/q-ai-bot/knowledge-files)** — the other way to fill the knowledge base, for documents you control directly.
-- **[Knowledge Base & Retrieval](/docs/q-ai-bot/knowledge-base)** — how the bot searches everything at answer time.
-- **[Onboard AI Bot](/docs/tools/onboard-ai-bot)** — provisions a new project's vector store.
+- **[Knowledge Files (Drive Sync)](/docs/q-ai-bot/knowledge-files)**: the other way to fill the knowledge base, for documents you control directly.
+- **[Knowledge Base & Retrieval](/docs/q-ai-bot/knowledge-base)**: how the bot searches everything at answer time.
+- **[Onboard AI Bot](/docs/tools/onboard-ai-bot)**: provisions a new project's vector store.

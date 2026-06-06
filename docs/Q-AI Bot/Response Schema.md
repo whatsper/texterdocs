@@ -1,25 +1,25 @@
 ---
 title: Response Schema
-sidebar_position: 4
+sidebar_position: 5
 slug: /q-ai-bot/response-schema
-description: The fixed-shape JSON the Q-AI Bot returns every turn — the visible reply, the terminate control channel, and the internal aiMetadata — and how the bot YAML consumes, routes on, and extends it.
+description: The fixed-shape JSON the Q-AI Bot returns every turn (the visible reply, the terminate control channel, and the internal aiMetadata) and how the bot YAML consumes, routes on, and extends it.
 ---
 
 # Response Schema
 
-Every turn, the Q-AI Bot returns not free text but a single **JSON object with a fixed shape** — the contract between the AI and the Texter platform: one field becomes the message the contact reads, others tell the bot flow what to do next, and a hidden block carries analytics. This page explains that object field by field and shows how your bot YAML reads it, routes on it, and extends it. The AI runs alongside a Texter bot, switched on and off by [scenarios](/docs/q-ai-bot/conversation-lifecycle).
+Every turn, the Q-AI Bot returns not free text but a single **JSON object with a fixed shape**, the contract between the AI and the Texter platform: one field becomes the message the contact reads, others tell the bot flow what to do next, and a hidden block carries analytics. This page explains that object field by field and shows how your bot YAML reads it, routes on it, and extends it. The AI runs alongside a Texter bot, switched on and off by [scenarios](/docs/q-ai-bot/conversation-lifecycle).
 
 :::note[How to read this page]
-Sections 1–4 cover the **default schema** every project starts with. Sections 5–8 are **advanced and optional** — custom exit reasons, configurable messages, and an extended schema for lead capture.
+Sections 1–4 cover the **default schema** every project starts with. Sections 5–8 are **advanced and optional**: custom exit reasons, configurable messages, and extending the schema to capture extra structured data.
 :::
 
 ---
 
 ## 1. Why structured output
 
-A chatbot that returns plain text can only do one thing: send that text. It cannot reliably tell the surrounding system *"now hand this chat to a human"* or *"this person is a hot lead, tag them"* — because there is no dependable place to put that signal. Parsing intent out of prose is fragile and breaks the moment the model rephrases itself.
+A chatbot that returns plain text can only do one thing: send that text. It cannot reliably tell the surrounding system *"now hand this chat to a human"* or *"flag this conversation for follow-up"*, because there is no dependable place to put that signal. Parsing intent out of prose is fragile and breaks the moment the model rephrases itself.
 
-The Q-AI Bot avoids this entirely. The model is constrained to return a **structured response**: a JSON object whose keys are known in advance. The reply to the contact lives in one field; the control signals live in their own fields; the analytics live in a separate block the contact never sees. The platform reads each field by name and acts on it deterministically.
+The Q-AI Bot avoids this by constraining the model to a **structured response**: a JSON object whose keys are known in advance. The platform reads each field by name and acts on it deterministically.
 
 ```mermaid
 flowchart TD
@@ -33,13 +33,13 @@ flowchart TD
     TD -->|Yes| BOT([Bot flow takes over, branches on terminateReason])
 ```
 
-This split — **say something, signal something, record something** — is the core idea of the whole feature. Everything below builds on it.
+This split, **say something, signal something, record something**, is the core idea everything below builds on.
 
 ---
 
 ## 2. The default schema
 
-This is the **actual default schema** the Q-AI Bot uses out of the box. It is a JSON Schema definition: it tells the OpenAI Responses API exactly what shape the model's answer must take, and the API guarantees the model's output validates against it.
+This is the **actual default schema** the Q-AI Bot uses out of the box. It is a JSON Schema definition that tells the OpenAI Responses API exactly what shape the model's answer must take, and the API guarantees the output validates against it.
 
 ```json
 {
@@ -69,34 +69,32 @@ This is the **actual default schema** the Q-AI Bot uses out of the box. It is a 
 | `response` | string | **The contact** | The only field the contact ever reads. It is sent to the chat as a plain WhatsApp message, every turn. |
 | `terminate` | boolean | Internal | The on/off switch for ending the AI's part of the conversation. `false` = keep going; `true` = the bot flow should take over. |
 | `terminateReason` | string (enum) | Internal | *Why* the AI is ending. The bot flow branches on this. When `terminate` is `false`, the model sets it to the literal string `null`. |
-| `aiMetadata.summary` | string | Internal | A one-sentence summary of what the conversation was about — **in Hebrew** (the schema requires it). Used for reports and at-a-glance triage. |
+| `aiMetadata.summary` | string | Internal | A one-sentence summary of what the conversation was about, **in Hebrew** (the schema requires it). Used for reports and at-a-glance triage. |
 | `aiMetadata.reasoning` | string | Internal | The model's own explanation of why it answered the way it did and why it terminated (if it did). Used for evaluation and debugging. |
-
-Only `response` reaches the chat; `terminate`, `terminateReason`, and the entire `aiMetadata` block are a private control-and-analytics channel the contact never sees.
 
 ### The control channel: `terminate` + `terminateReason`
 
-These two fields work as a pair. `terminate` decides *whether* the AI hands the conversation back; `terminateReason` decides *where it goes next*. While `terminate` is `false`, the AI keeps the conversation and `terminateReason` is the string `null`. When the AI sets `terminate` to `true`, it must give a reason from the enum — and that reason is what your bot flow switches on (see [section 3](#3-how-the-bot-yaml-consumes-it)).
+These two fields work as a pair. `terminate` decides *whether* the AI hands the conversation back; `terminateReason` decides *where it goes next*, which is what your bot flow switches on (see [section 3](#3-how-the-bot-yaml-consumes-it)). When `terminate` is `true`, the model must give a reason from the enum.
 
 The two default reasons are:
 
-- `human_handoff` — the AI has decided a person should take over (a question it cannot answer, an explicit request for a human, a sensitive situation).
-- `resolved_convo` — the AI believes the conversation is genuinely finished and nothing more is needed.
+- `human_handoff`: the AI has decided a person should take over (a question it cannot answer, an explicit request for a human, a sensitive situation).
+- `resolved_convo`: the AI believes the conversation is genuinely finished and nothing more is needed.
 
 ### `aiMetadata`: internal analytics
 
-`aiMetadata` is the bot's "show your work" block. `summary` gives you a quick Hebrew sentence describing the conversation — handy for agents skimming a queue and for the reporting sheets. `reasoning` records *why* the model responded and terminated as it did, which is invaluable when you are evaluating quality or chasing down a surprising answer. Neither field is shown to the contact, but both are available to your bot YAML and to reporting.
+`aiMetadata` is the bot's "show your work" block, available to your bot YAML and to reporting but never shown to the contact.
 
-The "in Hebrew (a must!)" note on `summary` is a **convention baked into the default schema**, not a platform rule. The default schema was written for Hebrew-speaking projects so that summaries read naturally in the reporting sheets and the agent queue. If you write a custom schema, you set the summary language yourself.
+The "in Hebrew (a must!)" note on `summary` is a **convention baked into the default schema**, not a platform rule: the default schema was written for Hebrew-speaking projects so summaries read naturally in the reporting sheets and the agent queue. If you write a custom schema, you set the summary language yourself.
 
 ### `strict` mode and `additionalProperties: false`
 
 Two parts of the schema make it trustworthy:
 
-- **`strict: true`** tells the Responses API to *enforce* the schema. The model cannot return malformed JSON or skip a required field — the output is guaranteed to match the shape.
-- **`additionalProperties: false`** means the object may contain **only** the keys defined here. The model cannot invent extra fields. Combined with `required`, every response has exactly the fields you expect — no more, no fewer.
+- **`strict: true`** tells the Responses API to *enforce* the schema. The model cannot return malformed JSON or skip a required field.
+- **`additionalProperties: false`** means the object may contain **only** the keys defined here. The model cannot invent extra fields. Combined with `required`, every response has exactly the fields you expect, no more, no fewer.
 
-Because of this, your bot YAML can read `terminateReason` or any `aiMetadata` field with confidence — always present, always the right type — and never has to defend against a missing field or stray prose.
+Because of this, your bot YAML can read `terminateReason` or any `aiMetadata` field with confidence and never has to defend against a missing field or stray prose.
 
 ---
 
@@ -104,7 +102,7 @@ Because of this, your bot YAML can read `terminateReason` or any `aiMetadata` fi
 
 The platform handles the response in two simple steps, every turn:
 
-1. **It sends `response` to the chat.** As long as the AI is active, whatever is in `response` is delivered to the contact as a WhatsApp message. No YAML is involved in this — it is automatic.
+1. **It sends `response` to the chat.** While the AI is active, whatever is in `response` is delivered to the contact as a WhatsApp message, automatically, with no YAML involved.
 2. **It checks `terminate`.** While `terminate` is `false`, nothing else happens; the AI stays in control. The moment `terminate` is `true`, the AI session ends and the **bot flow takes over**, resuming at the node configured in your `externalBot` / re-entry setup.
 
 When the bot flow resumes, the terminate reason is available to read. In a Q-AI bot this is exposed as `%chat:crmData.aiTerminateReason%`. Your flow's job is to **branch on it** and route to the right place. The natural tool for this is the [Switch Node](/docs/YAML/Types/Func/System/Switch%20Node).
@@ -122,7 +120,7 @@ When the bot flow resumes, the terminate reason is available to read. In a Q-AI 
     on_complete: ai_handoff_message
 ```
 
-Here, when the AI ends with `human_handoff`, the flow routes to a node that posts your handoff message and hands the chat to an agent; when it ends with `resolved_convo`, it routes to a polite closing node. The `on_complete` fallback catches anything unexpected. (Case keys are matched as **strings** and must be quoted — see the [Switch Node](/docs/YAML/Types/Func/System/Switch%20Node) page.)
+Here `human_handoff` routes to a node that posts your handoff message and hands the chat to an agent, and `resolved_convo` routes to a polite closing node; the `on_complete` fallback catches anything unexpected. (Case keys are matched as **strings** and must be quoted; see the [Switch Node](/docs/YAML/Types/Func/System/Switch%20Node) page.)
 
 :::note
 The exact node names and the field you read (`%chat:crmData.aiTerminateReason%`) come from the [AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot). Use that recipe as your starting scaffold rather than wiring this from scratch.
@@ -132,7 +130,7 @@ The exact node names and the field you read (`%chat:crmData.aiTerminateReason%`)
 
 ## 4. Routing with `aiMetadata`
 
-The terminate fields are not the only thing the bot can act on. **Any field inside `aiMetadata` is readable in your bot YAML**, which means the AI can pass structured signals down into the flow and your flow can react to them — add a label, branch, or feed the value into an update step.
+The terminate fields are not the only thing the bot can act on. **Any field inside `aiMetadata` is readable in your bot YAML**, so the AI can pass structured signals down into the flow for your flow to react to.
 
 For example, you can add a label to the chat based on a metadata value using the [Labels](/docs/YAML/Types/Func/Chat/Add%20Label) function:
 
@@ -166,14 +164,14 @@ Or you can branch the flow on a metadata value with a [Switch Node](/docs/YAML/T
 You can also persist a metadata value into the session store with [Store Value](/docs/YAML/Types/Func/System/Store%20Value) so later nodes can reuse it, or map several fields into a CRM update step. The pattern is always the same: the AI writes a structured field, the YAML reads it by path.
 
 :::tip
-The default schema only defines `summary` and `reasoning` under `aiMetadata`. To route on `classification` (as above) you must first **add that field to the schema** — see [section 7](#7-an-advanced-schema-lead-capture). Reading a field the schema never defines will simply yield an empty value.
+The default schema only defines `summary` and `reasoning` under `aiMetadata`. To route on `classification` (as above) you must first **add that field to the schema**; see [section 7](#7-extending-the-schema). Reading a field the schema never defines will simply yield an empty value.
 :::
 
 ---
 
 ## 5. Custom terminate reasons
 
-The default `terminateReason` enum has two values, but it is **not fixed**. You can extend the enum with your own reasons, and the AI will choose among them when it ends a conversation. This turns `terminateReason` into a steering wheel: the AI decides *where in the bot flow the conversation should land* after it bows out, and your post-AI flow routes each reason to a different node.
+The default `terminateReason` enum has two values, but you can extend it with your own reasons, and the AI will choose among them when it ends a conversation. This turns `terminateReason` into a steering wheel: the AI decides *where in the bot flow the conversation should land* after it bows out, and your post-AI flow routes each reason to a different node.
 
 For example, suppose you want the AI to be able to end by sending a pricing-qualified lead straight to a booking branch. Add a custom reason to the enum:
 
@@ -201,17 +199,17 @@ Then add a matching branch to the switch that runs after the AI ends:
     on_complete: ai_handoff_message
 ```
 
-Now, whenever the AI decides a contact is ready to schedule, it terminates with `ready_to_book`, the flow catches that case, and the contact drops directly into your booking branch. You have effectively given the AI a new "exit door" into the bot.
+Now, whenever the AI decides a contact is ready to schedule, it terminates with `ready_to_book` and the contact drops directly into your booking branch: a new "exit door" into the bot.
 
 :::caution[Keep the schema and the flow in sync]
-Every reason in the enum should have a matching `case` in the post-AI switch, and the switch's `on_complete` fallback should point somewhere sensible for reasons you have not branched yet. If you add an enum value but forget the branch, the conversation falls through to the fallback node.
+Every reason in the enum should have a matching `case` in the post-AI switch. If you add an enum value but forget the branch, the conversation falls through to the `on_complete` fallback, so point that fallback somewhere sensible.
 :::
 
 ---
 
 ## 6. The messages you configure in YAML
 
-The AI writes the conversational replies (`response`); the scripted, transactional messages that frame its start and end live in the bot YAML, not the AI — so they can be re-worded and localized per project without touching the AI configuration:
+The AI writes the conversational replies (`response`); the scripted, transactional messages that frame its start and end live in the bot YAML, not the AI, so they can be re-worded and localized per project without touching the AI configuration:
 
 | Message | When it fires | Purpose |
 | ------- | ------------- | ------- |
@@ -220,13 +218,15 @@ The AI writes the conversational replies (`response`); the scripted, transaction
 | **Message-limit** | The conversation reaches its configured turn limit | Lets the contact know the automated portion is wrapping up and what happens next. |
 | **Error / apology** | The AI run fails for any reason | A short apology and a safe fallback (usually a handoff) so a glitch never leaves the contact in silence. |
 
-These are routed with the same [Switch Node](/docs/YAML/Types/Func/System/Switch%20Node) pattern shown above — driven by `terminateReason` and the error/limit signals surfaced by the [scenarios](/docs/q-ai-bot/conversation-lifecycle). The end-reason semantics themselves are owned by [Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle) and the [re-engagement ladder](/docs/q-ai-bot/abandoned-bot-system).
+These are routed with the same [Switch Node](/docs/YAML/Types/Func/System/Switch%20Node) pattern shown above, driven by `terminateReason` and the error/limit signals surfaced by the [scenarios](/docs/q-ai-bot/conversation-lifecycle). The end-reason semantics themselves are owned by [Conversation Lifecycle](/docs/q-ai-bot/conversation-lifecycle) and the [re-engagement ladder](/docs/q-ai-bot/abandoned-bot-system).
 
 ---
 
-## 7. An advanced schema (lead capture)
+## 7. Extending the schema
 
-The real power of the response schema is that you can **extend `aiMetadata`** to make the AI extract structured data while it talks. Below is a generic lead-capture schema. It adds a lead score, a classification, and a set of extracted contact fields — while leaving the control fields (`response`, `terminate`, `terminateReason`) **exactly as they were**, so all the flow scaffolding from the sections above still works unchanged.
+The real power of the response schema is that it is **per-project**: you can **extend `aiMetadata`** so the AI reports extra structured data while it talks, leaving the control fields (`response`, `terminate`, `terminateReason`) **exactly as they were** so all the flow scaffolding above still works unchanged. What you add is up to the project.
+
+For example, a project that qualifies sales leads might add a score, a classification, and a few extracted contact fields:
 
 ```json
 {
@@ -271,46 +271,52 @@ The real power of the response schema is that you can **extend `aiMetadata`** to
 }
 ```
 
-Notice that everything outside `aiMetadata` is identical to the default. The same `terminate` / `terminateReason` control channel, the same `back_to_texter` switch — none of it changes. You have only taught the model to **also** report a score, a temperature, and extracted fields alongside its reply.
+Everything outside `aiMetadata` is identical to the default, so the `back_to_texter` switch and all the scaffolding above keep working. You have only taught the model to **also** report a score, a temperature, and extracted fields alongside its reply.
 
 :::tip
 Keep `extracted` fields generic and let the model write an empty string when a value is missing (the `required` list still forces the field to exist, which keeps the object shape stable for your YAML to read).
 :::
 
+:::caution[The schema travels with a description, keep them in sync]
+The schema does not stand alone. Each project also has a **schema description**: a plain-language block of response-format instructions and worked examples that is injected into the model's prompt and tells it *how* and *when* to fill each field: what makes a lead `HOT` versus `WARM`, when to leave `extracted.email` as an empty string, how to phrase the Hebrew `summary`, and so on. The JSON Schema enforces the *shape* of the answer; the description teaches the *behavior* behind it.
+
+The two are one unit. **Every time you change the schema, update its description to match.** Add a field to the schema but not to the description and the model will dutifully return the field with no guidance on what belongs in it, so the values come back empty or inconsistent.
+:::
+
 ---
 
-## 8. Lead scoring
+## 8. Acting on custom fields
 
-With the advanced schema in place, the AI does double duty: it answers the contact **and** scores them. On each turn it can update `leadScore` and `classification` inside `aiMetadata` based on what the contact has said so far. Your bot flow then reacts to those values exactly like any other metadata:
+Once a field exists in `aiMetadata` (section 7), your bot flow reacts to it like any other metadata: the AI does the judging, the deterministic flow does the acting.
 
-- **Label** a chat `HOT` / `WARM` / `COLD` with the [Labels](/docs/YAML/Types/Func/Chat/Add%20Label) function so agents can sort the queue.
-- **Route** the flow on `classification` (the switch in [section 4](#4-routing-with-aimetadata)) so a hot lead goes straight to a human while a cold one gets a polite close.
-- **Hand off** immediately when `leadScore` crosses a threshold you care about, instead of waiting for the contact to ask.
+- **Label** a chat from a field value with the [Labels](/docs/YAML/Types/Func/Chat/Add%20Label) function so agents can sort the queue.
+- **Route** the flow on a field (the switch in [section 4](#4-routing-with-aimetadata)).
+- **Hand off** as soon as a value crosses a threshold you care about, instead of waiting for the contact to ask.
 
-This is lead scoring in practice — the [advanced schema](#7-an-advanced-schema-lead-capture) gives the AI the `leadScore` and `classification` fields, the AI does the judging inside the structured response, and the deterministic bot flow does the acting.
+For instance, with the lead-capture example above you might label `HOT` / `WARM` / `COLD`, route on `classification`, or hand off when `leadScore` passes your bar.
 
 ---
 
 ## 9. Testing
 
-The fastest way to see the schema end to end is the **[AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot)** — a paste-in snippet that runs a real conversation through the AI and includes the `back_to_texter` switch that branches on `terminateReason`. Once that loop works, layer in your `aiMetadata` routing and any custom terminate reasons. See [scenarios](/docs/q-ai-bot/conversation-lifecycle) for how the AI is switched on and off around the flow.
+The fastest way to see the schema end to end is the **[AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot)**: a paste-in snippet that runs a real conversation through the AI and includes the `back_to_texter` switch that branches on `terminateReason`. Once that loop works, layer in your `aiMetadata` routing and any custom terminate reasons. See [scenarios](/docs/q-ai-bot/conversation-lifecycle) for how the AI is switched on and off around the flow.
 
 ---
 
 ## 10. Where it is configured
 
-The response schema is stored **per project in the managed configuration database** and is owned by engineering. The flow is one-directional: the schema lives in the database, the AI returns JSON that matches it, and the bot YAML reads `response`, `terminateReason`, and `aiMetadata` from that JSON. The schema is **not** edited in the public bot YAML — the YAML only *consumes* what the schema produces.
+The response schema is stored **per project in the managed configuration database** and is owned by engineering, alongside its [description](#7-extending-the-schema). The flow is one-directional: the schema lives in the database, the AI returns JSON that matches it, and the bot YAML only *consumes* that JSON (`response`, `terminateReason`, `aiMetadata`). The schema is **not** edited in the public bot YAML.
 
-:::caution[Schema changes must be coordinated]
-The schema and the bot flow that reads it are **two halves of one contract**. If you add a `terminateReason` value, a new `aiMetadata` field, or rename anything, the YAML that reads it must change too — and vice versa. Always coordinate a schema change with the flow update so a new field has somewhere to go and an old `case` never points at a node that disappeared.
+:::caution[A schema change moves three things at once]
+Change the schema and you must also update its **description** (or a new field comes back empty, [section 7](#7-extending-the-schema)) and the **bot flow that reads it** (so a new field has somewhere to go and an old `case` never points at a node that disappeared). Always move all three together: schema, description, and flow.
 :::
 
 ---
 
 ## Related pages
 
-- [Q-AI Bot overview](/docs/q-ai-bot/overview) — what the feature is and how the pieces fit together.
-- [Scenarios](/docs/q-ai-bot/conversation-lifecycle) — how the AI is switched on and off around the bot flow.
-- [Re-engagement ladder](/docs/q-ai-bot/abandoned-bot-system) — the inactivity behavior behind the closing message.
-- [AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot) — the paste-in scaffold for testing.
-- [Switch Node](/docs/YAML/Types/Func/System/Switch%20Node) · [Labels](/docs/YAML/Types/Func/Chat/Add%20Label) · [Store Value](/docs/YAML/Types/Func/System/Store%20Value) — the YAML functions that read the schema.
+- [Q-AI Bot overview](/docs/q-ai-bot/overview): what the feature is and how the pieces fit together.
+- [Scenarios](/docs/q-ai-bot/conversation-lifecycle): how the AI is switched on and off around the bot flow.
+- [Re-engagement ladder](/docs/q-ai-bot/abandoned-bot-system): the inactivity behavior behind the closing message.
+- [AI Bot recipe](/docs/YAML/Bot%20Recipes/AI%20Bot): the paste-in scaffold for testing.
+- [Switch Node](/docs/YAML/Types/Func/System/Switch%20Node) · [Labels](/docs/YAML/Types/Func/Chat/Add%20Label) · [Store Value](/docs/YAML/Types/Func/System/Store%20Value): the YAML functions that read the schema.

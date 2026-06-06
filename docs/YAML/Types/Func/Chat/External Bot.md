@@ -9,6 +9,10 @@ Toggles the `externalBot` field on the chat object (which is `false` by default)
 
 The node then pauses the bot flow. When the external service sets `externalBot` back to `false`, control returns to the Texter bot at the node specified in `on_complete`.
 
+:::tip[Building an AI bot?]
+Handing off to an **AI assistant** is the most common use of this function. If that's what you're building, the **[Q-AI Bot](/docs/q-ai-bot)** section covers the AI side end to end — how the session works, the response schema, the knowledge base, and the scenarios that flip `externalBot` back off.
+:::
+
 ___
 ## 1. Syntax
 ```yaml
