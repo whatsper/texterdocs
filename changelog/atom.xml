@@ -2,11 +2,27 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://whatsper.github.io/texterdocs/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-06-05T00:00:00.000Z</updated>
+    <updated>2026-06-07T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Rapid Appointment Bot Recipe]]></title>
+        <id>https://whatsper.github.io/texterdocs/changelog/2026/06/07/rapid-appointment-bot</id>
+        <link href="https://whatsper.github.io/texterdocs/changelog/2026/06/07/rapid-appointment-bot"/>
+        <updated>2026-06-07T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A full copy-paste appointment-scheduling bot for Rapid clinics, end to end, plus a pointer to it from the Rapid adapter page.]]></summary>
+        <content type="html"><![CDATA[<p>A full copy-paste appointment-scheduling bot for Rapid clinics, end to end, plus a pointer to it from the Rapid adapter page.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/07/rapid-appointment-bot#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Rapid Appointment Bot recipe</strong>: new Bot Recipes entry covering the whole flow. Asks who the appointment is for and identifies the patient (chat phone, an explicit phone, or ת.ז), shows existing appointments or books a new one, walks treatment plans or the branch/department/service/doctor funnel with 0 / 1 / many handling, searches slots by timeframe (including a weekday-aware "next week") with paging, and creates new patients only at the moment of booking.</li>
+<li><strong>Rapid adapter page</strong>: the Appointments section now links to the new recipe for a ready-to-paste implementation.</li>
+</ul>]]></content>
+        <category label="docs" term="docs"/>
+        <category label="yaml" term="yaml"/>
+        <category label="adapters" term="adapters"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Q-AI Bot Docs + Category Landing Pages]]></title>
         <id>https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs</id>
@@ -429,29 +445,6 @@
 </ul>]]></content>
         <category label="adapters" term="adapters"/>
         <category label="docs" term="docs"/>
-        <category label="yaml" term="yaml"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Provet Adapter + Run Bot on Resolve Scenario]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/28/provet-resolve-scenario</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/28/provet-resolve-scenario"/>
-        <updated>2026-04-28T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[New Provet Cloud adapter docs and a Scenario Marketplace entry that auto-runs the bot when an agent resolves a chat.]]></summary>
-        <content type="html"><![CDATA[<p>New Provet Cloud adapter docs and a Scenario Marketplace entry that auto-runs the bot when an agent resolves a chat.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/28/provet-resolve-scenario#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Provet adapter</strong> — documentation for the new Provet Cloud (vet PMS) adapter, including OAuth setup and an onboarding guide for Texter Support.</li>
-<li><strong>Run Bot on Agent Resolve scenario</strong> — new Scenario Marketplace entry that auto-resumes the bot from a configurable node (e.g. <code>close_chat</code>) when an agent resolves a chat.</li>
-<li><strong>Rapid <code>newOpportunity</code></strong> — <code>substatus</code> and <code>reason</code> lead fields.</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/28/provet-resolve-scenario#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li><strong>Request examples</strong> — switched to <code>json: true</code> shorthand instead of manual <code>Content-Type</code> headers.</li>
-<li><strong>Check Working Hours</strong> — legacy deprecation callout moved to the top of the legacy section.</li>
-</ul>]]></content>
-        <category label="adapters" term="adapters"/>
-        <category label="docs" term="docs"/>
-        <category label="scenarios" term="scenarios"/>
         <category label="yaml" term="yaml"/>
     </entry>
 </feed>
