@@ -396,6 +396,10 @@ Returns a hardcoded list of Hebrew Rapid statuses (פעיל, מתעניין, מ�
 
 Natural end-to-end flow for **automatic appointment scheduling** (תיאום תורים אוטומטי): [FigJam — Rapid bot flow](https://www.figma.com/board/HDRU1IVOXD1dPKiosfQkxE/%D7%A8%D7%90%D7%A4%D7%99%D7%93-%D7%91%D7%95%D7%98-%D7%9C%D7%93%D7%95%D7%92%D7%9E%D7%90--%D7%9C%D7%90-%D7%9C%D7%A9%D7%A0%D7%95%D7%AA---Copy-?node-id=0-1&p=f&t=OccA48V3pjHh9NKW-0).
 
+:::tip Full copy-paste bot
+For a complete, ready-to-paste implementation of this whole flow (identify → existing appointments → treatment plan / branch funnel → slots → book), see the [Rapid Appointment Bot](../../Bot%20Recipes/Rapid%20Appointment%20Bot.md) recipe.
+:::
+
 **Cancel / reschedule:** Not supported by Rapid in this integration yet — there is no `func_id` for cancel or reschedule; only list, slots, and book.
 
 ### High-level flow (what to run, in order)
