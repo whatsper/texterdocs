@@ -4,10 +4,29 @@
         <title>Texter Docs Blog</title>
         <link>https://whatsper.github.io/texterdocs/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Sun, 07 Jun 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 08 Jun 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Arbox Adapter]]></title>
+            <link>https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter</link>
+            <guid>https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter</guid>
+            <pubDate>Mon, 08 Jun 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Documentation for the Arbox CRM adapter — member/lead lookup, lead and task creation, and scheduled WhatsApp reminders for gyms, studios, and fitness boxes.]]></description>
+            <content:encoded><![CDATA[<p>Documentation for the Arbox CRM adapter — member/lead lookup, lead and task creation, and scheduled WhatsApp reminders for gyms, studios, and fitness boxes.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong>Arbox adapter</strong> — documentation for <code>getCustomerDetails</code>, <code>newOpportunity</code>, <code>openTask</code>, and the scheduled <code>sendReminders</code> batch method (configured as a <code>CrmMethodTask</code>, with a real Sun–Thu / Friday class-reminder example, supported reports, and the filter operators). Includes the <code>crmConfig</code> fields (<code>apiKey</code>, <code>server</code>, <code>customIdField</code>, <code>vendorsToken</code>), the official Arbox API reference link, and onboarding steps for obtaining the API key.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="changed">Changed<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter#changed" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h2>
+<ul>
+<li><strong>Rapid adapter onboarding</strong> — added a step for obtaining the default price list (<code>defaultPriceListCode</code>) via Rapid's "Get Default Price list" endpoint, noting it's required for the appointments flow only.</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
         <item>
             <title><![CDATA[Rapid Appointment Bot Recipe]]></title>
             <link>https://whatsper.github.io/texterdocs/changelog/2026/06/07/rapid-appointment-bot</link>
@@ -426,27 +445,6 @@
             <category>site</category>
             <category>feature</category>
             <category>docs</category>
-        </item>
-        <item>
-            <title><![CDATA[Salesforce Adapter Docs Update]]></title>
-            <link>https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update</link>
-            <guid>https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update</guid>
-            <pubDate>Wed, 29 Apr 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[Expanded the Salesforce adapter documentation with a complete operation reference and clearer onboarding/troubleshooting guidance for support teams.]]></description>
-            <content:encoded><![CDATA[<p>Expanded the Salesforce adapter documentation with a complete operation reference and clearer onboarding/troubleshooting guidance for support teams.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Salesforce adapter reference</strong> — documented <code>getCustomerDetails</code>, <code>openTicket</code>, <code>queryFromBot</code>, and <code>updateRecord</code> with YAML usage, params, results, and failure behavior.</li>
-<li><strong>Salesforce API links</strong> — added direct links to relevant REST API docs for query, create, and update flows.</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/salesforce-adapter-docs-update#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li><strong>Salesforce onboarding guide</strong> — expanded support setup notes and troubleshooting material for OAuth and object/field discovery.</li>
-<li><strong>Contact-field behavior clarity</strong> — clarified that <code>contactObjectCustomFields</code> replaces the default hardcoded Contact field list in lookups.</li>
-</ul>]]></content:encoded>
-            <category>adapters</category>
-            <category>docs</category>
-            <category>yaml</category>
         </item>
     </channel>
 </rss>
