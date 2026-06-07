@@ -1174,3 +1174,18 @@ Message our [contact at Rapid](https://ninja.texterchat.com/contact/whatsapp/972
 | `defaultPriceListCode` | Yes | Extra | Price list if no `crmData.priceListId` (used for appointments flow) |
 | `defaultSlotsLimit` | No | Extra | Default `getAvailableSlots` `limit` (else **5**) |
 | `useProxy` | No | Extra | `true` → Rapid calls via Texter proxy |
+
+### Obtaining the default price list (`defaultPriceListCode`) — appointments only
+
+:::note Appointments only
+`defaultPriceListCode` is only needed for the **appointments** flow — `getServices`, `getTreatmentPlanItems`, and booking all require a price list. The adapter uses `crmData.priceListId` if present, otherwise falls back to `crmConfig.defaultPriceListCode`; if neither exists, **every service lookup fails**. Clinics that don't use the appointments flow can skip this.
+:::
+
+Get the clinic's price list id from Rapid's "Get Default Price list" endpoint, then paste it into `crmConfig.defaultPriceListCode`:
+
+```bash
+curl "https://<your-rapid-host>/customer-api/items/defaultpricelist/byexternalid" \
+  -H "Authorization: ExternalClient=<rapid_token>"
+```
+
+`<your-rapid-host>` is the `crmConfig.server` host and `<rapid_token>` is the same token stored as `crmConfig.rapid_token`. Use the price list id from the response as `defaultPriceListCode`.
