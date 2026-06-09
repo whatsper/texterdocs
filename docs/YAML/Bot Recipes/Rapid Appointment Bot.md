@@ -939,18 +939,17 @@ A full appointment-scheduling bot for clinics on [Rapid](../Adapters/Rapid/Rapid
     on_complete: route_more_page1
     on_failure: no_slots
 
-  # Smart "show more": only offer the next page when this one came back FULL (== limit 5), which
-  # means there are probably more. A partial page (< 5) means these are the last, so hide "show more".
-  # Caveat: exactly 5/10/... total still shows it once; tapping lands on the empty next page = no_slots.
-  # (When the adapter returns crmData.freeSlotsHasMore, switch the input below to it to drop the caveat.)
+  # Smart "show more": offer the next page only when the adapter reports more slots BEYOND this page
+  # (crmData.freeSlotsHasMore = there are slots past offset + limit). No off-by-one: a full page that is
+  # also the last page reports false, so "show more" is hidden and the user never lands on an empty page.
   route_more_page1:
     type: func
     func_type: system
     func_id: switchNode
     params:
-      input: "%chat:crmData.freeSlotsCount%"
+      input: "%chat:crmData.freeSlotsHasMore%"
       cases:
-        "5": pick_slot_page1_more
+        "true": pick_slot_page1_more
     on_complete: pick_slot_page1_last
 
   pick_slot_page1_more:
@@ -1032,9 +1031,9 @@ A full appointment-scheduling bot for clinics on [Rapid](../Adapters/Rapid/Rapid
     func_type: system
     func_id: switchNode
     params:
-      input: "%chat:crmData.freeSlotsCount%"
+      input: "%chat:crmData.freeSlotsHasMore%"
       cases:
-        "5": pick_slot_page2_more
+        "true": pick_slot_page2_more
     on_complete: pick_slot_page2_last
 
   pick_slot_page2_more:

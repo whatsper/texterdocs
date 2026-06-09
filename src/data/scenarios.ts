@@ -1665,6 +1665,144 @@ export const SCENARIOS: Scenario[] = [
     },
   },
 
+  {
+    id: 'away-hours-auto-reply',
+    name: 'Away-hours auto-reply',
+    tags: ['on-message', 'send-message', 'data-storage'],
+    triggerEvents: ['domain.message.created'],
+    description:
+      'Auto-replies to customers who message **outside business hours**. On every incoming message to a **taken (assigned)** chat, if the time is outside the configured hours (default: Sun-Thu 08:00 to 16:15, closed all day Friday and Saturday) and no auto-reply has gone to this chat in the last hour, it sends a closed-office message and stores a 1-hour record (via `setData`) so the customer is not pinged again on every follow-up.',
+    configuration: [
+      {
+        field: 'Message Text',
+        location: 'actions[0].params.message.text',
+        description:
+          'The closed-office reply. A complete Hebrew default is included as the prime example. If you change the hours gate below, update the hours quoted in this text too: the default text says 08:30 to 16:00 while the gate opens 08:00 to 16:15, so align both to your real hours.',
+        required: false,
+      },
+      {
+        field: 'Business Hours Gate',
+        location: 'conditions[0][2].params.expression',
+        description:
+          "A `filtrex` expression that decides what counts as outside hours. `weekday` is the Luxon ISO weekday (1=Mon ... 7=Sun) and `hhmm` is the 24h time as an integer (e.g. `1615` = 16:15). Default: closed all day on `weekday == 5` (Fri) and `weekday == 6` (Sat), and on Sun-Thu when `hhmm < 800` or `hhmm >= 1615`. Adjust to your business days and hours.",
+        required: false,
+      },
+      {
+        field: 'Re-send Throttle (TTL)',
+        location: 'actions[1].params.expiresIn, actions[1].params.expiresInUnit',
+        description:
+          'How long to suppress repeat auto-replies to the same chat. Default: **1 hour**. Units: `minutes`, `hours`, or `days`. After each send a record is written to the data store, and the dedup condition skips sending while that record still exists.',
+        required: false,
+      },
+      {
+        field: 'Chat Status Gate',
+        location: 'conditions[0][1].params.compareTo',
+        description:
+          'Which chat status triggers the reply. Default: `2` (taken/assigned), so only chats already handled by an agent get the away message. Change the value to target a different status, or replace this `compare` condition with a `filtrex` like `status in (1,2)` to cover more than one.',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: 'Away-hours auto-reply',
+      description:
+        'On every incoming message to a taken (assigned) chat, if outside business hours (Sun-Thu before 08:00 or from 16:15, or all day Fri/Sat) and no auto-reply was sent to this chat in the last hour, send the closed-office message and remember it for 1 hour.',
+      triggerEvents: ['domain.message.created'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'chat',
+            alias: 'chat',
+            params: {
+              id: {'##provide': {provider: 'message', key: 'parent_chat'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'getData',
+            alias: 'awayRecord',
+            params: {
+              collection: 'away_hours_auto_reply',
+              key: '%message:parent_chat%_%message:chatChannelInfo.id%',
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              value: '%message:direction%',
+              comparison: 'Equal',
+              compareTo: 'incoming',
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              value: '%chat:status%',
+              comparison: 'Equal',
+              compareTo: 2,
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression:
+                '(weekday == 5 or weekday == 6) or ((weekday == 7 or weekday <= 4) and (hhmm < 800 or hhmm >= 1615))',
+              value: {
+                weekday: '%time:now("c","ist")|parseInt%',
+                hhmm: '%time:now("HHmm","ist")|parseInt%',
+              },
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'filtrex',
+            params: {
+              expression: 'not exists(rec.data)',
+              value: {rec: '%awayRecord:awayRecord%'},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'sendMessage',
+          params: {
+            chat: {
+              name: '%message:chatChannelInfo.name%',
+              accountId: '%message:chatChannelInfo.accountId%',
+              id: '%message:chatChannelInfo.id%',
+            },
+            message: {
+              type: 'text',
+              text: 'היי,\n\nמשרדינו סגורים כעת. \n\nשעות המענה של המשרד הן בימים א-ה בין השעות 8:30 עד 16:00.\n\nניתן להשאיר לנו כאן הודעה ונעשה כל מאמץ לחזור אלייך בהקדם 🙏🏼',
+            },
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'setData',
+          params: {
+            collection: 'away_hours_auto_reply',
+            key: '%message:parent_chat%_%message:chatChannelInfo.id%',
+            data: {sentAt: '%time:now("iso","ist")%'},
+            expiresIn: 1,
+            expiresInUnit: 'hours',
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+
   // ── SLA scenarios ───────────────────────────────────────────────────────────
   {
     id: 'sla-set-item-on-incoming-message',
