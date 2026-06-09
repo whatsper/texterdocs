@@ -910,7 +910,7 @@ Returns **free slots** for doctor + department + service. `datesRangeFrom` / `da
     on_failure: no_slots_found
 ```
 
-**Result:** `crmData.freeSlots` (this page's slots, each with `startTime` / `endTime` ISO strings for `scheduleAppointment`), `crmData.freeSlotsCount` (slots on this page), and `crmData.freeSlotsHasMore` — `true` when more slots exist **beyond** `offset + limit`. Use `freeSlotsHasMore` to decide whether to offer a "next page" / "show more slots" option (no off-by-one: a full page that is also the last page reports `false`).
+**Result:** `crmData.freeSlots` (this page's slots, each with `startTime` / `endTime` ISO strings for `scheduleAppointment`), `crmData.freeSlotsCount` (slots on this page), and `crmData.freeSlotsHasMore`, which is `true` when more slots exist **beyond** `offset + limit`. Use `freeSlotsHasMore` to decide whether to offer a "next page" / "show more slots" option (no off-by-one: a full page that is also the last page reports `false`).
 
 ---
 
