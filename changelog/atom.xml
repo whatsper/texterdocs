@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://whatsper.github.io/texterdocs/changelog</id>
+    <id>https://docs.texterchat.com/changelog</id>
     <title>Texter Docs Blog</title>
     <updated>2026-06-08T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://whatsper.github.io/texterdocs/changelog"/>
+    <link rel="alternate" href="https://docs.texterchat.com/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
-    <icon>https://whatsper.github.io/texterdocs/img/favicon.svg</icon>
+    <icon>https://docs.texterchat.com/img/favicon.svg</icon>
     <entry>
         <title type="html"><![CDATA[Arbox Adapter]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter"/>
+        <id>https://docs.texterchat.com/changelog/2026/06/08/arbox-adapter</id>
+        <link href="https://docs.texterchat.com/changelog/2026/06/08/arbox-adapter"/>
         <updated>2026-06-08T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Documentation for the Arbox CRM adapter — member/lead lookup, lead and task creation, and scheduled WhatsApp reminders for gyms, studios, and fitness boxes.]]></summary>
         <content type="html"><![CDATA[<p>Documentation for the Arbox CRM adapter — member/lead lookup, lead and task creation, and scheduled WhatsApp reminders for gyms, studios, and fitness boxes.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/06/08/arbox-adapter#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Arbox adapter</strong> — documentation for <code>getCustomerDetails</code>, <code>newOpportunity</code>, <code>openTask</code>, and the scheduled <code>sendReminders</code> batch method (configured as a <code>CrmMethodTask</code>, with a real Sun–Thu / Friday class-reminder example, supported reports, and the filter operators). Includes the <code>crmConfig</code> fields (<code>apiKey</code>, <code>server</code>, <code>customIdField</code>, <code>vendorsToken</code>), the official Arbox API reference link, and onboarding steps for obtaining the API key.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="changed">Changed<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/08/arbox-adapter#changed" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="changed">Changed<a href="https://docs.texterchat.com/changelog/2026/06/08/arbox-adapter#changed" class="hash-link" aria-label="Direct link to Changed" title="Direct link to Changed">​</a></h2>
 <ul>
 <li><strong>Rapid adapter onboarding</strong> — added a step for obtaining the default price list (<code>defaultPriceListCode</code>) via Rapid's "Get Default Price list" endpoint, noting it's required for the appointments flow only.</li>
 </ul>]]></content>
@@ -28,12 +28,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Rapid Appointment Bot Recipe]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/06/07/rapid-appointment-bot</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/06/07/rapid-appointment-bot"/>
+        <id>https://docs.texterchat.com/changelog/2026/06/07/rapid-appointment-bot</id>
+        <link href="https://docs.texterchat.com/changelog/2026/06/07/rapid-appointment-bot"/>
         <updated>2026-06-07T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A full copy-paste appointment-scheduling bot for Rapid clinics, end to end, plus a pointer to it from the Rapid adapter page.]]></summary>
         <content type="html"><![CDATA[<p>A full copy-paste appointment-scheduling bot for Rapid clinics, end to end, plus a pointer to it from the Rapid adapter page.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/07/rapid-appointment-bot#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/06/07/rapid-appointment-bot#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Rapid Appointment Bot recipe</strong>: new Bot Recipes entry covering the whole flow. Asks who the appointment is for and identifies the patient (chat phone, an explicit phone, or ת.ז), shows existing appointments or books a new one, walks treatment plans or the branch/department/service/doctor funnel with 0 / 1 / many handling, searches slots by timeframe (including a weekday-aware "next week") with paging, and creates new patients only at the moment of booking.</li>
 <li><strong>Rapid adapter page</strong>: the Appointments section now links to the new recipe for a ready-to-paste implementation.</li>
@@ -44,16 +44,16 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Q-AI Bot Docs + Category Landing Pages]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs"/>
+        <id>https://docs.texterchat.com/changelog/2026/06/05/q-ai-bot-docs</id>
+        <link href="https://docs.texterchat.com/changelog/2026/06/05/q-ai-bot-docs"/>
         <updated>2026-06-05T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A new documentation section for the Q-AI Bot — Texter's AI assistant — covering how it works end to end, plus card-style landing pages for the main categories and a refreshed introduction.]]></summary>
         <content type="html"><![CDATA[<p>A new documentation section for the <strong>Q-AI Bot</strong> — Texter's AI assistant — covering how it works end to end, plus card-style landing pages for the main categories and a refreshed introduction.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/06/05/q-ai-bot-docs#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Q-AI Bot documentation</strong> — a new section on Texter's AI assistant: how it works, its knowledge base (RAG) with file and website sync, the response schema, the Abandoned Bot re-engagement system, per-project settings, onboarding, and troubleshooting.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/05/q-ai-bot-docs#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/06/05/q-ai-bot-docs#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>Category landing pages</strong> — Bot YAML, Node Types, Q-AI Bot, and Tools now open to a card-style index of their pages instead of just expanding the sidebar.</li>
 <li><strong>Introduction</strong> — refreshed to cover the Q-AI Bot, Tools, and the Scenario Marketplace alongside the existing YAML reference.</li>
@@ -63,23 +63,23 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Unsubscribe Func + Rapid Recipe + OAuth Webhooks]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth"/>
+        <id>https://docs.texterchat.com/changelog/2026/06/01/unsubscribe-rapid-oauth</id>
+        <link href="https://docs.texterchat.com/changelog/2026/06/01/unsubscribe-rapid-oauth"/>
         <updated>2026-06-01T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A new unsubscribe chat func with a "legally binding" handling pattern, a Rapid Basic Bot starter recipe, accurate injectOAuth docs on sendWebhook with a Salesforce example, plus a small persistence fix in the partner-bundle import tool.]]></summary>
         <content type="html"><![CDATA[<p>A new <code>unsubscribe</code> chat func with a "legally binding" handling pattern, a Rapid Basic Bot starter recipe, accurate <code>injectOAuth</code> docs on <code>sendWebhook</code> with a Salesforce example, plus a small persistence fix in the partner-bundle import tool.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/06/01/unsubscribe-rapid-oauth#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong><code>unsubscribe</code> chat func</strong> — new doc covering the func that sends the unsubscribe confirmation and resolves the chat in one step, with the <code>on_failure</code> → label flow recommended for legal-binding visibility.</li>
 <li><strong>Rapid Basic Bot recipe</strong> — new copy-paste starter under Bot Recipes: greet, <code>getCustomerDetails</code>, branch to a service menu for existing customers or <code>newOpportunity</code> + name collection for unknown senders, then working-hours-aware handoff.</li>
 <li><strong>Rapid <code>disableSystemEvents</code></strong> — new <code>newOpportunity</code> param, defaults to <code>true</code> so Rapid's new-lead system event doesn't escape the bot mid-conversation with a template send. Pass <code>false</code> to re-enable.</li>
 <li><strong><code>matchExpression</code> node-traversal example</strong> — new example for branching on which earlier node(s) the chat passed through, using <code>exists(%state:node.X%)</code>.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/06/01/unsubscribe-rapid-oauth#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong><code>sendWebhook</code> <code>injectOAuth</code></strong> — documented the real object shape (<code>service</code>, <code>header</code>, <code>tokenPrefix</code>) instead of treating it as a flag, listed the supported services, and added a Salesforce example with <code>Authorization: Bearer …</code>.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/06/01/unsubscribe-rapid-oauth#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/06/01/unsubscribe-rapid-oauth#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
 <ul>
 <li><strong>Partner-bundle seed inputs</strong> — values like "שם הקליניקה" on the Optima bundle in the Templates Import tool now persist to <code>localStorage</code> so they survive reloads.</li>
 </ul>]]></content>
@@ -90,12 +90,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Tazman V2 newOpportunity]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/26/tazman-v2</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/26/tazman-v2"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/26/tazman-v2</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/26/tazman-v2"/>
         <updated>2026-05-26T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[The Tazman adapter docs now cover the new V2 API for newOpportunity, gated by a new crmConfig.apiVersion flag. Existing customers stay on the legacy V1 path; new onboardings should default to V2.]]></summary>
         <content type="html"><![CDATA[<p>The Tazman adapter docs now cover the new V2 API for <code>newOpportunity</code>, gated by a new <code>crmConfig.apiVersion</code> flag. Existing customers stay on the legacy V1 path; new onboardings should default to V2.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/26/tazman-v2#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/26/tazman-v2#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Tazman <code>newOpportunity</code> V2</strong> — new section covering the V2 endpoint with an expanded param list (<code>name_f</code>, <code>name_s</code>, <code>birthday</code>, <code>sex</code>, <code>add_sms_phone1/2</code>, <code>ext_acc_id</code>, invoice fields, plus reshaped <code>tags</code> and <code>additional_fields</code> arrays).</li>
 <li><strong><code>apiVersion</code> config</strong> — new <code>crmConfig</code> field; set to <code>'v2'</code> for every new Tazman customer. Legacy V1 path is retained for back-compat only.</li>
@@ -106,12 +106,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Shopify Adapter]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/22/shopify</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/22/shopify"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/22/shopify</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/22/shopify"/>
         <updated>2026-05-22T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Documentation for the Shopify CRM adapter — read-only access to customers and orders via Shopify's Admin REST API.]]></summary>
         <content type="html"><![CDATA[<p>Documentation for the Shopify CRM adapter — read-only access to customers and orders via Shopify's Admin REST API.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/22/shopify#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/22/shopify#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Shopify adapter</strong> — documentation for <code>getCustomerDetails</code>, <code>getActiveOrders</code>, and <code>getOrderDetails</code>, plus the per-store <code>crmConfig</code> (<code>server</code>, <code>accessToken</code>, <code>storeName</code>) and the Admin API token onboarding flow.</li>
 </ul>]]></content>
@@ -121,22 +121,22 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Onboard AI Bot Tool + Adapter Fixes]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/21/onboard-ai-bot</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/21/onboard-ai-bot"/>
         <updated>2026-05-21T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A new in-docs tool for onboarding AI customers, plus a Provet cleanup and a few adapter fixes.]]></summary>
         <content type="html"><![CDATA[<p>A new in-docs tool for onboarding AI customers, plus a Provet cleanup and a few adapter fixes.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/21/onboard-ai-bot#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Onboard AI Bot tool</strong> — new tool at <code>/tools/onboard-ai-bot</code> that runs the AI customer onboarding workflow end-to-end (vector store, Drive folders, default prompt, scenarios import) and surfaces success/error with a link to the n8n executions log on failure.</li>
 <li><strong>Rapid partner bundle</strong> — new financial-document template with a document header.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/21/onboard-ai-bot#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>Provet adapter</strong> — removed misleading YAML examples for <code>appointmentReminders</code> and <code>sendReminders</code> (scheduled-task-only); points at the Provet Task Editor and a JSON <code>CrmMethodTask</code> example instead.</li>
 <li><strong>Remember Last Agent scenario</strong> — now also stores <code>latestAgentEmail</code> alongside UID and name.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/21/onboard-ai-bot#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/05/21/onboard-ai-bot#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
 <ul>
 <li><strong>Rapid <code>createUpdateCustomer</code></strong> — documented the required params that were missing.</li>
 </ul>]]></content>
@@ -147,19 +147,19 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Airtable Adapter + Adapter Doc Corrections]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/16/airtable-adapter-doc-corrections</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/16/airtable-adapter-doc-corrections"/>
         <updated>2026-05-16T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A new Airtable adapter page, plus an audit pass over the existing adapter docs to fix a handful of inaccuracies caught against the live server code.]]></summary>
         <content type="html"><![CDATA[<p>A new Airtable adapter page, plus an audit pass over the existing adapter docs to fix a handful of inaccuracies caught against the live server code.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/16/airtable-adapter-doc-corrections#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Airtable adapter</strong> — full documentation for <code>getCustomerDetails</code>, <code>newOpportunity</code> / <code>createRecord</code>, and <code>updateRecord</code>, including the required <code>crmConfig</code> (<code>baseId</code>, <code>tableId</code>, <code>viewId</code>, <code>authToken</code>, <code>phoneColumn</code>), per-call overrides for base/table/view, and notes on the auto-injected phone column.</li>
 <li><strong>Rapid <code>crmGetFields</code></strong> — undocumented op that returns the hardcoded Hebrew status list used by Texter's <code>changeStatus</code> dropdowns.</li>
 <li><strong>Senzey <code>crmConfig</code></strong> — config table (<code>server</code>, <code>username</code>, <code>password</code>) was missing from the page; now included.</li>
 <li><strong>Tazman <code>crmConfig</code></strong> — config table (<code>server</code>, <code>token</code>, plus the four <code>result*Field</code> overrides) was missing from the page; now included.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/airtable-adapter-doc-corrections#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/05/16/airtable-adapter-doc-corrections#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
 <ul>
 <li><strong>Rapid <code>crmGetAppointments</code></strong> — <code>datesRangeTo</code> is a window <strong>length</strong> in days, not an end-day index (<code>0, 14</code> searches today through 14 days out).</li>
 <li><strong>Rapid <code>crmCreateAppointment</code></strong> — result is <code>crmData.appointmentId</code> (string), not an array.</li>
@@ -179,12 +179,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[CPA Assist + Manavate Adapters]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/16/cpa-assist-manavate</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/cpa-assist-manavate"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/16/cpa-assist-manavate</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/16/cpa-assist-manavate"/>
         <updated>2026-05-16T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Two new CRM adapter pages added alongside today's Airtable post.]]></summary>
         <content type="html"><![CDATA[<p>Two new CRM adapter pages added alongside today's Airtable post.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/16/cpa-assist-manavate#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/16/cpa-assist-manavate#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>CPA Assist adapter</strong> — read-only <code>getCustomerDetails</code> for on-prem CPA Assist instances used by Israeli accounting offices, with an onboarding flow that wires up the CPA Assist partner-template bundle and the existing CPA Assist Bot recipe.</li>
 <li><strong>Manavate adapter</strong> — documentation for <code>getCustomerDetails</code>, <code>newOpportunity</code>, and <code>openTicket</code> / <code>closeTicket</code> (transcript-as-ticket), including the <code>c_*</code> param convention for Manavate custom fields.</li>
@@ -195,12 +195,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Templates Export + Partner Bundles]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/15/templates-export-partner-bundles</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/15/templates-export-partner-bundles"/>
         <updated>2026-05-15T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[The Templates page picks up Export, three Partner Bundle starter sets, Draft mode, and inline editing of bundled templates — among a stack of UX fixes.]]></summary>
         <content type="html"><![CDATA[<p>The Templates page picks up Export, three Partner Bundle starter sets, Draft mode, and inline editing of bundled templates — among a stack of UX fixes.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/15/templates-export-partner-bundles#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Export mode</strong> — new tab that downloads every WhatsApp template from a Texter account as JSON, either as a <code>&lt;projectId&gt;_templates.json</code> file or printed inline for copy-paste.</li>
 <li><strong>Partner Bundles</strong> — third input mode that opens a picker for pre-built starter sets: <strong>Rapid</strong> (15 templates for clinics on Rapid), <strong>Optima</strong> (5 templates for dental clinics on Optima), and <strong>CPA Assist</strong> (2 templates for accounting offices). Tick a bundle or individual templates, hit Save.</li>
@@ -211,7 +211,7 @@
 <li><strong>Per-call progress + error summary</strong> — bars advance per API call (not per template), with a configurable delay between every call to dodge rate limits and an end-of-run errors list naming each failure.</li>
 <li><strong>Help tooltips</strong> — every config field shows a <code>?</code> button with field-specific guidance, including the required Texter API scope.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/templates-export-partner-bundles#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/15/templates-export-partner-bundles#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>URL</strong> — slug is now <code>/docs/templates-import-export</code>. Old <code>/templates-import</code> and <code>/docs/tools/template-json-import</code> redirect.</li>
 <li><strong>Progress UI</strong> — outcome-driven colors (green / orange / red / striped grey), and the Result/Progress card height tracks the form card so the bottoms stay aligned.</li>
@@ -222,14 +222,14 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Unsubscribe Phones + Bot Recipes]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/15/unsubscribe-phones-bot-recipes</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/unsubscribe-phones-bot-recipes"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/15/unsubscribe-phones-bot-recipes</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/15/unsubscribe-phones-bot-recipes"/>
         <updated>2026-05-15T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A new in-browser tool to bulk-unsubscribe phone numbers from a Texter environment, plus a "Bot Recipes" section under Bot YAML with copy-paste-ready snippets for common starter bots.]]></summary>
         <content type="html"><![CDATA[<p>A new in-browser tool to bulk-unsubscribe phone numbers from a Texter environment, plus a "Bot Recipes" section under Bot YAML with copy-paste-ready snippets for common starter bots.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/15/unsubscribe-phones-bot-recipes#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/15/unsubscribe-phones-bot-recipes#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
-<li><strong>Unsubscribe Phones</strong> — new tool at <a href="https://whatsper.github.io/texterdocs/docs/tools/unsubscribe-phones">Tools → Unsubscribe Phones</a> for bulk-unsubscribing phone numbers from a Texter environment. Paste a comma-separated list or upload a CSV (<code>phone</code> column), capped at 5,000 per request. Pre-flight probe aborts on auth / config / unreachable-instance errors with one clear message; otherwise the result panel shows per-number outcomes with HTTP status and reason.</li>
+<li><strong>Unsubscribe Phones</strong> — new tool at <a href="https://docs.texterchat.com/docs/tools/unsubscribe-phones">Tools → Unsubscribe Phones</a> for bulk-unsubscribing phone numbers from a Texter environment. Paste a comma-separated list or upload a CSV (<code>phone</code> column), capped at 5,000 per request. Pre-flight probe aborts on auth / config / unreachable-instance errors with one clear message; otherwise the result panel shows per-number outcomes with HTTP status and reason.</li>
 <li><strong>Bot Recipes</strong> — new section under Bot YAML with copy-paste-ready snippets for common starter bots: <strong>AI Bot</strong> (external-bot wiring + <code>AI_TEST</code> command), <strong>CPA Assist Bot</strong> (mandatory CPA Assist starter, includes the nodes routed by partner templates), <strong>Optima Bot</strong> (meeting-reminder webhook handler), and <strong>Handoff Only Bot</strong> (forward everything to a human).</li>
 </ul>]]></content>
         <category label="feature" term="feature"/>
@@ -239,14 +239,14 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Template JSON import in Tools]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/14/template-json-import</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/14/template-json-import"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/14/template-json-import</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/14/template-json-import"/>
         <updated>2026-05-14T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A new in-browser flow under Bot documentation → Tools uploads provider template JSON and runs create → localizations → submit against the Texter API v2 from your machine.]]></summary>
         <content type="html"><![CDATA[<p>A new in-browser flow under <strong>Bot documentation → Tools</strong> uploads provider template JSON and runs create → localizations → submit against the Texter API v2 from your machine.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/14/template-json-import#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/14/template-json-import#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
-<li><strong>Template JSON import</strong> — page at <a href="https://whatsper.github.io/texterdocs/docs/templates-import-export">Templates Import / Export</a>: enter project ID, API key, and WhatsApp account ID; upload JSON (array of templates, a <code>templates</code> wrapper, or a single object); optional keep-names, suffix, and delay between creates; live log and per-phase summary. Old <code>/templates-import</code> URLs redirect here.</li>
+<li><strong>Template JSON import</strong> — page at <a href="https://docs.texterchat.com/docs/templates-import-export">Templates Import / Export</a>: enter project ID, API key, and WhatsApp account ID; upload JSON (array of templates, a <code>templates</code> wrapper, or a single object); optional keep-names, suffix, and delay between creates; live log and per-phase summary. Old <code>/templates-import</code> URLs redirect here.</li>
 </ul>]]></content>
         <category label="feature" term="feature"/>
         <category label="docs" term="docs"/>
@@ -254,16 +254,16 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Set Display Name Func Docs]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/13/set-display-name</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/13/set-display-name"/>
         <updated>2026-05-13T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[The YAML reference now documents the new setDisplayName chat func — sets a custom chat title (stored separately from the channel-provided %chat:title%), with optional length capping and overflow handling.]]></summary>
         <content type="html"><![CDATA[<p>The YAML reference now documents the new <strong><code>setDisplayName</code></strong> chat func — sets a custom chat title (stored separately from the channel-provided <code>%chat:title%</code>), with optional length capping and overflow handling.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/13/set-display-name#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Set Display Name</strong> — new page under <code>Func / Chat</code> covering <code>setDisplayName</code>: required <code>displayName</code>, plus optional <code>setOnlyIfEmpty</code>, <code>maxLength</code> (1–255), and <code>onOverflow</code> (<code>truncate</code> / <code>skip</code> / <code>fail</code>). Examples include setting from collected first+last name, only-if-empty (don't clobber WhatsApp profile names), CRM-lookup with cap, strict-fail for re-prompt flows, and clearing the value.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/set-display-name#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/05/13/set-display-name#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
 <ul>
 <li><strong>YAML Overview</strong> — chat row now lists <code>setDisplayName</code>; the <code>dataStorage</code> row uses the real <code>func_id</code>s (<code>get</code> / <code>set</code> / <code>list</code> / <code>delete</code>) instead of the stale <code>getData</code> / <code>setData</code> / <code>listData</code> / <code>deleteData</code> labels.</li>
 </ul>]]></content>
@@ -272,12 +272,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Subscription Scenarios + Data Storage Docs Polish]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/13/subscription-scenarios-docs-polish</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/13/subscription-scenarios-docs-polish"/>
         <updated>2026-05-13T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Ten new (SUB) webhook scenarios cover the full chat lifecycle — pending, resolved (with by-agent / by-bot variants), labels, external bot toggles, and channel health — so you can subscribe an external system to any of them via a single webhook. The newly-added Data Storage and updateCrmData docs are refined to match the rest of the Func reference style, with worked before/after examples for every mergingMode.]]></summary>
         <content type="html"><![CDATA[<p>Ten new <strong>(SUB)</strong> webhook scenarios cover the full chat lifecycle — pending, resolved (with by-agent / by-bot variants), labels, external bot toggles, and channel health — so you can subscribe an external system to any of them via a single webhook. The newly-added Data Storage and <code>updateCrmData</code> docs are refined to match the rest of the Func reference style, with worked before/after examples for every <code>mergingMode</code>.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/13/subscription-scenarios-docs-polish#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>(SUB) Chat Pending</strong> — webhook fires when a chat moves to pending (waiting for a human agent).</li>
 <li><strong>(SUB) Chat Resolved</strong> — webhook on any resolution, with the full chat payload.</li>
@@ -290,7 +290,7 @@
 <li><strong>New trigger labels</strong> — <code>Channel Health Recovered</code> and <code>Chat Labels Updated</code> added to the marketplace display map, with matching icons.</li>
 <li><strong><code>on-pending</code> / <code>on-labels</code> scenario tags</strong> — registered in the <code>add-scenario</code> skill taxonomy so future scenarios can reuse them.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/13/subscription-scenarios-docs-polish#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong><code>updateCrmData</code> docs</strong> — full rewrite to match the Func reference style. Each <code>mergingMode</code> (<code>replace</code>, <code>assign</code>, <code>merge</code>, <code>defaults</code>, <code>defaultsDeep</code>) now has a worked <strong>Before / After</strong> JSON example showing exactly what survives and what doesn't, plus a dedicated "reset <code>crmData</code> completely" example. <code>merge</code> is called out as the default.</li>
 <li><strong>Data Storage Overview</strong> — restructured as a short concept page: the four functions (<code>get</code> / <code>set</code> / <code>list</code> / <code>delete</code>), the <code>collection</code> + <code>key</code> model, output paths on <code>%state:node.&lt;name&gt;%</code>, TTL rules, and a single Limits table.</li>
@@ -299,7 +299,7 @@
 <li><strong><code>set</code> TTL cap</strong> — documented the 7-day maximum.</li>
 <li><strong><code>delete</code> failure semantics</strong> — documented that missing/expired keys raise an error and route to <code>on_failure</code>.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/13/subscription-scenarios-docs-polish#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/05/13/subscription-scenarios-docs-polish#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
 <ul>
 <li><strong><code>func_id</code> values</strong> — corrected across Data Storage docs: <code>get</code>, <code>set</code>, <code>list</code>, <code>delete</code> (the docs previously suggested <code>getData</code>, <code>setData</code>, <code>listData</code>, <code>deleteData</code>, which would not match the bot engine's function registry).</li>
 <li><strong><code>listData</code> <code>total</code></strong> — corrected to reflect the upcoming fix: <code>total</code> counts non-expired items <strong>on the current page</strong> (equal to <code>items.length</code>), not the raw collection count. The existence-check example uses <code>total</code> against the first page.</li>
@@ -311,17 +311,17 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Data Storage Funcs + Chat `updateCrmData` Docs]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/12/data-storage-update-crm</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/12/data-storage-update-crm"/>
         <updated>2026-05-12T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[The YAML reference now covers customer-scoped data storage func nodes and the updateCrmData chat func for persisting crmData, with cross-links from Parse CRM Data and the Data Injection providers table.]]></summary>
         <content type="html"><![CDATA[<p>The YAML reference now covers <strong>customer-scoped data storage</strong> func nodes and the <strong><code>updateCrmData</code></strong> chat func for persisting <code>crmData</code>, with cross-links from Parse CRM Data and the Data Injection providers table.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/12/data-storage-update-crm#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Data Storage</strong> — new Func subsection with an overview plus pages for <code>getData</code>, <code>setData</code>, <code>listData</code>, and <code>deleteData</code> (<code>func_type: dataStorage</code>): collections, keys, TTL, tags, and when to use them instead of <code>storeValue</code> or chat <code>crmData</code>.</li>
 <li><strong><code>updateCrmData</code></strong> — chat-level documentation for merging or replacing <code>crmData</code> on the current conversation, including the allowed <code>mergingMode</code> values.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/12/data-storage-update-crm#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/12/data-storage-update-crm#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>YAML Overview</strong> — Func table lists <code>dataStorage</code> and links the new overview; <code>chat</code> row includes <code>updateCrmData</code>.</li>
 <li><strong>Data Injection Providers</strong> — documents <code>state:node</code> paths for data-storage node outputs.</li>
@@ -332,12 +332,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Multi-Select Filters + Mobile Nav Fixes]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes"/>
         <updated>2026-05-11T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[The Scenario Marketplace tag filter is now multi-select with OR by default and an explicit Match all toggle for AND; the mobile hamburger drawer covers the viewport cleanly on phones; and the landing page no longer churns on 120 Hz Macs.]]></summary>
         <content type="html"><![CDATA[<p>The Scenario Marketplace tag filter is now multi-select with OR by default and an explicit <strong>Match all</strong> toggle for AND; the mobile hamburger drawer covers the viewport cleanly on phones; and the landing page no longer churns on 120 Hz Macs.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Multi-select scenario filters</strong> — pick more than one tag; matching defaults to OR (any selected tag) with a <strong>Match all</strong> checkbox that switches to AND when 2+ tags are active. An active-filters strip below the chip row shows the current selection with <code>×</code> removable chips and a one-click <strong>Clear all</strong>.</li>
 <li><strong>Q-AI: Disable External Bot On Pending Chat</strong> — 7th scenario in the Q-AI suite. Fires when a chat is set to pending (e.g. an agent reassigns to another agent during an AI session) and ends the AI handoff cleanly.</li>
@@ -346,13 +346,13 @@
 <li><strong><code>preserveOriginalAttachmentFilenames</code></strong> — new <code>sendEmail</code> parameter. When <code>true</code>, email attachments use the original uploaded filename (falling back to the file's stored <code>originalName</code>, then to the message caption) instead of the chat caption. A new <strong>Attachment filenames</strong> section in the Send Mail page documents the behavior.</li>
 <li><strong><code>parseJson</code> transformer alias</strong> — accepted as a synonym for <code>jsonParse</code>. Both names work identically.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>Filtered scenarios sort alphabetically</strong> — the marketplace still shuffles for discovery when no filters are applied, but as soon as a search query or tag is active the list switches to alphabetical order.</li>
 <li><strong>Send Mail params layout</strong> — required and optional parameter lists are now tables with a dedicated <strong>Default</strong> column for optional params, matching the tables used elsewhere on the page.</li>
 <li><strong>Landing page performance</strong> — removed a hero background animation that was causing scroll lag on 120 Hz Macs. All static visuals (gradient, glow, grid lines) are unchanged.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/11/filters-mobile-fixes#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
 <ul>
 <li><strong>Sticky navbar</strong> — the top navigation no longer disappears when scrolling.</li>
 <li><strong>Mobile hamburger drawer</strong> — multiple bugs resolved on phones: the drawer now has an opaque background instead of bleeding through to the navbar, covers the full viewport width (previously left a strip of the page visible on the right), and its secondary sub-menu panel slides in cleanly over the primary one (previously left a gap on the side).</li>
@@ -364,12 +364,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Transformers — `get` Examples + API JSON Tip]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/10/transformers-get</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/10/transformers-get"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/10/transformers-get</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/10/transformers-get"/>
         <updated>2026-05-10T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[The Data Injection Transformers page now highlights a practical get pattern for nested values inside JSON returned from API calls, and the crmData example shows a non-ASCII property key.]]></summary>
         <content type="html"><![CDATA[<p>The Data Injection <strong>Transformers</strong> page now highlights a practical <code>get</code> pattern for nested values inside JSON returned from API calls, and the <code>crmData</code> example shows a non-ASCII property key.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/10/transformers-get#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/10/transformers-get#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>Transformers (<code>get</code>)</strong> — new tip with a <code>jsonParse</code> → <code>get(...)</code> chain for drilling into API response strings, plus a short inline comment on the evaluated result.</li>
 <li><strong><code>crmData</code> example</strong> — uses a Hebrew field name so dot-path access with <code>get</code> reads clearly for localized CRM payloads.</li>
@@ -379,17 +379,17 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Rich Scenario Cards + Shared Markdown]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/04/scenario-markdown</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/04/scenario-markdown"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown"/>
         <updated>2026-05-04T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Scenario Marketplace cards now render Markdown so setup notes can link straight into the YAML docs, the Ask AI panel shares the same renderer for consistent navigation, and the YAML Adapters sidebar lists Salesforce before Senzey.]]></summary>
         <content type="html"><![CDATA[<p>Scenario Marketplace cards now render Markdown so setup notes can link straight into the YAML docs, the Ask AI panel shares the same renderer for consistent navigation, and the YAML Adapters sidebar lists <strong>Salesforce</strong> before <strong>Senzey</strong>.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/04/scenario-markdown#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Shared <code>Markdown</code> component</strong> — GFM rendering with Docusaurus internal links, optional hard line breaks for multi-line snippets, and an optional click handler (used by Ask AI to close the panel when you follow an in-site link).</li>
 <li><strong>Scenario Marketplace</strong> — each card’s main description and “What to configure” items support Markdown: links, emphasis, inline and fenced code, and lists, with tuned styles for body text and inline code.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/04/scenario-markdown#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>Ask AI</strong> — assistant messages use the shared Markdown layer so link behavior matches the rest of the site.</li>
 <li><strong>Scenario copy</strong> — broad pass on marketplace text for clearer SLA, Q-AI, Salesforce, Rapid, and cron setup guidance, including cross-links to Data Injection, Notify, and related docs.</li>
@@ -402,12 +402,12 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Provet Docs + Site Polish]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/05/03/provet-docs-site-polish</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/05/03/provet-docs-site-polish"/>
+        <id>https://docs.texterchat.com/changelog/2026/05/03/provet-docs-site-polish</id>
+        <link href="https://docs.texterchat.com/changelog/2026/05/03/provet-docs-site-polish"/>
         <updated>2026-05-03T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Deeper Provet adapter coverage—including the task editor tool and command behavior—plus navbar, footer, and general UI refinements across the docs site.]]></summary>
         <content type="html"><![CDATA[<p>Deeper Provet adapter coverage—including the task editor tool and command behavior—plus navbar, footer, and general UI refinements across the docs site.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/05/03/provet-docs-site-polish#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/03/provet-docs-site-polish#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>Provet adapter</strong> — expanded onboarding material, task editor tool usage, and command reference so support teams can wire Provet flows with fewer guess-and-check cycles.</li>
 <li><strong>Navbar and footer</strong> — layout tweaks for clearer hierarchy and consistency with the rest of the theme.</li>
@@ -420,24 +420,24 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Premium Homepage + Theme Polish]]></title>
-        <id>https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2</id>
-        <link href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2"/>
+        <id>https://docs.texterchat.com/changelog/2026/04/29/premium-homepage-2</id>
+        <link href="https://docs.texterchat.com/changelog/2026/04/29/premium-homepage-2"/>
         <updated>2026-04-29T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A refreshed premium landing experience for Texter Docs, with a redesigned homepage, improved dark/light theme cohesion, and a better navbar experience.]]></summary>
         <content type="html"><![CDATA[<p>A refreshed premium landing experience for Texter Docs, with a redesigned homepage, improved dark/light theme cohesion, and a better navbar experience.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/04/29/premium-homepage-2#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
 <ul>
 <li><strong>Homepage hero redesign</strong> — premium landing hero with glow + subtle animated grid background and polished CTA buttons.</li>
 <li><strong>Homepage feature cards</strong> — new glass/white card grid with icons, hover lift, and clearer hierarchy linking into key docs areas.</li>
 <li><strong>Navbar search</strong> — search is now available directly in the top navbar.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/04/29/premium-homepage-2#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
 <li><strong>Dark + light theme cohesion</strong> — updated shared theme tokens so switching themes keeps the homepage and cards looking consistent and premium.</li>
 <li><strong>Scenario Marketplace visuals</strong> — improved card hover shadow to follow the active theme primary color.</li>
 <li><strong>Scenarios header (dark mode)</strong> — upgraded the hero background to match the new dark aesthetic.</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://whatsper.github.io/texterdocs/changelog/2026/04/29/premium-homepage-2#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/04/29/premium-homepage-2#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
 <ul>
 <li><strong>Search bar overlap</strong> — removed the extra keyboard badge styling that conflicted with the search UI.</li>
 </ul>]]></content>
