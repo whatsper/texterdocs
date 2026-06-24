@@ -70,6 +70,41 @@ ___
     on_failure: draft_not_found
 ```
 
+### Safely delete only if the record exists (cleanup at start)
+When you clean a record at the start of a bot run (e.g. removing a chat from a follow-up campaign once the customer finally replies), guard the `delete` with a [`get`](./Get%20Data) plus a [`matchExpression`](../System/Match%20Expression) existence check, so `delete` is only reached when the row is actually there:
+
+```yaml
+  check_record:
+    type: func
+    func_type: dataStorage
+    func_id: get
+    params:
+      collection: passive_marketing_chats
+      key: "%chat:_id|toString%"
+    on_complete: record_exists
+
+  record_exists:
+    type: func
+    func_type: system
+    func_id: matchExpression
+    params:
+      expression: "exists(entry)"
+      entry: "%state:node.check_record%"
+    on_complete: delete_record
+    on_failure: continue_normally
+
+  delete_record:
+    type: func
+    func_type: dataStorage
+    func_id: delete
+    params:
+      collection: passive_marketing_chats
+      key: "%chat:_id|toString%"
+    on_complete: continue_normally
+```
+
+Calling `delete` on a missing or expired row raises an error, and without an `on_failure` that error leaves the bot **stuck** on the node. The existence check above avoids calling `delete` at all when there is nothing to remove. Note the `%chat:_id|toString%` key: the chat `_id` is a Mongo ObjectId and must be passed through `|toString` (see [Overview](./Overview)).
+
 :::tip
 Always set `on_failure` — `delete` raises an error when the row is missing or expired. If you don't care about that case (e.g. you just want to make sure it's gone), point `on_failure` at the same node as `on_complete`.
 :::

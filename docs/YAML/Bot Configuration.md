@@ -238,6 +238,26 @@ flowchart LR
     E -->|All good| H([resolved]):::success
 ```
 
+### on_abandoned
+
+The `smart_resolved` node is normally a `prompt` that waits for the customer to choose an option (as in the example above). If the customer hits the node but never replies, the node is **abandoned**.
+
+This case is **not** handled by `abandoned_bot_settings` (that retry/abandoned sequence no longer runs at this point). By default the chat is silently **auto-resolved**.
+
+If you don't want these chats to quietly close, so a returning customer doesn't get lost, set `on_abandoned` to `handoff` or `back_to_agent`:
+
+```yaml
+smart_resolved:
+  node: smart_resolved
+  on_abandoned: back_to_agent
+```
+
+| Value | Behavior when the node is abandoned |
+|---|---|
+| `resolved` *(default)* | Chat is auto-resolved |
+| `handoff` | Chat is moved to PENDING for a **general** agent (not necessarily the one who resolved it) |
+| `back_to_agent` | Chat is moved to PENDING and assigned back to the agent who resolved it (same as the `back_to_agent` choice action) |
+
 ___
 
 ## match_messages

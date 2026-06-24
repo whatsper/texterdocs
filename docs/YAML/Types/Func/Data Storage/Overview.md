@@ -33,6 +33,10 @@ A `key` is unique within a `collection` — like a table + primary key.
 
 Pick stable keys when the row should follow an entity. For example, use `%chat:channelInfo.id%` to make the row "the SLA record for this customer's phone number" so any future bot session for that phone can find it.
 
+:::warning Keying by chat `_id`
+The chat `_id` is a Mongo **ObjectId**, not a string. When you use it as a `key`, you **must** pass it through the `toString` transformer: `%chat:_id|toString%`. Without `|toString` the data-storage func errors and the bot run gets **stuck** on that node.
+:::
+
 **Naming convention:** `snake_case` for collections (e.g. `sla_chats`, `campaign_events`, `draft_orders`).
 
 ### Each node's result lives at `%state:node.<node_name>%`

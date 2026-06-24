@@ -3082,33 +3082,121 @@ export const SCENARIOS: Scenario[] = [
       options: {unorderedActions: false},
     },
   },
+  // ── Data-storage follow-up campaigns ────────────────────────────────────────
+  // Each campaign is a PAIR: a capture scenario (on outgoing template → store to
+  // data storage) + a cron scenario (later → act on the stored, still-relevant rows).
   {
-    id: 'handle-passive-marketing-chats',
-    name: 'Handle Passive Marketing Chats',
-    tags: ['scheduled', 'assign-chat', 'crm-update', 'webhook', 'rapid'],
-    triggerEvents: ['app.scenarios.customTriggers.cron'],
+    id: 'passive-marketing-capture-outgoing-template',
+    name: 'Passive Marketing: Capture Outgoing Template',
+    tags: ['on-message', 'data-storage', 'rapid'],
+    triggerEvents: ['domain.message.created'],
+    relatedScenarios: ['passive-marketing-assign-stale-chats'],
     description:
-      'Runs once a day to find **BULK** chats from the previous day whose last message was one of the configured marketing templates. For each matching chat, assigns it to the `sales` department with **Pending** status and updates the lead status in **Rapid CRM**.\n\nDesigned for Rapid CRM customers using the **Tyntec** WhatsApp provider — see the configuration items below for the non-Tyntec variant.',
+      'First half of the **Passive Marketing** pair. When one of the tracked outgoing marketing templates is sent on a chat, it saves the chat\'s lead data (`leadExternalId`, `leadSource`) into the `passive_marketing_chats` data-storage collection with a **4-day TTL**. The companion cron **Passive Marketing: Assign Stale Chats** later reassigns the chats that are *still* passive.',
+    configuration: [
+      {
+        field: 'Marketing Template IDs',
+        location: 'conditions[0][0].params.expression',
+        description:
+          'The outgoing template IDs that count as "passive marketing". Update the `templateId in (...)` list per customer.\n\nTo capture on any outgoing template, simplify the filtrex to:\n\n```\ndirection == "outgoing" and exists(special.whatsappTyntec.template)\n```',
+        required: true,
+      },
+      {
+        field: 'Bot-side cleanup (required)',
+        location: 'Bot YAML → start_node',
+        description:
+          'So that **only customers who never replied** are reassigned by the cron, the bot must **delete** this chat\'s record from `passive_marketing_chats` the next time the customer messages (at `start_node`).\n\nUse a [Get Data](/docs/YAML/Types/Func/Data%20Storage/Get%20Data) existence check, then [Delete Data](/docs/YAML/Types/Func/Data%20Storage/Delete%20Data) — see the **get → check exists → delete** pattern documented there. Key the record by `%chat:_id|toString%` (the chat `_id` is a Mongo ObjectId, so it **must** be passed through `|toString`).',
+        required: true,
+      },
+      {
+        field: 'WhatsApp Provider (non-Tyntec)',
+        location: 'conditions[0][0].params.expression',
+        description:
+          'Built for the Tyntec provider. For other providers, replace the filtrex with:\n\n```\ndirection == "outgoing" and exists(special.whatsapp.template) and (special.whatsapp.template.name in ("template_name_1", "template_name_2"))\n```',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1',
+      name: 'Passive Marketing: Capture Outgoing Template',
+      description:
+        'When an outgoing template (one of the 4 tracked ids) is sent, save the chat\'s lead data into the \'passive_marketing_chats\' data storage with a 4-day TTL, so the daily cron can later assign still-passive chats and update Rapid status',
+      triggerEvents: ['domain.message.created'],
+      loaders: {
+        afterConditions: [
+          {
+            name: 'chat',
+            alias: 'chat',
+            params: {
+              id: {'##provide': {provider: 'message', key: 'parent_chat'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression:
+                'direction == "outgoing" and exists(special.whatsappTyntec.template) and (special.whatsappTyntec.template.templateId in ("inbox_marketing_108", "inbox_utility_111", "inbox_marketing_109", "inbox_marketing_107"))',
+              value: {'##provide': {provider: 'message', key: 'message'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'setData',
+          params: {
+            expiresInUnit: 'days',
+            collection: 'passive_marketing_chats',
+            data: {
+              chatId: '%message:parent_chat%',
+              templateId: '%message:special.whatsappTyntec.template.templateId%',
+              leadExternalId: '%chat:crmData.leadExternalId%',
+              leadSource: '%chat:crmData.leadSource%',
+            },
+            tags: [],
+            expiresIn: 4,
+            key: {'##provide': {provider: 'message', key: 'parent_chat'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'passive-marketing-assign-stale-chats',
+    name: 'Passive Marketing: Assign Stale Chats',
+    tags: ['scheduled', 'data-storage', 'assign-chat', 'crm-update', 'rapid'],
+    triggerEvents: ['app.scenarios.customTriggers.cron'],
+    relatedScenarios: ['passive-marketing-capture-outgoing-template'],
+    description:
+      'Second half of the **Passive Marketing** pair. Runs on a daily cron: lists every record in `passive_marketing_chats`, and for chats captured **more than 16h ago that are still stored** — meaning the customer never replied, so the bot never deleted the record — assigns the chat to the **sales** department (Pending), updates the lead status in **Rapid CRM**, and removes the record.\n\nRelies on the capture scenario plus the **bot-side cleanup** described on **Passive Marketing: Capture Outgoing Template**.',
     configuration: [
       {
         field: 'Cron Schedule',
         location: 'Nihul → Customer Config',
         description:
-          'Add to the `cron.schedule` array in the customer config in Nihul:\n\n```json\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "0 8 * * *",\n  "params": { "name": "reassign-and-update-passive-bulk-chats" }\n}\n```\n\nThe example runs **daily at 08:00** — adjust the cron expression per customer request.',
+          'Add to the `cron.schedule` array in the customer config in Nihul:\n\n```json\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "0 8 * * *",\n  "params": { "name": "assign-passive-marketing-chats" }\n}\n```\n\nThe example runs **daily at 08:00** — adjust per customer. The `name` must match `conditions[0][0].params.compareTo`.',
         required: true,
+      },
+      {
+        field: 'Stale Threshold',
+        location: 'conditions[0][1].params.compareTo',
+        description:
+          'Only act on records last updated **before** this time. Defaults to **16h ago** (`%time:now-16h("x")|parseInt%`).',
+        required: false,
       },
       {
         field: 'Rapid API URL',
-        location: 'actions[1].params.url',
+        location: 'actions[2].params.url',
         description:
-          'Replace the subdomain with the customer\'s Rapid subdomain. Example:\n\n```\nhttps://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%chat:crmData.leadExternalId%\n```\n\n**Prerequisite:** the chat\'s `crmData` must contain `leadExternalId` (populated when the bot creates the lead) and `leadSource`. Without these the `request` action silently fails — verify `crmData` is populated before enabling.',
-        required: true,
-      },
-      {
-        field: 'Marketing Template IDs',
-        location: 'conditions[0][1].params.expression',
-        description:
-          'Ask the customer which templates should trigger this flow and update the ID list accordingly.\n\nTo match any template (no ID filtering), simplify the filtrex to:\n\n```\nexists(special.whatsappTyntec.template)\n```',
+          'Replace the subdomain with the customer\'s Rapid subdomain:\n\n```\nhttps://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%item:data.leadExternalId%\n```\n\n**Prerequisite:** the captured record must carry `leadExternalId` and `leadSource` (the capture scenario reads them from `crmData`). Without them the `request` action fails.',
         required: true,
       },
       {
@@ -3119,49 +3207,27 @@ export const SCENARIOS: Scenario[] = [
       },
       {
         field: 'Rapid Update Payload',
-        location: 'actions[1].params.data',
+        location: 'actions[2].params.data',
         description:
           'Key-value pairs to send to the Rapid API on the matched lead. Any fields the customer\'s Rapid API accepts — not limited to `status`.',
-        required: false,
-      },
-      {
-        field: 'WhatsApp Provider (non-Tyntec)',
-        location: 'conditions[0][1].params.expression',
-        description:
-          'This scenario is built for the Tyntec provider. For other providers, replace the filtrex expression with:\n\n```\nexists(special.whatsapp.template) and (special.whatsapp.template.name in ("template_name_1", "template_name_2"))\n```\n\nOr to match any template:\n\n```\nexists(special.whatsapp.template)\n```',
         required: false,
       },
     ],
     json: {
       version: 'v1.1',
-      name: 'Handle Passive Marketing Chats',
+      name: 'Passive Marketing: Assign Stale Chats',
       description:
-        'Once a day, check yesterdays chats that are still in bulk where the last template message sent fits one of the marketing messages, and assign to sales department + update lead status in Rapid',
+        'Once a day, pull captured passive-marketing chats from the \'passive_marketing_chats\' data storage and, for any captured more than 16h ago, update the lead status in Rapid and assign to sales. Each processed entry is removed.',
       triggerEvents: ['app.scenarios.customTriggers.cron'],
       loaders: {
         beforeConditions: [
           {
-            name: 'chatsList',
-            alias: 'chats',
+            name: 'listData',
+            alias: 'stored',
             params: {
+              collection: 'passive_marketing_chats',
               limit: 1000,
               skip: 0,
-              filters: [
-                {
-                  lastMessageTimestamp: {
-                    before: '%time:now-16h("x")|parseInt%',
-                    after: '%time:now-41h("x")|parseInt%',
-                  },
-                  status: ['BULK'],
-                  channel: [],
-                  department: [],
-                  agent: [],
-                  labels: {
-                    include: [],
-                    exclude: [],
-                  },
-                },
-              ],
             },
             confidentialData: false,
           },
@@ -3173,17 +3239,17 @@ export const SCENARIOS: Scenario[] = [
             name: 'compare',
             params: {
               comparison: 'Equal',
-              compareTo: 'reassign-and-update-passive-bulk-chats',
+              compareTo: 'assign-passive-marketing-chats',
               value: {'##provide': {provider: 'cron', key: 'name'}},
             },
             confidentialData: false,
           },
           {
-            name: 'filtrex',
+            name: 'compare',
             params: {
-              expression:
-                'exists(special.whatsappTyntec.template) and (special.whatsappTyntec.template.templateId in ("inbox_marketing_108", "inbox_utility_111", "inbox_marketing_109", "inbox_marketing_107"))',
-              value: {'##provide': {provider: 'chat', key: 'lastMessage'}},
+              comparison: 'Less than or equal',
+              compareTo: '%time:now-16h("x")|parseInt%',
+              value: {'##provide': {provider: 'item', key: 'updatedAt'}},
             },
             confidentialData: false,
           },
@@ -3195,18 +3261,27 @@ export const SCENARIOS: Scenario[] = [
           params: {
             status: 'Pending',
             departmentId: 'sales',
-            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+            chatId: {'##provide': {provider: 'item', key: 'data.chatId'}},
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'deleteData',
+          params: {
+            collection: 'passive_marketing_chats',
+            key: {'##provide': {provider: 'item', key: 'data.chatId'}},
           },
           confidentialData: false,
         },
         {
           name: 'request',
           params: {
-            url: 'https://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%chat:crmData.leadExternalId%',
+            url: 'https://{{rapidSubdomain}}.rapid-image.net/api/import/leads/%item:data.leadExternalId%',
             method: 'patch',
+            keepResponse: true,
             json: true,
             headers: {
-              Authorization: 'RoAuth LeadSource=%chat:crmData.leadSource%',
+              Authorization: 'RoAuth LeadSource=%item:data.leadSource%',
             },
             data: {
               status: 93,
@@ -3219,8 +3294,8 @@ export const SCENARIOS: Scenario[] = [
         {
           loop: {
             type: 'foreach',
-            as: 'chat',
-            input: {'##provide': {provider: 'chats', key: 'chats'}},
+            as: 'item',
+            input: {'##provide': {provider: 'stored', key: 'items'}},
             confidentialData: false,
             foreachMode: 'parallel',
             concurency: 10,
@@ -3228,9 +3303,192 @@ export const SCENARIOS: Scenario[] = [
           position: 'beforeConditions',
         },
       ],
-      options: {
-        unorderedActions: true,
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'timed-template-followup-capture',
+    name: 'Timed Template Follow-up: Capture',
+    tags: ['on-message', 'data-storage'],
+    triggerEvents: ['domain.message.created'],
+    relatedScenarios: ['timed-template-followup-send'],
+    description:
+      'Automatically follow up with customers a set time after a specific WhatsApp template is sent to them. This first half captures the moment: when the chosen outgoing template is sent on a chat, it stores the customer\'s phone and name with a **4-day TTL**, so the companion cron can message them later. The follow-up goes to **everyone** captured, regardless of whether they replied. Good for next-day check-ins, reminders, or satisfaction nudges after a key message.',
+    configuration: [
+      {
+        field: 'Trigger Template',
+        location: 'conditions[0][0].params.expression',
+        description:
+          'The outgoing template that starts the follow-up. The example matches the template id `inbox_utility_62`; set it to your own template id, or broaden the filtrex to match any outgoing template.',
+        required: true,
       },
+    ],
+    json: {
+      version: 'v1',
+      name: 'Timed Template Follow-up: Capture',
+      description:
+        'When a chosen outgoing template is sent, store the customer\'s phone and name into the \'template_followup\' data storage for 4 days, so a cron can send a follow-up template later.',
+      triggerEvents: ['domain.message.created'],
+      loaders: {},
+      conditions: [
+        [
+          {
+            name: 'filtrex',
+            params: {
+              expression:
+                'direction == "outgoing" and exists(special.whatsappTyntec.template) and special.whatsappTyntec.template.templateId == "inbox_utility_62"',
+              value: {'##provide': {provider: 'message', key: 'message'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'setData',
+          params: {
+            expiresInUnit: 'days',
+            collection: 'template_followup',
+            data: {
+              phone: '%message:chatChannelInfo.id%',
+              name: '%message:special.whatsappTyntec.template.components.body.0.text%',
+            },
+            expiresIn: 4,
+            key: {'##provide': {provider: 'message', key: 'parent_chat'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  {
+    id: 'timed-template-followup-send',
+    name: 'Timed Template Follow-up: Send Follow-up',
+    tags: ['scheduled', 'data-storage', 'send-message', 'webhook'],
+    triggerEvents: ['app.scenarios.customTriggers.cron'],
+    relatedScenarios: ['timed-template-followup-capture'],
+    description:
+      'The cron half of the timed follow-up: it messages the captured customers once the chosen delay has passed. For every captured chat older than the delay (the example uses **24h**), it sends a follow-up WhatsApp template and clears the record. The follow-up reaches **everyone** captured, regardless of whether they replied.',
+    configuration: [
+      {
+        field: 'Cron Schedule',
+        location: 'Nihul → Customer Config',
+        description:
+          'Add to the `cron.schedule` array in the customer config in Nihul:\n\n```json\n{\n  "task": "ScenariosCustomTriggerCronTask",\n  "expr": "0 16 * * 0-5",\n  "params": { "name": "template-followup-send" }\n}\n```\n\nThe example runs **Sun–Fri at 16:00**. The `name` must match `conditions[0][0].params.compareTo`.',
+        required: true,
+      },
+      {
+        field: 'Texter API Token',
+        location: 'actions[1].params.headers.Authorization',
+        description:
+          'A Texter **API v2** bearer token for sending templates. Set `Authorization` to `Bearer {{yourApiToken}}`.',
+        required: true,
+      },
+      {
+        field: 'Texter API URL',
+        location: 'actions[1].params.url',
+        description:
+          'Replace the subdomain with the customer\'s Texter instance:\n\n```\nhttps://{{yourSubdomain}}.texterchat.com/server/api/v2/whatsapp/templates/send\n```',
+        required: true,
+      },
+      {
+        field: 'Follow-up Template',
+        location: 'actions[1].params.data.templateName',
+        description: 'The follow-up template to send. The example uses `inbox_utility_138`; change it to your own template id.',
+        required: true,
+      },
+      {
+        field: 'Delay',
+        location: 'conditions[0][1].params.compareTo',
+        description:
+          'How long after capture to wait before following up. The example uses **24h** (`%time:now-24h("x")|parseInt%`); adjust the offset for a different delay.',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1.1',
+      name: 'Timed Template Follow-up: Send Follow-up',
+      description:
+        'On a cron, find chats that got the chosen template more than the configured delay ago, send a follow-up template, then remove the entry.',
+      triggerEvents: ['app.scenarios.customTriggers.cron'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'listData',
+            alias: 'stored',
+            params: {
+              limit: 1000,
+              skip: 0,
+              collection: 'template_followup',
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Equal',
+              compareTo: 'template-followup-send',
+              value: {'##provide': {provider: 'cron', key: 'name'}},
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'compare',
+            params: {
+              comparison: 'Less than or equal',
+              compareTo: '%time:now-24h("x")|parseInt%',
+              value: {'##provide': {provider: 'item', key: 'updatedAt'}},
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'deleteData',
+          params: {
+            collection: 'template_followup',
+            key: {'##provide': {provider: 'item', key: 'key'}},
+          },
+          confidentialData: false,
+        },
+        {
+          name: 'request',
+          params: {
+            url: 'https://{{yourSubdomain}}.texterchat.com/server/api/v2/whatsapp/templates/send',
+            method: 'post',
+            json: true,
+            headers: {
+              Authorization: 'Bearer {{yourApiToken}}',
+            },
+            data: {
+              to: '%item:data.phone%',
+              templateName: 'inbox_utility_138',
+              body: ['%item:data.name%'],
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      loops: [
+        {
+          loop: {
+            type: 'foreach',
+            as: 'item',
+            input: {'##provide': {provider: 'stored', key: 'items'}},
+            confidentialData: false,
+            foreachMode: 'parallel',
+            concurency: 10,
+          },
+          position: 'beforeConditions',
+        },
+      ],
+      options: {unorderedActions: false},
     },
   },
 ];
