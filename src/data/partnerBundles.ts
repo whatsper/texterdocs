@@ -786,6 +786,19 @@ export const PARTNER_BUNDLES: PartnerBundle[] = [
         inputPlaceholder: 'לדוגמה: מרפאת ד"ר כהן',
         hint: 'יוחלף בכל מופע של "שם הקליניקה" בתבניות שייבחרו',
       },
+      {
+        // Quoted with gershayim (״כתובת״) on purpose: the bare word "כתובת" is a
+        // substring of "כתובתינו" in the same line, so a bare placeholder would
+        // also clobber that word. The quotes make the find-string unique, and
+        // they're consumed by the replace so the filled-in result stays clean.
+        // Only a1 (תזכורת לתור) and a5 (תור עתידי) contain this placeholder; the
+        // bundle-level seed is a no-op on the other templates.
+        id: "clinicAddress",
+        label: "כתובת",
+        placeholder: "״כתובת״",
+        inputPlaceholder: 'לדוגמה: רחוב הרצל 1, תל אביב',
+        hint: 'יוחלף בכל מופע של "כתובת" בתבניות שייבחרו (תזכורת לתור ותור עתידי)',
+      },
     ],
     templates: [
       // a200 — שליחת מסמך (document send)
@@ -858,7 +871,8 @@ export const PARTNER_BUNDLES: PartnerBundle[] = [
                     type: "BODY",
                     text:
                       "שלום {{1}},\n" +
-                      "נקבעה לך פגישה עתידית אצל {{2}} ביום {{3}} בתאריך {{4}} בשעה {{5}}\n\n" +
+                      "נקבעה לך פגישה עתידית אצל {{2}} ביום {{3}} בתאריך {{4}} בשעה {{5}}\n" +
+                      "כתובתינו: ״כתובת״\n" +
                       "שם הקליניקה",
                     example: {
                       body_text: [
@@ -901,6 +915,7 @@ export const PARTNER_BUNDLES: PartnerBundle[] = [
                       "שלום {{1}},\n" +
                       "זוהי תזכורת לתור אצל {{2}} ביום {{3}} ה{{4}} בשעה {{5}}\n" +
                       "לאישור או לביטול התור יש ללחוץ על הבחירה המתאימה\n" +
+                      "כתובתינו: ״כתובת״\n" +
                       "תודה רבה 🙏\n" +
                       "שם הקליניקה",
                     example: {
@@ -996,6 +1011,76 @@ export const PARTNER_BUNDLES: PartnerBundle[] = [
                   {
                     type: "BUTTONS",
                     buttons: [{ type: "QUICK_REPLY", text: "חייגו עכשיו" }],
+                  },
+                ],
+              },
+            ],
+            metadata: {},
+          },
+        },
+      },
+      // general_1 — הודעת יידוע כללית (inbox, utility). Generic 2-param notice.
+      {
+        id: "optima_general_1",
+        name: "general_1",
+        template: {
+          name: "general_1",
+          title: "הודעה כללית",
+          category: "UTILITY",
+          usage: "inbox",
+          chatStatus: 1,
+          isDefault: false,
+          departments: [],
+          provider_template: {
+            name: "general_1",
+            category: "UTILITY",
+            localizations: [
+              {
+                name: "general_1",
+                language: "he",
+                parameter_format: "POSITIONAL",
+                components: [
+                  {
+                    type: "BODY",
+                    text: "שלום {{1}}, רציתי ליידע אותך ש{{2}}, תודה",
+                    example: {
+                      body_text: [["ישראל", "הזמנתך מוכנה לאיסוף"]],
+                    },
+                  },
+                ],
+              },
+            ],
+            metadata: {},
+          },
+        },
+      },
+      // general_2 — הודעת עדכון כללית (inbox, utility). Generic 3-param update.
+      {
+        id: "optima_general_2",
+        name: "general_2",
+        template: {
+          name: "general_2",
+          title: "הודעת עדכון",
+          category: "UTILITY",
+          usage: "inbox",
+          chatStatus: 1,
+          isDefault: false,
+          departments: [],
+          provider_template: {
+            name: "general_2",
+            category: "UTILITY",
+            localizations: [
+              {
+                name: "general_2",
+                language: "he",
+                parameter_format: "POSITIONAL",
+                components: [
+                  {
+                    type: "BODY",
+                    text: "שלום {{1}}, כאן {{2}}, רציתי לעדכן אותך ש{{3}}, תודה",
+                    example: {
+                      body_text: [["ישראל", 'מרפאת ד"ר כהן', "התור שלך עודכן"]],
+                    },
                   },
                 ],
               },

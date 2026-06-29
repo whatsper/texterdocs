@@ -612,7 +612,12 @@ export default function TemplatesImportTool(): ReactNode {
     // them with auto-assigned ones. User can untick after if they prefer.
     setKeepNames(true);
     setPartnerModalOpen(false);
-  }, [partnerSelection, partnerEdits]);
+    // `partnerSeed` MUST be a dep: the seed inputs (e.g. "שם הקליניקה") only
+    // appear after a template is ticked, so the user types them after the last
+    // `partnerSelection` change. Without it here, this callback closes over a
+    // stale (empty) seed map and the import keeps the raw placeholder even
+    // though the modal preview — which reads partnerSeed live — shows it filled.
+  }, [partnerSelection, partnerSeed, partnerEdits]);
 
   const cancelPartnerModal = useCallback(() => {
     setPartnerModalOpen(false);
