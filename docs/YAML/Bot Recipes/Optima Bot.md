@@ -64,7 +64,7 @@ For Optima integrations — sends a webhook back to Optima to sync the reply to 
       sub__group: "%chat:crmData.sub_company%"
       meeting_id: "%chat:crmData.meeting_id%"
       answer: "ביטול הגעה"
-    on_complete: resolved
+    on_complete: cancel
     
   cancel:
     type: notify
