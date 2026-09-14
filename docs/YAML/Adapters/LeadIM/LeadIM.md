@@ -17,7 +17,14 @@ sidebar_position: 1
 | `token` | For `getCustomerDetails` lookup | — | `X-LEAD-IM-AUTH` token. Must be requested separately from Lead.IM. |
 | `getCustomerDetailsUrl` | For `getCustomerDetails` lookup | — | Lead lookup API endpoint. Must be requested separately from Lead.IM. |
 | `nameField` | No | `שם` | Lead.IM field name used as the contact's display name. Change if the customer's form uses a different field name. |
+| `statusField` | No | `status_name` | Lead.IM field name used as the contact's status in the CRM side panel. |
+| `phoneField` | No | chat phone | Lead.IM field name used as the contact's phone in the CRM side panel. Falls back to the chat's formatted phone. |
+| `idField` | No | `lead_id` | Lead.IM field name used as the contact's id in the CRM side panel. |
 | `onlyDisplayData` | No | `false` | Skip API call and format existing `aid`/`lid` already on the chat. See mode 2 below. |
+
+:::tip[Field overrides]
+`nameField`, `statusField`, `phoneField` and `idField` are resolved against the flattened lead record, so they accept both a plain field name (`status_name`, `שם`) and a dot path into a nested value. The resolved value is shown as-is in the CRM side panel, so only a single value works: a path that lands on an object or a list is treated as a misconfiguration and the default is used instead.
+:::
 
 ---
 
@@ -46,7 +53,9 @@ Identifies the contact in Lead.IM. Has two modes depending on `onlyDisplayData` 
 
 No params. Phone is taken from the chat automatically.
 
-**Result (lookup mode):** Sets all lead fields on `crmData` keyed by their Lead.IM field name — including Hebrew field names (e.g. `crmData["שם"]`, `crmData["מטפל"]`). Also sets `crmData.id`, `crmData.name` (value of `nameField`), `crmData.phone`, `crmData.deepLink`. Returns `on_failure` if no match.
+**Result (lookup mode):** Sets all lead fields on `crmData` keyed by their Lead.IM field name — including Hebrew field names (e.g. `crmData["שם"]`, `crmData["מטפל"]`). Also sets `crmData.id`, `crmData.name` (value of `nameField`), `crmData.phone`, `crmData.status` (value of `statusField`) and `crmData.deepLink`. Returns `on_failure` if no match.
+
+Lead.IM returns the lead either as a list or as a single object, and both shapes are handled. A lookup that finds nothing is a clean not-found (`on_failure`), not an adapter error, so no CRM error is logged for contacts that are simply not in Lead.IM.
 
 **Result (display mode):** Sets `crmData.id`, `crmData.name`, `crmData.phone`, `crmData.deepLink` from existing `aid`/`lid`. Returns `on_failure` if no `crmData` present on the chat.
 
@@ -198,4 +207,7 @@ This integration is bidirectional — both sides exchange credentials:
 | `token` | For lookups/updates | `X-LEAD-IM-AUTH` value — provided by Lead.IM |
 | `getCustomerDetailsUrl` | For lookups | Lead lookup endpoint — provided by Lead.IM |
 | `nameField` | No | Display name field (default: `שם`) |
+| `statusField` | No | Status field for the CRM side panel (default: `status_name`) |
+| `phoneField` | No | Phone field for the CRM side panel (default: the chat's formatted phone) |
+| `idField` | No | Id field for the CRM side panel (default: `lead_id`) |
 | `onlyDisplayData` | No | `true` to skip API call and use existing `aid`/`lid` |

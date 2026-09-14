@@ -243,6 +243,7 @@ Fetches Provet reminders for a planned sending date and sends template messages 
 | `daysToCheckFutureAppointmentsEnd`   | No       | `14`                   | End of the future-appointment check range (days from “now”).                                                          |
 | `query`                              | No       | —                      | Extra Provet query params to apply when fetching reminders.                                                           |
 | `reminderTemplatesQuery`             | No       | `{ page_size: '200' }` | Extra query params for fetching Provet reminder templates.                                                            |
+| `fetchFullClientDetails`             | No       | `false`                | If true, fetches the full client record for every reminder in one batched request and merges it into `reminder.client` before filters run. |
 | `body`                               | No       | —                      | Array of field paths used as template BODY parameters (e.g. `client.name`, `patient.name`, `expiry_date`).            |
 | `crmData`                            | No       | —                      | Array of field paths to copy into the chat’s `crmData` for templating. Keys are camelCased.                           |
 
@@ -264,6 +265,11 @@ Fetches Provet reminders for a planned sending date and sends template messages 
     - from **now + `daysToCheckFutureAppointmentsStart` days**
     - to **now + `daysToCheckFutureAppointmentsEnd` days**
   - If appointments exist in that window, the reminder is skipped.
+- **Full client details** (`fetchFullClientDetails: true`):
+  - `expose_client=true` returns only a small subset of the client's fields, which limits what `filters`, `body` and `crmData` can reach.
+  - With this flag the adapter collects the reminder client ids and fetches the full records in a single `GET /api/0.1/client/?id__in=...` call, then merges each record into its `reminder.client` before filtering.
+  - Use it to filter on fields the reminder payload does not carry, for example `empty(client.no_sms)` to skip clients marked as opted out, or `"vip" in client.tags_rel` to target a tag.
+  - Default is `false` so existing tasks keep their current behavior and do not pay for the extra call.
 
 :::
 

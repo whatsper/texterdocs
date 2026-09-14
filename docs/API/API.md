@@ -16,6 +16,7 @@ Most CRMs and platforms already have built-in adapter functions (`func_type: crm
 | **Monday.com** | [developer.monday.com/api-reference](https://developer.monday.com/api-reference/reference) |
 | **Novidea / Salesforce** | [Salesforce SOQL & SOSL](https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_sosl_intro.htm) |
 | **Origami** | [Origami API documentation](https://documenter.getpostman.com/view/2653695/2s93kz65gS#intro) |
+| **Optima** | [calendar.hatosafim.co.il/api2/docs](https://calendar.hatosafim.co.il/api2/docs#/) |
 | **Plando** | [Get customer details (extended search)](https://docs.google.com/document/d/1141_JhZJkNQj6DRYBbH7nqgjSgFDv_rkVeursC-5jy0/edit?pli=1&tab=t.0) / [Lead creation](https://docs.google.com/document/d/1BvAIX-QkOy25tCDvHyZ2Y7c7z0H_63Lr/edit?usp=sharing&ouid=112394429799186567859&rtpof=true&sd=true) |
 | **Powerlink (Fireberry)** | [developers.fireberry.com — REST API](https://developers.fireberry.com/reference/getting-started-with-rest-api) / [github.com/powerlink/Rest-API](https://github.com/powerlink/Rest-API) |
 | **Provet** | [developers.provetcloud.com/restapi](https://developers.provetcloud.com/restapi/0.1/) |
