@@ -4,10 +4,31 @@
         <title>Texter Docs Blog</title>
         <link>https://docs.texterchat.com/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Mon, 29 Jun 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 14 Sep 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Optima Adapter, Lead.IM Side-Panel Fields, Provet Full Client Details]]></title>
+            <link>https://docs.texterchat.com/changelog/2026/09/14/optima-adapter-leadim-fields-provet-clients</link>
+            <guid>https://docs.texterchat.com/changelog/2026/09/14/optima-adapter-leadim-fields-provet-clients</guid>
+            <pubDate>Mon, 14 Sep 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Optima joins the CRM adapters with a phone lookup, Lead.IM lets you pick which lead fields feed the CRM side panel, and Provet reminder tasks can pull the full client record before filtering.]]></description>
+            <content:encoded><![CDATA[<p>Optima joins the CRM adapters with a phone lookup, Lead.IM lets you pick which lead fields feed the CRM side panel, and Provet reminder tasks can pull the full client record before filtering.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/09/14/optima-adapter-leadim-fields-provet-clients#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong><a href="https://docs.texterchat.com/docs/YAML/Adapters/Optima">Optima adapter</a></strong>: a new read-only adapter with <code>getCustomerDetails</code>, matching a patient card by phone across all five phone fields on the card. Sets <code>crmData.id</code>, <code>crmData.cardId</code>, <code>crmData.phone</code> and <code>crmData.name</code>. The lookup resolves only when exactly one card matches, so an ambiguous number routes to <code>on_failure</code> rather than picking a card. Config is <code>username</code>, <code>password</code>, plus optional <code>company</code> and <code>requestTimeoutMs</code>. Writing back to Optima is still done with <code>sendWebhook</code>, as in the <a href="https://docs.texterchat.com/docs/YAML/Bot%20Recipes/Optima%20Bot">Optima Bot recipe</a>.</li>
+<li><strong><a href="https://docs.texterchat.com/docs/YAML/Adapters/LeadIM">Lead.IM side-panel fields</a></strong>: <code>getCustomerDetails</code> now returns <code>crmData.status</code>, taken from the lead's <code>status_name</code> by default. Three new optional <code>crmConfig</code> fields, <code>statusField</code>, <code>phoneField</code> and <code>idField</code>, point the status, phone and id shown in the CRM panel at a different Lead.IM field, the same way <code>nameField</code> already worked. All four accept a plain field name or a dot path, and a path that lands on an object or a list falls back to the default.</li>
+<li><strong><a href="https://docs.texterchat.com/docs/YAML/Adapters/Provet#sendreminders">Provet <code>fetchFullClientDetails</code></a></strong>: an optional <code>sendReminders</code> param that fetches the full client record for every reminder in one batched request and merges it into <code>reminder.client</code> before <code>filters</code>, <code>body</code> and <code>crmData</code> run. Provet's <code>expose_client</code> returns only a small subset of client fields, so this is what makes filters like <code>empty(client.no_sms)</code> or <code>"vip" in client.tags_rel</code> possible. Off by default.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/09/14/optima-adapter-leadim-fields-provet-clients#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong>Lead.IM lookup response shapes</strong>: the lookup endpoint can return the lead as a list or as a single object, and both are now handled. A lookup that finds nothing is a clean not-found that routes to <code>on_failure</code>, instead of an adapter error, so contacts who simply are not in Lead.IM no longer produce CRM error logs.</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+            <category>docs</category>
+            <category>feature</category>
+        </item>
         <item>
             <title><![CDATA[Partner Bundle Seed Fix + Optima Address & General Templates]]></title>
             <link>https://docs.texterchat.com/changelog/2026/06/29/partner-bundle-seed-fix</link>
@@ -418,29 +439,6 @@
 </ul>]]></content:encoded>
             <category>docs</category>
             <category>yaml</category>
-        </item>
-        <item>
-            <title><![CDATA[Rich Scenario Cards + Shared Markdown]]></title>
-            <link>https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown</link>
-            <guid>https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown</guid>
-            <pubDate>Mon, 04 May 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[Scenario Marketplace cards now render Markdown so setup notes can link straight into the YAML docs, the Ask AI panel shares the same renderer for consistent navigation, and the YAML Adapters sidebar lists Salesforce before Senzey.]]></description>
-            <content:encoded><![CDATA[<p>Scenario Marketplace cards now render Markdown so setup notes can link straight into the YAML docs, the Ask AI panel shares the same renderer for consistent navigation, and the YAML Adapters sidebar lists <strong>Salesforce</strong> before <strong>Senzey</strong>.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Shared <code>Markdown</code> component</strong> — GFM rendering with Docusaurus internal links, optional hard line breaks for multi-line snippets, and an optional click handler (used by Ask AI to close the panel when you follow an in-site link).</li>
-<li><strong>Scenario Marketplace</strong> — each card’s main description and “What to configure” items support Markdown: links, emphasis, inline and fenced code, and lists, with tuned styles for body text and inline code.</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/04/scenario-markdown#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li><strong>Ask AI</strong> — assistant messages use the shared Markdown layer so link behavior matches the rest of the site.</li>
-<li><strong>Scenario copy</strong> — broad pass on marketplace text for clearer SLA, Q-AI, Salesforce, Rapid, and cron setup guidance, including cross-links to Data Injection, Notify, and related docs.</li>
-<li><strong>YAML Adapters sidebar</strong> — Salesforce appears before Senzey in the docs navigation order.</li>
-</ul>]]></content:encoded>
-            <category>feature</category>
-            <category>scenarios</category>
-            <category>site</category>
-            <category>docs</category>
         </item>
     </channel>
 </rss>
