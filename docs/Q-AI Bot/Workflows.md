@@ -23,6 +23,7 @@ flowchart TD
     chat([Live chat in Texter])
     main["AI Assistant - Main<br/>(the live reply loop)"]
     abandon["AI Abandoned Bot<br/>(re-engagement ladder)"]
+    reaper["Stale Convo Reaper<br/>(daily safety net)"]
     files["AI File Management<br/>(uploaded files)"]
     scrape["Scraping Websites for AI<br/>(curated URL list)"]
     onboard["AI New Customer Onboarding<br/>(provision a new project)"]
@@ -30,6 +31,7 @@ flowchart TD
 
     chat --> main
     abandon -. nudges or closes idle chats .-> chat
+    reaper -. closes chats idle over 24h .-> chat
     main -- reads from --> vs
     abandon -- reads from --> vs
     files --> vs
@@ -60,6 +62,12 @@ See **[Reporting & Evaluation](/docs/q-ai-bot/reporting)** for what gets logged 
 Handles **idle conversations**: walks a per-project **re-engagement ladder** of timed steps when someone stops replying.
 
 See **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)** for the full ladder mechanics.
+
+### AI Abandoned Bot - Stale Convo Reaper
+
+The **daily safety net**. Once a day it closes any AI conversation with no contact activity for more than 24 hours, recording the **`Inactivity`** reason and switching AI mode off, so nothing stays open indefinitely when a close is interrupted.
+
+See **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system#safety-net-the-daily-sweep)** for when it runs and how it relates to the ladder.
 
 ---
 

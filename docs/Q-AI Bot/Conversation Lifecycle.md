@@ -67,7 +67,7 @@ Treat the reasons above as named outcomes. Your Texter bot can branch on the rec
 
 ## Idle re-engagement
 
-What if the contact just stops replying mid-conversation? The session doesn't stay open forever. A separate **re-engagement system** watches for quiet chats and walks a per-project **ladder** of timed follow-ups: gentle nudges, and eventually a close that ends the session with the **`Inactivity`** reason, exactly like any other handoff. The full behavior is on the **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)** page.
+What if the contact just stops replying mid-conversation? The session doesn't stay open forever. A separate **re-engagement system** watches for quiet chats and walks a per-project **ladder** of timed follow-ups: gentle nudges, and eventually a close that ends the session with the **`Inactivity`** reason, exactly like any other handoff. A **daily sweep** backs it up, closing any session left open with no contact activity for more than 24 hours under that same reason. The full behavior is on the **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)** page.
 
 ---
 

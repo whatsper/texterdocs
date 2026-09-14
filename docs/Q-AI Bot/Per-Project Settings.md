@@ -55,7 +55,7 @@ Built from two auto-syncing pipelines, project [files](/docs/q-ai-bot/knowledge-
 
 ### Re-engagement ladder
 
-A per-project, ordered list of timed follow-up steps. Its full mechanics (step modes, timing, reset-on-reply, and the **12-hour** cap on total follow-up delay) are documented in **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)**.
+A per-project, ordered list of timed follow-up steps. Its full mechanics (step modes, timing, reset-on-reply, and the **12-hour** cap on total follow-up delay) are documented in **[Abandoned Bot System](/docs/q-ai-bot/abandoned-bot-system)**. A daily safety-net sweep closes anything the ladder could not finish; it needs no configuration.
 
 ### Extra session context
 

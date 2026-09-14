@@ -64,6 +64,10 @@ For example, a ladder of "5 minutes, then 10 minutes" means:
 Because the check runs every 4 minutes within the 8 AM to 9 PM window, a nudge fires at the next check after its delay elapses (timing is approximate to within a few minutes, never to the second), and any step due outside that window waits until the window reopens the next morning. Design your delays with that in mind.
 :::
 
+:::note[One check owns a conversation at a time]
+A conversation is picked up by exactly one check. If a run is still preparing a nudge when the next check comes round, the later check skips that conversation and works on others instead, so a contact never receives the same step twice.
+:::
+
 :::caution[Total delay is capped at 12 hours]
 The combined delay of all steps in a ladder cannot exceed **12 hours**. This is a platform rule: a ladder that adds up to more than 12 hours of waiting will be rejected. Design ladders that finish (reach their `close` step) within that window.
 :::
@@ -75,6 +79,8 @@ The combined delay of all steps in a ladder cannot exceed **12 hours**. This is 
 The ladder is not a one-way trip. **Any reply from the contact restarts the ladder from the top.** The moment a new message comes in, the conversation is "active" again, the step counter goes back to the beginning, and timing is re-measured from that fresh reply.
 
 So a contact can be nudged, reply, drift off again, and be nudged again: each silent stretch gets the full ladder.
+
+A reply also **cancels a nudge that is already in flight**. If the contact writes back in the moment between a step being picked up and its message going out, that nudge is discarded rather than landing on top of their reply, and the ladder restarts from the top.
 
 ---
 
@@ -116,6 +122,20 @@ A ladder is an ordered list of steps. Each step has a `delay_mins` (minutes sinc
 ```
 
 That sends a fixed reminder after 5 minutes of silence, a context-aware AI nudge 15 minutes after that, then closes the session (reason **Inactivity**) 30 minutes later. Delays are incremental and must total under the 12-hour cap.
+
+---
+
+## Safety net: the daily sweep
+
+The ladder handles conversations that go quiet in the ordinary way. A separate daily **sweep** catches anything the ladder could not finish, for example a conversation whose closing step was interrupted by a temporary outage.
+
+Once a day, at **11:00**, the sweep looks for AI conversations with no contact activity for more than **24 hours** and closes each one: it records the **`Inactivity`** reason, switches AI mode off, and clears the conversation from the active list. It is the same ending a ladder's `close` step produces, so your Texter bot handles it identically.
+
+:::note[Why 24 hours, and why late morning]
+A full ladder can never span more than 12 hours (see the cap above), so anything still open after 24 hours is stuck rather than mid-ladder. The sweep runs late morning rather than overnight because closing a chat can trigger your bot's follow-up messages, and those should reach contacts at a reasonable hour.
+:::
+
+Nothing to configure: the sweep applies to every project automatically, and in normal operation it finds nothing to do.
 
 ---
 
