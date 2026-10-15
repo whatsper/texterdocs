@@ -326,8 +326,9 @@ export const SCENARIOS: Scenario[] = [
     name: '(SUB) Messages Failed to Deliver',
     tags: ['on-message-status-change', 'webhook', 'subscription', 'failed-message'],
     triggerEvents: ['app.message.statusRequest'],
+    relatedScenarios: ['sub-message-status-changed', 'sub-messages-delivered-or-failed'],
     description:
-      'Sends a webhook when an outgoing message fails to deliver (blocked or rejected by Meta). Fires on status codes `4` and `5`. Useful for alerting, retry logic, or audit trails.',
+      'Sends `messageFailed` webhooks for failed outgoing messages (statuses `4` and `5`). Includes the Texter `messageId` matched to the first external ID, or `null` if absent from the latest 5 outgoing messages. The chat omits `crmData` and `previousBotSession`.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -347,9 +348,43 @@ export const SCENARIOS: Scenario[] = [
             name: 'chat',
             alias: 'chat',
             params: {
-              name: {'##provide': {provider: 'messageStatusRequest', key: 'chat.name'}},
-              accountId: {'##provide': {provider: 'messageStatusRequest', key: 'chat.accountId'}},
-              idByChannel: {'##provide': {provider: 'messageStatusRequest', key: 'chat.id'}},
+              name: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'chat.name',
+                },
+              },
+              accountId: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'chat.accountId',
+                },
+              },
+              idByChannel: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'chat.id',
+                },
+              },
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'chatMessages',
+            alias: 'messages',
+            params: {
+              chatId: '%chat:_id%',
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'staticData',
+            alias: 'messageLookup',
+            params: {
+              data: {
+                externalId: '%messageStatusRequest:ids.0%',
+                messages: '%messages:latest(5,-1,"out")%',
+              },
             },
             confidentialData: false,
           },
@@ -362,7 +397,12 @@ export const SCENARIOS: Scenario[] = [
             params: {
               comparison: 'Equal',
               compareTo: 4,
-              value: {'##provide': {provider: 'messageStatusRequest', key: 'status'}},
+              value: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'status',
+                },
+              },
             },
             confidentialData: false,
           },
@@ -373,7 +413,12 @@ export const SCENARIOS: Scenario[] = [
             params: {
               comparison: 'Equal',
               compareTo: 5,
-              value: {'##provide': {provider: 'messageStatusRequest', key: 'status'}},
+              value: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'status',
+                },
+              },
             },
             confidentialData: false,
           },
@@ -389,7 +434,39 @@ export const SCENARIOS: Scenario[] = [
             data: {
               eventName: 'messageFailed',
               eventData: {
-                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+                chat: {
+                  '##provide': {
+                    provider: 'chat',
+                    key: 'chat',
+                    transform: [
+                      {
+                        name: 'omit',
+                        args: ['crmData', 'previousBotSession'],
+                      },
+                    ],
+                  },
+                },
+                messageId: {
+                  '##provide': {
+                    provider: 'messageLookup',
+                    key: 'data',
+                    keyArgs: [],
+                    transform: [
+                      {
+                        name: 'hbTpl',
+                        args: ['[{{#each messages}}{{#if ../externalId}}{{#when channelInfo.id \'eq\' ../externalId}}"{{_id}}",{{/when}}{{/if}}{{/each}}null]'],
+                      },
+                      {
+                        name: 'jsonParse',
+                        args: [],
+                      },
+                      {
+                        name: 'get',
+                        args: ['0'],
+                      },
+                    ],
+                  },
+                },
                 error: '%messageStatusRequest:error%',
                 timestamp: '%messageStatusRequest:timestamp%',
                 externalId: '%messageStatusRequest:ids%',
@@ -399,7 +476,9 @@ export const SCENARIOS: Scenario[] = [
           confidentialData: false,
         },
       ],
-      options: {unorderedActions: false},
+      options: {
+        unorderedActions: false,
+      },
     },
   },
   {
@@ -407,8 +486,9 @@ export const SCENARIOS: Scenario[] = [
     name: '(SUB) Message Status Changed',
     tags: ['on-message-status-change', 'webhook', 'subscription'],
     triggerEvents: ['app.message.statusRequest'],
+    relatedScenarios: ['sub-messages-failed-to-deliver', 'sub-messages-delivered-or-failed'],
     description:
-      'Sends a webhook for every outgoing message status change — from **Sent** to **Delivered**, from **Delivered** to **Seen**, etc. Useful for tracking read receipts and delivery analytics in external systems.',
+      'Sends `messageStatusChanged` webhooks for every outgoing message status change. Includes the Texter `messageId` matched to the first external ID, or `null` if absent from the latest 5 outgoing messages. The chat omits `crmData` and `previousBotSession`.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -428,9 +508,43 @@ export const SCENARIOS: Scenario[] = [
             name: 'chat',
             alias: 'chat',
             params: {
-              name: {'##provide': {provider: 'messageStatusRequest', key: 'chat.name'}},
-              accountId: {'##provide': {provider: 'messageStatusRequest', key: 'chat.accountId'}},
-              idByChannel: {'##provide': {provider: 'messageStatusRequest', key: 'chat.id'}},
+              name: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'chat.name',
+                },
+              },
+              accountId: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'chat.accountId',
+                },
+              },
+              idByChannel: {
+                '##provide': {
+                  provider: 'messageStatusRequest',
+                  key: 'chat.id',
+                },
+              },
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'chatMessages',
+            alias: 'messages',
+            params: {
+              chatId: '%chat:_id%',
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'staticData',
+            alias: 'messageLookup',
+            params: {
+              data: {
+                externalId: '%messageStatusRequest:ids.0%',
+                messages: '%messages:latest(5,-1,"out")%',
+              },
             },
             confidentialData: false,
           },
@@ -447,7 +561,39 @@ export const SCENARIOS: Scenario[] = [
             data: {
               eventName: 'messageStatusChanged',
               eventData: {
-                chat: {'##provide': {provider: 'chat', key: 'chat'}},
+                chat: {
+                  '##provide': {
+                    provider: 'chat',
+                    key: 'chat',
+                    transform: [
+                      {
+                        name: 'omit',
+                        args: ['crmData', 'previousBotSession'],
+                      },
+                    ],
+                  },
+                },
+                messageId: {
+                  '##provide': {
+                    provider: 'messageLookup',
+                    key: 'data',
+                    keyArgs: [],
+                    transform: [
+                      {
+                        name: 'hbTpl',
+                        args: ['[{{#each messages}}{{#if ../externalId}}{{#when channelInfo.id \'eq\' ../externalId}}"{{_id}}",{{/when}}{{/if}}{{/each}}null]'],
+                      },
+                      {
+                        name: 'jsonParse',
+                        args: [],
+                      },
+                      {
+                        name: 'get',
+                        args: ['0'],
+                      },
+                    ],
+                  },
+                },
                 messageStatus: '%messageStatusRequest:status%',
                 error: '%messageStatusRequest:error%',
                 timestamp: '%messageStatusRequest:timestamp%',
@@ -458,7 +604,133 @@ export const SCENARIOS: Scenario[] = [
           confidentialData: false,
         },
       ],
-      options: {unorderedActions: false},
+      options: {
+        unorderedActions: false,
+      },
+    },
+  },
+  {
+    id: 'sub-messages-delivered-or-failed',
+    name: '(SUB) Messages Delivered or Failed',
+    tags: ['on-message-status-change', 'webhook', 'subscription'],
+    triggerEvents: ['app.message.statusRequest'],
+    description: 'Sends `messageDeliveredOrFailed` webhooks only for Delivered (`2`), Failed (`4`), and Channel Failed (`5`). Includes the Texter `messageId` matched to the first external ID, or `null` if absent from the latest 5 outgoing messages. The chat omits `crmData` and `previousBotSession`.',
+    configuration: [
+      {
+        field: 'Webhook URL',
+        location: 'actions[0].params.url',
+        description: 'Your endpoint that receives delivered and failed status events with the Texter messageId.',
+        required: true,
+      },
+    ],
+    relatedScenarios: ['sub-messages-failed-to-deliver', 'sub-message-status-changed'],
+    json: {
+      version: 'v1',
+      name: '(SUB) Messages Delivered or Failed',
+      description: 'Sends a webhook when an outgoing message is delivered or fails, including its Texter message ID',
+      triggerEvents: ['app.message.statusRequest'],
+      loaders: {
+        afterConditions: [
+          {
+            name: 'chat',
+            alias: 'chat',
+            params: {
+              name: '%messageStatusRequest:chat.name%',
+              accountId: '%messageStatusRequest:chat.accountId%',
+              idByChannel: '%messageStatusRequest:chat.id%',
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'chatMessages',
+            alias: 'messages',
+            params: {
+              chatId: '%chat:_id%',
+            },
+            confidentialData: false,
+          },
+          {
+            name: 'staticData',
+            alias: 'messageLookup',
+            params: {
+              data: {
+                externalId: '%messageStatusRequest:ids.0%',
+                messages: '%messages:latest(5,-1,"out")%',
+              },
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [
+        [
+          {
+            name: 'arrayIncludes',
+            params: {
+              array: [2, 4, 5],
+              values: ['%messageStatusRequest:status%'],
+              condType: 'Includes any',
+            },
+            confidentialData: false,
+          },
+        ],
+      ],
+      actions: [
+        {
+          name: 'request',
+          params: {
+            url: '{{yourWebhookURL}}',
+            method: 'post',
+            json: true,
+            data: {
+              eventName: 'messageDeliveredOrFailed',
+              eventData: {
+                chat: {
+                  '##provide': {
+                    provider: 'chat',
+                    key: 'chat',
+                    transform: [
+                      {
+                        name: 'omit',
+                        args: ['crmData', 'previousBotSession'],
+                      },
+                    ],
+                  },
+                },
+                messageId: {
+                  '##provide': {
+                    provider: 'messageLookup',
+                    key: 'data',
+                    keyArgs: [],
+                    transform: [
+                      {
+                        name: 'hbTpl',
+                        args: ['[{{#each messages}}{{#if ../externalId}}{{#when channelInfo.id \'eq\' ../externalId}}"{{_id}}",{{/when}}{{/if}}{{/each}}null]'],
+                      },
+                      {
+                        name: 'jsonParse',
+                        args: [],
+                      },
+                      {
+                        name: 'get',
+                        args: ['0'],
+                      },
+                    ],
+                  },
+                },
+                messageStatus: '%messageStatusRequest:status%',
+                error: '%messageStatusRequest:error%',
+                timestamp: '%messageStatusRequest:timestamp%',
+                externalId: '%messageStatusRequest:ids%',
+              },
+            },
+          },
+          confidentialData: false,
+        },
+      ],
+      options: {
+        unorderedActions: false,
+      },
     },
   },
   {
