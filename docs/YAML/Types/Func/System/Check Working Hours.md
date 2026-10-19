@@ -56,7 +56,7 @@ working_time:
 - `on_failure` next node if it is **not** working hours
 
 ### optional params
-- `params.type` selects a named working time schedule (when multiple are defined)
+- `params.type` selects a named working time schedule. If omitted, the check succeeds when any schedule matches.
 - `department` assigns the chat to a department
 - `agent` assigns the chat to a specific agent (email address or CRM ID as defined in the Texter agents manager)
 
@@ -232,7 +232,7 @@ working_time:
 ```
 
 :::tip
-Without `params.type`, the first schedule (typically `office`) is used by default. Use `params.type` to select a specific named schedule.
+Without `params.type`, `checkWorkingTime` checks all schedules in `working_time`. It follows `on_complete` if any schedule matches. Set `params.type` to `office` to check only office hours.
 :::
 
 :::tip

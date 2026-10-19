@@ -76,7 +76,7 @@ working_time:
 ```
 
 :::tip
-Use `checkWorkingTime` with `params.type` to select a named schedule. Without it, `office` is used by default.
+Without `params.type`, `checkWorkingTime` checks all schedules in `working_time`. It follows `on_complete` if any schedule matches. Set `params.type` to `office` to check only office hours.
 :::
 
 ___
