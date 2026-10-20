@@ -4,10 +4,35 @@
         <title>Texter Docs Blog</title>
         <link>https://docs.texterchat.com/changelog</link>
         <description>Texter Docs Blog</description>
-        <lastBuildDate>Mon, 14 Sep 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 20 Oct 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Rapid Payment Requests + Message Status Subscriptions]]></title>
+            <link>https://docs.texterchat.com/changelog/2026/10/20/rapid-payments-message-status</link>
+            <guid>https://docs.texterchat.com/changelog/2026/10/20/rapid-payments-message-status</guid>
+            <pubDate>Tue, 20 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Rapid appointment bookings can request payment, and message-status subscriptions now make delivery outcomes easier to track. Working-hours guidance also clarifies how named schedules are checked.]]></description>
+            <content:encoded><![CDATA[<p>Rapid appointment bookings can request payment, and message-status subscriptions now make delivery outcomes easier to track. Working-hours guidance also clarifies how named schedules are checked.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/10/20/rapid-payments-message-status#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong><a href="https://docs.texterchat.com/docs/YAML/Adapters/Rapid#scheduleappointment">Rapid payment requests</a></strong> — Optional payment requests when booking, with a commented recipe example. Requires service enablement in Rapid.</li>
+<li><strong><a href="https://docs.texterchat.com/scenarios">Messages Delivered or Failed</a></strong> — A subscription scenario that sends webhooks only when outgoing messages are delivered or fail.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/10/20/rapid-payments-message-status#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong><a href="https://docs.texterchat.com/docs/YAML/Types/Func/System/Check%20Working%20Hours">Working-hours guidance</a></strong> — Clarified that omitting <code>params.type</code> checks all schedules; select <code>office</code> to check office hours only.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/10/20/rapid-payments-message-status#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
+<ul>
+<li><strong><a href="https://docs.texterchat.com/scenarios">Message-status subscriptions</a></strong> — Webhooks include the matched Texter message ID when available and omit CRM data and previous bot sessions.</li>
+</ul>]]></content:encoded>
+            <category>adapters</category>
+            <category>scenarios</category>
+            <category>docs</category>
+            <category>yaml</category>
+        </item>
         <item>
             <title><![CDATA[Optima Adapter, Lead.IM Side-Panel Fields, Provet Full Client Details]]></title>
             <link>https://docs.texterchat.com/changelog/2026/09/14/optima-adapter-leadim-fields-provet-clients</link>
@@ -60,7 +85,7 @@
 <ul>
 <li><strong>Timed Template Follow-up</strong> — a capture + cron scenario pair that messages customers a set time after a chosen template is sent, regardless of whether they replied. Good for next-day check-ins, reminders, and nudges.</li>
 <li><strong>Passive Marketing</strong> — a capture + cron pair that flags chats sent a marketing template, then daily reassigns the still-passive ones to sales and updates the Rapid lead status. Replaces the older "Handle Passive Marketing Chats" scenario.</li>
-<li><strong>smart_resolved <code>on_abandoned</code></strong> — documented the options when a customer ignores the smart_resolved prompt: auto-resolve (default), hand off to a general agent, or return to the agent who resolved the chat.</li>
+<li><strong>smart_resolved <code>on_abandoned</code></strong> — documented the options when a customer ignores the smart_resolved prompt: auto-resolve (default) or hand off to a general agent.</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/06/24/followup-scenarios#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
 <ul>
@@ -422,21 +447,6 @@
 </ul>]]></content:encoded>
             <category>scenarios</category>
             <category>site</category>
-            <category>docs</category>
-            <category>yaml</category>
-        </item>
-        <item>
-            <title><![CDATA[Transformers — `get` Examples + API JSON Tip]]></title>
-            <link>https://docs.texterchat.com/changelog/2026/05/10/transformers-get</link>
-            <guid>https://docs.texterchat.com/changelog/2026/05/10/transformers-get</guid>
-            <pubDate>Sun, 10 May 2026 00:00:00 GMT</pubDate>
-            <description><![CDATA[The Data Injection Transformers page now highlights a practical get pattern for nested values inside JSON returned from API calls, and the crmData example shows a non-ASCII property key.]]></description>
-            <content:encoded><![CDATA[<p>The Data Injection <strong>Transformers</strong> page now highlights a practical <code>get</code> pattern for nested values inside JSON returned from API calls, and the <code>crmData</code> example shows a non-ASCII property key.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/10/transformers-get#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li><strong>Transformers (<code>get</code>)</strong> — new tip with a <code>jsonParse</code> → <code>get(...)</code> chain for drilling into API response strings, plus a short inline comment on the evaluated result.</li>
-<li><strong><code>crmData</code> example</strong> — uses a Hebrew field name so dot-path access with <code>get</code> reads clearly for localized CRM payloads.</li>
-</ul>]]></content:encoded>
             <category>docs</category>
             <category>yaml</category>
         </item>
