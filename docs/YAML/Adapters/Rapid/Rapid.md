@@ -941,6 +941,7 @@ Returns **free slots** for doctor + department + service. `datesRangeFrom` / `da
 | `doctorId`, `departmentId`, `serviceId` | Yes | Must match the selected slot/service. |
 | `quantity` | No | If omitted, `1`. |
 | `discount` | No | If omitted, `0`. |
+| `sendPaymentRequest` | No | `true` or `"true"` sends a payment request link via SMS/WhatsApp, as configured in Rapid. Rapid must enable payment requests for the environment and the selected service. |
 | *(service row)* | — | Matching `serviceId` must exist on `crmData.services`. |
 
 **Advanced** — quantity and discount:
@@ -958,6 +959,7 @@ Returns **free slots** for doctor + department + service. `datesRangeFrom` / `da
       serviceId: "%state:node.pick_service.crm_id%"
       quantity: 2
       discount: 10
+      sendPaymentRequest: true
     on_complete: booked_successfully
     on_failure: booking_error
 ```

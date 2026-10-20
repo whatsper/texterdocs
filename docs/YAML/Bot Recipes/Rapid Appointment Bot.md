@@ -1219,6 +1219,7 @@ A full appointment-scheduling bot for clinics on [Rapid](../Adapters/Rapid/Rapid
       serviceId: "%state:store.service.id%"
       # quantity: 2          # optional: number of service units (default 1), extends duration/price
       # discount: 10         # optional: discount on the service price (default 0)
+      # sendPaymentRequest: true  # optional: sends a request payment link in SMS/WhatsApp; must be enabled for the service in Rapid
     on_complete: booking_confirmed
     on_failure: booking_failed
 

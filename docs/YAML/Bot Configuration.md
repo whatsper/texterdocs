@@ -244,19 +244,18 @@ The `smart_resolved` node is normally a `prompt` that waits for the customer to 
 
 This case is **not** handled by `abandoned_bot_settings` (that retry/abandoned sequence no longer runs at this point). By default the chat is silently **auto-resolved**.
 
-If you don't want these chats to quietly close, so a returning customer doesn't get lost, set `on_abandoned` to `handoff` or `back_to_agent`:
+If you don't want these chats to quietly close, so a returning customer doesn't get lost, set `on_abandoned` to `handoff`:
 
 ```yaml
 smart_resolved:
   node: smart_resolved
-  on_abandoned: back_to_agent
+  on_abandoned: handoff
 ```
 
 | Value | Behavior when the node is abandoned |
 |---|---|
 | `resolved` *(default)* | Chat is auto-resolved |
 | `handoff` | Chat is moved to PENDING for a **general** agent (not necessarily the one who resolved it) |
-| `back_to_agent` | Chat is moved to PENDING and assigned back to the agent who resolved it (same as the `back_to_agent` choice action) |
 
 ___
 
