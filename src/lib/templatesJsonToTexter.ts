@@ -412,6 +412,41 @@ function countLocalizations(template: TemplateInput): number {
   return Array.isArray(locs) ? locs.length : 0;
 }
 
+function buildLocalizationPayload(
+  template: TemplateInput,
+  localization: Record<string, unknown>
+): Record<string, unknown> {
+  const {language, components} = localization;
+  const defaults = typeof language === 'string' && isRecord(template.defaults)
+    ? template.defaults[language]
+    : undefined;
+  const payload: Record<string, unknown> = {language, components};
+
+  // Omitting defaults lets the server derive them from examples for older exports.
+  if (!isRecord(defaults)) return payload;
+  payload.defaults = defaults;
+
+  const header = defaults.header;
+  if (!isRecord(header) || typeof header.url !== 'string' || !header.url.trim()
+    || !Array.isArray(components)) return payload;
+
+  // Approval downloads the example separately, so it needs the saved URL too.
+  payload.components = components.map((component) => {
+    if (!isRecord(component) || component.type !== 'HEADER'
+      || (component.format !== 'IMAGE' && component.format !== 'VIDEO'
+        && component.format !== 'DOCUMENT')) return component;
+
+    return {
+      ...component,
+      example: {
+        ...(isRecord(component.example) ? component.example : {}),
+        header_handle: [header.url],
+      },
+    };
+  });
+  return payload;
+}
+
 /**
  * Pre-compute progress totals so the UI can render full-width bars from step 0.
  * For phases that operate per template, we count one step per template even if
@@ -679,7 +714,6 @@ export async function runTemplatesImport(
         continue;
       }
       const language = loc.language;
-      const components = loc.components;
 
       await maybeDelay();
       let locAbortErr: Error | null = null;
@@ -688,7 +722,8 @@ export async function runTemplatesImport(
       try {
         log(`Adding localization ${apiName} (${String(language)})`);
         const url = `${base}/whatsapp/templates/${encodeURIComponent(accountId)}/${encodeURIComponent(apiName)}/localizations`;
-        const res = await postJson(proxyUrl, url, key, {language, components}, signal);
+        const payload = buildLocalizationPayload(template, loc);
+        const res = await postJson(proxyUrl, url, key, payload, signal);
         lastWasCall = true;
         log('Localization added.');
         localizationResults.push({name: apiName, status: 'success', response: res});
