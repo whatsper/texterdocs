@@ -44,6 +44,7 @@ export const ACTION_DISPLAY: Record<string, string> = {
   chatUpdateExternalBot: 'Set External Bot',
   setData: 'Set Data Item',
   deleteData: 'Delete Data Item',
+  chatResolve: 'Resolve Chat',
 };
 
 export const SCENARIOS: Scenario[] = [
@@ -3753,6 +3754,82 @@ export const SCENARIOS: Scenario[] = [
             type: 'foreach',
             as: 'item',
             input: {'##provide': {provider: 'stored', key: 'items'}},
+            confidentialData: false,
+            foreachMode: 'parallel',
+            concurency: 10,
+          },
+          position: 'beforeConditions',
+        },
+      ],
+      options: {unorderedActions: false},
+    },
+  },
+  // ── Manual maintenance scenarios ────────────────────────────────────────────
+  {
+    id: 'bulk-resolve-agent-chats',
+    name: 'Bulk Resolve Chats of an Agent',
+    tags: ['on-subscribe', 'resolve-chat'],
+    triggerEvents: ['domain.chat.subscribed'],
+    description:
+      'Run manually to resolve every chat still assigned to one agent, for example after the agent left the company and many chats stay open under their name. The trigger is arbitrary: to start a run manually, unsubscribe any chat and then subscribe it again. Each run resolves up to `limit` chats (max 1000), so repeat until none remain. Each resolve fires your Chat Resolved scenarios. Disable when done.',
+    configuration: [
+      {
+        field: 'Agent User ID',
+        location: 'loaders.beforeConditions[0].params.filters[0].agent[0]',
+        description:
+          'The agent\'s Texter user ID (`uid`), from `GET /api/v2/users` or `agent.uid` on one of their chats. Add more IDs to clean up several agents.',
+        required: true,
+      },
+      {
+        field: 'Batch Size',
+        location: 'loaders.beforeConditions[0].params.limit',
+        description:
+          'Chats resolved per run. Default **100**, maximum **1000**. Keep `skip` at `0`.',
+        required: false,
+      },
+    ],
+    json: {
+      version: 'v1.1',
+      name: 'Bulk Resolve Chats of an Agent',
+      triggerEvents: ['domain.chat.subscribed'],
+      loaders: {
+        beforeConditions: [
+          {
+            name: 'chatsList',
+            alias: 'chats',
+            params: {
+              limit: 100,
+              skip: 0,
+              filters: [
+                {
+                  status: ['ASSIGNED'],
+                  channel: [],
+                  department: [],
+                  agent: ['{{agentUserId}}'],
+                  labels: {include: [], exclude: []},
+                },
+              ],
+            },
+            confidentialData: false,
+          },
+        ],
+      },
+      conditions: [],
+      actions: [
+        {
+          name: 'chatResolve',
+          params: {
+            chatId: {'##provide': {provider: 'chat', key: '_id'}},
+          },
+          confidentialData: false,
+        },
+      ],
+      loops: [
+        {
+          loop: {
+            type: 'foreach',
+            as: 'chat',
+            input: {'##provide': {provider: 'chats', key: 'chats'}},
             confidentialData: false,
             foreachMode: 'parallel',
             concurency: 10,

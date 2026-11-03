@@ -62,6 +62,7 @@ const ACTION_ICONS: Record<string, ReactNode> = {
   'Set External Bot': <Bot {...L13} />,
   'Set Data Item': <Database {...L13} />,
   'Delete Data Item': <Trash2 {...L13} />,
+  'Resolve Chat': <CircleCheck {...L13} />,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

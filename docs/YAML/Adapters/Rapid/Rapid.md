@@ -12,6 +12,7 @@ sidebar_position: 1
 - [Customers / patients API](https://rapidone.atlassian.net/wiki/external/NzcyYzJkZmNmY2E5NDlhY2IyMTg5OWJhMDVmNDA1OWU)
 - [Financial documents API](https://rapidone.atlassian.net/wiki/external/MTc1OThiNTdjMWE5NDNlMjg1OGE4MWYwZTU2YzgxMzQ)
 - [Lead events](https://rapidone.atlassian.net/wiki/external/NjE3NmVjMzlkYzMzNGYxYzk5ZWZkNGFiZDk0NzhmYTI) — use [`request`](#lead-events-importevent) (**no** `func_id`).
+- [Tickets (Swagger)](https://api.rapid-image.net/#/Tickets/post_gateway_ticket) — use [`request`](#create-ticket-gateway) (**no** `func_id`).
 
 ---
 
@@ -176,6 +177,8 @@ Leads created outside the bot need `leadExternalId` (**must** be this exact key 
 Opens a **ticket** in Rapid with the **recent conversation** as the message body.
 
 **When it runs:** To log a support inquiry alongside the chat transcript.
+
+To set the `CardCode`, reason, urgency or assignee, use the [Create ticket request](#create-ticket-gateway) instead.
 
 **Basic**
 
@@ -1154,6 +1157,116 @@ Example ids (illustrative only — **use values from your tenant**): `eventTypeI
         LeadExternalID: "%chat:crmData.leadExternalId%"
     on_complete: after_event
     on_failure: after_event
+```
+
+---
+
+### Create ticket (`/gateway/ticket`) {#create-ticket-gateway}
+
+**Not** a CRM `func_id`. Opens a ticket on an existing Rapid customer or lead per Rapid's [**Create a Ticket** API](https://api.rapid-image.net/#/Tickets/post_gateway_ticket) (older field list: [Create Ticket API](https://rapidone.atlassian.net/wiki/external/NTlmYmUyZDUxNTYyNGJlNzliZDlmMGFlYzNiMTU0OTY)). Use [`request`](/docs/YAML/Types/Func/System/Request).
+
+Use it instead of [`openTicket`](#openticket) when you need more control. `openTicket` calls an older Rapid endpoint: it identifies the customer by phone only, with a fixed title (`פניה מוואטסאפ`) and department `1`. This request targets the `CardCode` directly and can set the reason, urgency, assignee and title.
+
+**Endpoint:** `POST {base}/gateway/ticket`. Use your Rapid `server` as `{base}`.
+
+**Authorization:** `ExternalClient <token>`. `<token>` is the same token as `crmConfig.rapid_token` (paste in YAML; the `request` node does **not** read CRM config by itself). Set `json: true` to send the body as JSON (it also sets `Content-Type: application/json`).
+
+**Prerequisite:** `crmData.cardCode` on the chat, set by [`getCustomerDetails`](#getcustomerdetails) (or `createUpdateCustomer`).
+
+:::note IDs from the Rapid customer
+
+`reasonId`, `openReasonId`, `departmentID` and `assignedToID` are **tenant-specific** ids defined in Rapid. The **Rapid customer** must provide the correct ids for your bot. Rapid returns `400` and creates **no** ticket if `reasonId` or `openReasonId` does not exist.
+
+:::
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `CardCode` | string | **Yes** | Customer or lead code, e.g. `%chat:crmData.cardCode%`. |
+| `title` | string | **Yes** | Ticket title. |
+| `fullName` | string | No | Name of the person creating the ticket. |
+| `comment` | string | No | Description. Use `\n` for line breaks (supported on recent Rapid versions). HTML is **not** rendered. |
+| `phone` | string | No | Customer phone, e.g. `058-650-3100`. |
+| `email` | string | No | Email address. |
+| `departmentID` | int | No | Department to assign the ticket to. |
+| `assignedToID` | int | No | Rapid user to assign the ticket to. |
+| `attachments` | array | No | Files as base64 objects. Rapid does not document the object shape, so confirm it with Rapid before use. |
+| `openedBy` | string | No | Source or name of who opened the ticket, e.g. `טקסטר`. |
+| `reasonId` | int | No* | Ticket **Reason** field. *Recommended: some Rapid versions reject tickets sent without a reason. |
+| `openReasonId` | int | No | Ticket **Open reason** field. Omit to leave it blank. |
+| `ticketUrgency` | string | No | **Urgency** field, e.g. `Normal`, `High`, `Low`. |
+| `customerSays` | string | No | **Customer says** field, in addition to `comment`. HTML tags are stripped. |
+| `response` | string | No | **Response** field: an initial staff response. |
+
+**Response** (with `keepResponse: true`): `{ "status": "success", "entityID": 45678 }`. The new ticket id is at `%state:node.<node_name>.response.entityID%`.
+
+:::warning Check the status code
+
+The `request` node goes to `on_complete` on **any** HTTP response, including `400` and `401`. `on_failure` runs only when the request itself fails (network error, timeout). To act on a rejected ticket, branch on `%state:node.<node_name>.statusCode%` with a [`switchNode`](/docs/YAML/Types/Func/System/Switch%20Node).
+
+:::
+
+**Example** (chat transcript of the current bot session as the comment):
+
+```yaml
+  register_ticket_in_rapid:
+    type: func
+    func_type: system
+    func_id: request
+    params:
+      url: "https://<your-rapid-host>/gateway/ticket"
+      method: "post"
+      json: true
+      keepResponse: true
+      headers:
+        Authorization: "ExternalClient <rapid_token>"
+      data:
+        CardCode: "%chat:crmData.cardCode%"
+        title: "פנייה מוואטסאפ - %chat:title%"
+        openedBy: "טקסטר"
+        reasonId: "%state:store.open_reason_id%"
+        comment: |
+          %messages:botSession|reverse|hbTpl("
+          {{#each .}}
+          {{#when direction 'eq' 'incoming'}}
+          [{{date timestamp}}] {{provide 'chat' 'title'}}:
+          {{#if text}}{{text}}{{else if postback.title}}{{postback.title}}{{else}}{{postback.payload}}{{/if}}\n\n
+          {{/when}}
+          {{/each}}
+          ")%
+    on_complete: handoff
+```
+
+**All fields:**
+
+```yaml
+  register_ticket_in_rapid_full:
+    type: func
+    func_type: system
+    func_id: request
+    params:
+      url: "https://<your-rapid-host>/gateway/ticket"
+      method: "post"
+      json: true
+      keepResponse: true
+      headers:
+        Authorization: "ExternalClient <rapid_token>"
+      data:
+        CardCode: "%chat:crmData.cardCode%"
+        title: "פנייה מוואטסאפ - %chat:title%"
+        fullName: "%chat:title%"
+        comment: "Summary line 1\nSummary line 2"
+        phone: "058-650-3100"
+        email: "user@example.com"
+        departmentID: 1
+        assignedToID: 12
+        openedBy: "טקסטר"
+        reasonId: 2
+        openReasonId: 5
+        ticketUrgency: "High"
+        customerSays: "%state:node.ask_issue.text%"
+        response: "Thank you, we will get back to you shortly"
+    on_complete: check_ticket_status
+    on_failure: handoff
 ```
 
 ---
