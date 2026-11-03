@@ -2,11 +2,32 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://docs.texterchat.com/changelog</id>
     <title>Texter Docs Blog</title>
-    <updated>2026-10-20T00:00:00.000Z</updated>
+    <updated>2026-11-03T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://docs.texterchat.com/changelog"/>
     <subtitle>Texter Docs Blog</subtitle>
     <icon>https://docs.texterchat.com/img/favicon.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Bulk Resolve Scenario + Rapid Ticket Request]]></title>
+        <id>https://docs.texterchat.com/changelog/2026/11/03/bulk-resolve-rapid-tickets</id>
+        <link href="https://docs.texterchat.com/changelog/2026/11/03/bulk-resolve-rapid-tickets"/>
+        <updated>2026-11-03T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[A new marketplace scenario resolves every chat still assigned to one agent, and the Rapid page documents a full-control ticket request. Template import also keeps saved media headers.]]></summary>
+        <content type="html"><![CDATA[<p>A new marketplace scenario resolves every chat still assigned to one agent, and the Rapid page documents a full-control ticket request. Template import also keeps saved media headers.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/11/03/bulk-resolve-rapid-tickets#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
+<ul>
+<li><strong><a href="https://docs.texterchat.com/scenarios">Bulk Resolve Chats of an Agent</a></strong>: a manual scenario that resolves all chats still assigned to one agent, for example after the agent left. Runs in batches of up to 1000.</li>
+<li><strong><a href="https://docs.texterchat.com/docs/YAML/Adapters/Rapid#create-ticket-gateway">Rapid Create ticket request</a></strong>: open a Rapid ticket on a customer or lead with a <code>request</code> node, and set the reason, urgency, assignee and title.</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/11/03/bulk-resolve-rapid-tickets#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
+<ul>
+<li><strong><a href="https://docs.texterchat.com/docs/templates-import-export">Template JSON import</a></strong>: imports keep each template's saved defaults, so image, video and document headers pass approval with their media.</li>
+</ul>]]></content>
+        <category label="scenarios" term="scenarios"/>
+        <category label="adapters" term="adapters"/>
+        <category label="docs" term="docs"/>
+        <category label="site" term="site"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Rapid Payment Requests + Message Status Subscriptions]]></title>
         <id>https://docs.texterchat.com/changelog/2026/10/20/rapid-payments-message-status</id>
@@ -414,38 +435,6 @@
 <li><strong>Data Injection Providers</strong> — documents <code>state:node</code> paths for data-storage node outputs.</li>
 <li><strong>Parse CRM Data</strong> — points to <code>updateCrmData</code> when you need structured writes beyond regex capture.</li>
 </ul>]]></content>
-        <category label="docs" term="docs"/>
-        <category label="yaml" term="yaml"/>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Multi-Select Filters + Mobile Nav Fixes]]></title>
-        <id>https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes</id>
-        <link href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes"/>
-        <updated>2026-05-11T00:00:00.000Z</updated>
-        <summary type="html"><![CDATA[The Scenario Marketplace tag filter is now multi-select with OR by default and an explicit Match all toggle for AND; the mobile hamburger drawer covers the viewport cleanly on phones; and the landing page no longer churns on 120 Hz Macs.]]></summary>
-        <content type="html"><![CDATA[<p>The Scenario Marketplace tag filter is now multi-select with OR by default and an explicit <strong>Match all</strong> toggle for AND; the mobile hamburger drawer covers the viewport cleanly on phones; and the landing page no longer churns on 120 Hz Macs.</p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="added">Added<a href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes#added" class="hash-link" aria-label="Direct link to Added" title="Direct link to Added">​</a></h2>
-<ul>
-<li><strong>Multi-select scenario filters</strong> — pick more than one tag; matching defaults to OR (any selected tag) with a <strong>Match all</strong> checkbox that switches to AND when 2+ tags are active. An active-filters strip below the chip row shows the current selection with <code>×</code> removable chips and a one-click <strong>Clear all</strong>.</li>
-<li><strong>Q-AI: Disable External Bot On Pending Chat</strong> — 7th scenario in the Q-AI suite. Fires when a chat is set to pending (e.g. an agent reassigns to another agent during an AI session) and ends the AI handoff cleanly.</li>
-<li><strong>Remember Last Agent on Chat Assigned</strong> — writes the assigned agent's UID and display name into the <code>ChatsLastAgent</code> data storage collection so a bot or follow-up scenario can route the next inbound message back to the same agent. Configurable collection name, TTL (max 7 days), and stored fields.</li>
-<li><strong><code>data-storage</code> tag</strong> — applied to every scenario that reads or writes data storage (the SLA suite, plus the new last-agent scenario), so the marketplace filter can surface them as a group.</li>
-<li><strong><code>preserveOriginalAttachmentFilenames</code></strong> — new <code>sendEmail</code> parameter. When <code>true</code>, email attachments use the original uploaded filename (falling back to the file's stored <code>originalName</code>, then to the message caption) instead of the chat caption. A new <strong>Attachment filenames</strong> section in the Send Mail page documents the behavior.</li>
-<li><strong><code>parseJson</code> transformer alias</strong> — accepted as a synonym for <code>jsonParse</code>. Both names work identically.</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="improved">Improved<a href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes#improved" class="hash-link" aria-label="Direct link to Improved" title="Direct link to Improved">​</a></h2>
-<ul>
-<li><strong>Filtered scenarios sort alphabetically</strong> — the marketplace still shuffles for discovery when no filters are applied, but as soon as a search query or tag is active the list switches to alphabetical order.</li>
-<li><strong>Send Mail params layout</strong> — required and optional parameter lists are now tables with a dedicated <strong>Default</strong> column for optional params, matching the tables used elsewhere on the page.</li>
-<li><strong>Landing page performance</strong> — removed a hero background animation that was causing scroll lag on 120 Hz Macs. All static visuals (gradient, glow, grid lines) are unchanged.</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fixed">Fixed<a href="https://docs.texterchat.com/changelog/2026/05/11/filters-mobile-fixes#fixed" class="hash-link" aria-label="Direct link to Fixed" title="Direct link to Fixed">​</a></h2>
-<ul>
-<li><strong>Sticky navbar</strong> — the top navigation no longer disappears when scrolling.</li>
-<li><strong>Mobile hamburger drawer</strong> — multiple bugs resolved on phones: the drawer now has an opaque background instead of bleeding through to the navbar, covers the full viewport width (previously left a strip of the page visible on the right), and its secondary sub-menu panel slides in cleanly over the primary one (previously left a gap on the side).</li>
-</ul>]]></content>
-        <category label="scenarios" term="scenarios"/>
-        <category label="site" term="site"/>
         <category label="docs" term="docs"/>
         <category label="yaml" term="yaml"/>
     </entry>
