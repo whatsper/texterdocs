@@ -8,7 +8,7 @@ Most CRMs and platforms already have built-in adapter functions (`func_type: crm
 
 | Platform | API Docs |
 |----------|----------|
-| **Texter** | [apidocs.texterchat.com](https://apidocs.texterchat.com) |
+| **Texter** | [help.texterchat.com/api-reference](https://help.texterchat.com/api-reference/introduction) |
 | **Airtable** | [airtable.com/developers/web/api](https://airtable.com/developers/web/api/introduction) |
 | **Arbox** | [arboxserver.arboxapp.com/docs/api](https://arboxserver.arboxapp.com/docs/api#/) |
 | **HubSpot** | [developers.hubspot.com/docs/api](https://developers.hubspot.com/docs/api/overview) |

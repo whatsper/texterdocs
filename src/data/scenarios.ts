@@ -1314,7 +1314,7 @@ export const SCENARIOS: Scenario[] = [
     triggerEvents: ['domain.channel.health.problem.created'],
     relatedScenarios: ['sub-channel-health-problem-resolved', 'alert-new-account-issue'],
     description:
-      'Sends a webhook when a new channel health problem is detected on a WhatsApp account (e.g. send/receive impairment, rate-limit warnings, account suspension). Forward to a monitoring system, on-call paging tool, or Slack/Teams to react to outages in real time. See [problem object](https://apidocs.texterchat.com/#probelm-object) for the payload schema.',
+      'Sends a webhook when a new channel health problem is detected on a WhatsApp account (e.g. send/receive impairment, rate-limit warnings, account suspension). Forward to a monitoring system, on-call paging tool, or Slack/Teams to react to outages in real time. See [problem object](https://help.texterchat.com/api-reference/objects/problem) for the payload schema.',
     configuration: [
       {
         field: 'Webhook URL',
@@ -1359,7 +1359,7 @@ export const SCENARIOS: Scenario[] = [
     triggerEvents: ['domain.channel.health.problem.resolved'],
     relatedScenarios: ['sub-channel-health-problem-created'],
     description:
-      'Sends a webhook when a previously detected channel health problem is resolved (the channel is healthy again). Pairs with `(SUB) Channel Health Problem Created` to close out incidents in your monitoring/paging system. The `problem.resolvedAt` field will be populated. See [problem object](https://apidocs.texterchat.com/#probelm-object) for the payload schema.',
+      'Sends a webhook when a previously detected channel health problem is resolved (the channel is healthy again). Pairs with `(SUB) Channel Health Problem Created` to close out incidents in your monitoring/paging system. The `problem.resolvedAt` field will be populated. See [problem object](https://help.texterchat.com/api-reference/objects/problem) for the payload schema.',
     configuration: [
       {
         field: 'Webhook URL',

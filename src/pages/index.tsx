@@ -24,7 +24,7 @@ function HomepageHeader() {
           </Link>
           <Link
             className={clsx('button button--outline button--lg', styles.secondaryCta)}
-            href="https://apidocs.texterchat.com"
+            href="https://help.texterchat.com/api-reference/introduction"
           >
             API Docs <span className={styles.ctaExternal} aria-hidden="true">↗</span>
           </Link>

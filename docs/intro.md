@@ -50,7 +50,7 @@ Links to the Texter API docs and all supported CRM/third-party platform document
 | Resource | Link |
 |----------|------|
 | Texter Home | [www.texterchat.com](https://www.texterchat.com) |
-| Texter API Docs | [apidocs.texterchat.com](https://apidocs.texterchat.com) |
+| Texter API Docs | [help.texterchat.com/api-reference](https://help.texterchat.com/api-reference/introduction) |
 | Bot YAML | [Get started →](/docs/YAML/Overview) |
 | Q-AI Bot | [Meet the AI assistant →](/docs/q-ai-bot) |
 | Scenario Marketplace | [Browse scenarios →](/scenarios) |

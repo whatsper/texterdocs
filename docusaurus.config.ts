@@ -156,7 +156,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://apidocs.texterchat.com',
+          href: 'https://help.texterchat.com/api-reference/introduction',
           label: 'API Docs',
           position: 'right',
         },
