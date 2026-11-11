@@ -22,7 +22,8 @@ For integrating an AI bot (external bot) with Texter — paste this snippet as p
     func_type: chat
     func_id: externalBot
     on_complete: back_to_texter
-    
+  
+  # Do not change the name of the node
   back_to_texter:
     type: func
     func_type: system
