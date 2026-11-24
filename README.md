@@ -4,7 +4,7 @@ Public documentation site for **Texter** bot YAML (Docusaurus 3, GitHub Pages).
 
 Live: [docs.texterchat.com](https://docs.texterchat.com/)
 
-## Commands
+## Commands 
 
 ```bash
 npm install
